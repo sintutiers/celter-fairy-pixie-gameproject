@@ -46,7 +46,7 @@ var _last_land_frame: int = -1
 var _coyote_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
 var _jumps_used: int = 0
-var _current_motion: StringName = Motions.IDLE
+var _current_motion: StringName = Animations.IDLE
 var _dash_timer: float = 0.0
 var _dash_cooldown_timer: float = 0.0
 var _dashes_used: int = 0
@@ -219,13 +219,13 @@ func _apply_horizontal(delta: float, input_dir: Vector2, is_running: bool, speed
 func _update_current_motion(on_ground: bool, input_dir: Vector2, is_running: bool) -> void:
 	var motion: StringName
 	if not input_dir.is_zero_approx() and _is_on_wall():
-		motion = Motions.PUSH
+		motion = Animations.PUSH
 	elif is_running and not input_dir.is_zero_approx():
-		motion = Motions.RUN
+		motion = Animations.RUN
 	elif not input_dir.is_zero_approx():
-		motion = Motions.WALK
+		motion = Animations.WALK
 	else:
-		motion = Motions.IDLE
+		motion = Animations.IDLE
 
 	if motion == _current_motion:
 		return
@@ -469,7 +469,7 @@ func _on_crouch_physics(delta: float) -> void:
 
 func _after_crouch() -> void:
 	var input_dir: Vector2 = _move_input()
-	var motion: StringName = Motions.CROUCH_WALK if not input_dir.is_zero_approx() else Motions.CROUCH_IDLE
+	var motion: StringName = Animations.CROUCH_WALK if not input_dir.is_zero_approx() else Animations.CROUCH_IDLE
 	if motion != _current_motion:
 		_current_motion = motion
 		ground_motion_changed.emit(motion)

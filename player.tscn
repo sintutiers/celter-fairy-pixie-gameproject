@@ -25,7 +25,6 @@
 [ext_resource type="Script" uid="uid://cf1nsco3w0mf6" path="res://addons/godot_state_charts/transition.gd" id="9_3vq1g"]
 [ext_resource type="Texture2D" uid="uid://bl76yu16ti2xj" path="res://The Amazing Art and Sound Folder/archive/mainplayerrun_erin_FIX_DEAN.png" id="10_judl8"]
 [ext_resource type="Texture2D" uid="uid://bxot3r8qgddga" path="res://The Amazing Art and Sound Folder/archive/player shoot 2H 48x48.png" id="11_3vrwl"]
-[ext_resource type="Script" uid="uid://ccv1q2cdjiacc" path="res://scripts/ARCHIVE SCRIPTS/components/launch_component.gd" id="11_mr2x2"]
 [ext_resource type="Texture2D" uid="uid://ir82d107vogr" path="res://The Amazing Art and Sound Folder/archive/Player Running Shooting 48x48.png" id="12_3vrwl"]
 [ext_resource type="Script" uid="uid://c04nw515cb8mx" path="res://scripts/ARCHIVE SCRIPTS/components/vfx_component.gd" id="19_1rckg"]
 [ext_resource type="PackedScene" path="res://misc shit for dean/JumpDust.tscn" id="20_vrrwq"]
@@ -1069,10 +1068,6 @@ metadata/_custom_type_script = "uid://cfxp2t1o4nm1s"
 script = ExtResource("2_68xwl")
 metadata/_custom_type_script = "uid://clhg7apuc3ldq"
 
-[node name="LaunchComponent" type="Node" parent="." unique_id=143997192]
-script = ExtResource("11_mr2x2")
-metadata/_custom_type_script = "uid://ccv1q2cdjiacc"
-
 [node name="InteractComponent" type="Node" parent="." unique_id=331137762]
 script = ExtResource("3_m5ugi")
 metadata/_custom_type_script = "uid://kb1gt4lu1sxw"
@@ -1240,25 +1235,6 @@ metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
 script = ExtResource("9_3vq1g")
 to = NodePath("../../Air")
 event = &"fall"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="Launch" type="Node" parent="StateChart/CompoundState" unique_id=700901536]
-unique_name_in_owner = true
-script = ExtResource("4_wwvfn")
-metadata/_custom_type_script = "uid://cytafq8i1y8qm"
-
-[node name="Transition" type="Node" parent="StateChart/CompoundState/Launch" unique_id=281051714]
-script = ExtResource("9_3vq1g")
-to = NodePath("../../Air")
-event = &"launch_end"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="Transition" type="Node" parent="StateChart/CompoundState" unique_id=27892310]
-script = ExtResource("9_3vq1g")
-to = NodePath("../Launch")
-event = &"launch"
 delay_in_seconds = "0.0"
 metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
 

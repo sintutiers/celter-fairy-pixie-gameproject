@@ -1102,25 +1102,6 @@ event = &"fall"
 delay_in_seconds = "0.0"
 metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
 
-[node name="Launch" type="Node" parent="StateChart/CompoundState" unique_id=114701183]
-unique_name_in_owner = true
-script = ExtResource("7_uyr7x")
-metadata/_custom_type_script = "uid://cytafq8i1y8qm"
-
-[node name="Transition" type="Node" parent="StateChart/CompoundState/Launch" unique_id=820343167]
-script = ExtResource("8_upqmt")
-to = NodePath("../../Air")
-event = &"launch_end"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="Transition" type="Node" parent="StateChart/CompoundState" unique_id=80360864]
-script = ExtResource("8_upqmt")
-to = NodePath("../Launch")
-event = &"launch"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
 [node name="NetSyncComponent" type="Node" parent="." unique_id=3750471]
 script = ExtResource("28_ejpuu")
 metadata/_custom_type_script = "uid://ejkwp3ydv186"

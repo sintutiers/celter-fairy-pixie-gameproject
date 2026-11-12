@@ -18,7 +18,7 @@ var _is_airborne: bool = false
 var _is_landing: bool = false
 # Tumbling (airspin) must not be replaced by the falling loop.
 var _is_tumbling: bool = false
-var _pending_ground_motion: StringName = Motions.IDLE
+var _pending_ground_motion: StringName = Animations.IDLE
 var _flip_tween: Tween
 var _base_scale_x: float = 1.0
 
@@ -56,7 +56,7 @@ func _play_air(animation: StringName, tumbling: bool = false) -> void:
 func _on_ground_motion_changed(motion: StringName) -> void:
 	if _is_landing:
 		# Moving cuts the landing short, anything else waits for it to finish.
-		if motion == Motions.WALK or motion == Motions.RUN:
+		if motion == Animations.WALK or motion == Animations.RUN:
 			_is_landing = false
 			sprite.play(motion)
 			return
