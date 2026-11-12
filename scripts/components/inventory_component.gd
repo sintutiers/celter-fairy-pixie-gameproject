@@ -48,11 +48,11 @@ func add(item: ItemData, count: int = 1) -> bool:
 	if not item:
 		return false
 	if not can_carry(item, count):
-		_log("no room for %s" % _id(item))
+		_log("no room for %s" % item.id())
 		add_failed.emit(item)
 		return false
 	items[item] = items.get(item, 0) + count
-	_log("+%d %s" % [count, _id(item)])
+	_log("+%d %s" % [count, item.id()])
 	item_added.emit(item, count)
 	return true
 
@@ -64,7 +64,7 @@ func remove(item: ItemData, count: int = 1) -> bool:
 	items[item] -= count
 	if items[item] <= 0:
 		items.erase(item)
-	_log("-%d %s" % [count, _id(item)])
+	_log("-%d %s" % [count, item.id()])
 	return true
 
 
@@ -74,7 +74,7 @@ func remove(item: ItemData, count: int = 1) -> bool:
 func use(item: ItemData) -> bool:
 	if not has(item):
 		return false
-	_log("used %s" % _id(item))
+	_log("used %s" % item.id())
 	if sanity and item.sanity_restore != 0.0:
 		sanity.add(item.sanity_restore)
 	if item.consumed_on_use:
@@ -102,11 +102,6 @@ func _on_setup() -> void:
 func _log(message: String) -> void:
 	if debug:
 		print("[inv] %s (slots %d/%d)" % [message, slots_used(), max_slots])
-
-
-# The id is the .tres file name, same as in .dialogue files.
-func _id(item: ItemData) -> String:
-	return item.resource_path.get_file().get_basename()
 
 
 func _slots_for(item: ItemData, count: int) -> int:

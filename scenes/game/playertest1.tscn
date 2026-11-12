@@ -976,16 +976,6 @@ script = ExtResource("6_lcmaj")
 initial_state = NodePath("Ground")
 metadata/_custom_type_script = "uid://jk2jm1g6q853"
 
-[node name="Move" type="Node" parent="StateChart/CompoundState" unique_id=1408744912]
-unique_name_in_owner = true
-script = ExtResource("7_uyr7x")
-metadata/_custom_type_script = "uid://cytafq8i1y8qm"
-
-[node name="Interact" type="Node" parent="StateChart/CompoundState" unique_id=767101834]
-unique_name_in_owner = true
-script = ExtResource("7_uyr7x")
-metadata/_custom_type_script = "uid://cytafq8i1y8qm"
-
 [node name="Ground" type="Node" parent="StateChart/CompoundState" unique_id=1572636441]
 unique_name_in_owner = true
 script = ExtResource("7_uyr7x")

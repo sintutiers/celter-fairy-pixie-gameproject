@@ -7,7 +7,7 @@
 ## returns. Nothing new starts while one is running.
 ## The lock lives here, not in the state chart. Movement and sanity listen to
 ## [signal interact_started], [signal interact_ended] and [member is_locked].
-## Dependencies (input_component, state_chart, body) are injected by the body.
+## Dependencies (input_component, body) are injected by the body.
 class_name InteractionComponent
 extends Component
 
@@ -20,7 +20,6 @@ signal interact_ended
 @export var interact_radius: float = 2.0
 
 var input_component: InputComponent
-var state_chart: StateChart
 var body: Node3D
 
 ## True during a locking interaction.
@@ -43,8 +42,7 @@ func _physics_process(_delta: float) -> void:
 
 
 func _on_setup() -> void:
-	var deps := { "body": body, "input_component": input_component, "state_chart": state_chart }
-	if not _require(deps):
+	if not _require({ "body": body, "input_component": input_component }):
 		set_physics_process(false)
 
 
@@ -57,14 +55,12 @@ func _interact() -> void:
 	_busy = true
 	if locks:
 		_set_locked(true)
-		state_chart.send_event(StateEvents.INTERACT)
 	await target.run(body)
 	# The press that closed the dialogue can still be latched as a press. Wait it
 	# out so it does not restart the interaction.
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	if locks:
-		state_chart.send_event(StateEvents.INTERACT_END)
 		_set_locked(false)
 	_busy = false
 

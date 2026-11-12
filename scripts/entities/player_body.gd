@@ -83,7 +83,6 @@ func _wire_components() -> void:
 	if interaction:
 		interaction.body = self
 		interaction.input_component = input
-		interaction.state_chart = state_chart
 	if animation:
 		animation.sprite = sprite
 		animation.movement = movement

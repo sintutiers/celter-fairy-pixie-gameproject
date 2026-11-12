@@ -40,7 +40,6 @@ func _on_setup() -> void:
 	movement.wall_slid.connect(_on_wall_slid)
 	movement.fell_from_wall.connect(_on_airspin)
 	movement.dashed.connect(_on_dashed)
-	movement.dash_ended.connect(_on_dash_ended)
 	movement.started_falling.connect(_on_started_falling)
 	facing.flipped.connect(_on_flipped)
 	sprite.flip_h = not facing.default_facing_right
@@ -89,10 +88,6 @@ func _on_wall_slid() -> void:
 
 func _on_dashed() -> void:
 	_play_air(Animations.DASH)
-
-
-func _on_dash_ended() -> void:
-	sprite.play(Animations.FALL)
 
 
 func _on_landed(motion: StringName) -> void:

@@ -25,7 +25,6 @@ signal started_falling
 signal wall_slid
 signal fell_from_wall
 signal dashed
-signal dash_ended
 
 ## Ignore input during interactions (see [InteractionComponent]).
 @export var locks_during_interact: bool = true
@@ -278,16 +277,16 @@ func _try_dash() -> bool:
 	return _frame().dash_pressed
 
 
-func _land(reset_jumps: bool = false) -> void:
+# Refills jumps and dashes, whatever state the landing came from.
+func _land() -> void:
 	# Several post-move checks can detect the same landing, only the first counts.
 	var frame: int = Engine.get_physics_frames()
 	if _last_land_frame == frame:
 		return
 	_last_land_frame = frame
 	_dashes_used = 0
+	_jumps_used = 0
 	_was_falling = false
-	if reset_jumps:
-		_jumps_used = 0
 	# landed already carries the motion. Emitting ground_motion_changed here
 	# would replace the landing animation on the same frame, see
 	# AnimationComponent._on_ground_motion_changed.
@@ -373,7 +372,7 @@ func _after_air() -> void:
 	_update_current_motion(false, input_dir, false)
 
 	if not _grounded_before_move and _is_on_floor():
-		_land(true)
+		_land()
 		return
 
 	if _is_on_wall_only() and _is_pushing_into_wall(input_dir):
@@ -449,7 +448,7 @@ func _after_dash() -> void:
 		_update_current_motion(true, _move_input(), _frame().run)
 		_land()
 	else:
-		dash_ended.emit()
+		# Dash entry cleared _was_falling, so the next air frame emits started_falling.
 		_send(StateEvents.FALL)
 #endregion
 

@@ -17,7 +17,9 @@ var _missing_animation: String = ""
 
 
 func _ready() -> void:
-	_sprite = Component.find_component(self, AnimatedSprite3D, true) as AnimatedSprite3D
+	_sprite = Component.find_component(self, AnimatedSprite3D) as AnimatedSprite3D
+	if not _sprite:
+		push_error("%s: no AnimatedSprite3D child, position only" % name)
 
 
 func _process(delta: float) -> void:
@@ -35,6 +37,9 @@ func apply(row: FaerieNetPlayer) -> void:
 	if not _placed:
 		global_position = _target
 		_placed = true
+	# Already reported in _ready.
+	if not _sprite:
+		return
 	_sprite.flip_h = row.flip
 	if _sprite.animation == row.animation:
 		return
