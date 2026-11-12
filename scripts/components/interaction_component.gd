@@ -3,11 +3,13 @@
 ## Finds the closest [InteractableThing] in range and runs it on interact press.
 ## Things with [member InteractableThing.auto] run once when the player walks into their
 ## radius (again after leaving and re-entering) and never lock.
+## In range means inside the thing's zone: an [Area3D] sensor on the body scans
+## [constant InteractableThing.ZONE_LAYER], see [method InteractableThing.from_zone].
 ## With [member InteractableThing.locks_player] the lock lasts until [method InteractableThing.run]
 ## returns. Nothing new starts while one is running.
 ## The lock lives here, not in the state chart. Movement and sanity listen to
 ## [signal interact_started], [signal interact_ended] and [member is_locked].
-## Dependencies (input_component, body) are injected by the body.
+## Dependencies (input_component, body, api) are injected by the body.
 class_name InteractionComponent
 extends Component
 
@@ -16,34 +18,50 @@ signal interact_started
 ## Emitted when a locking interaction ends.
 signal interact_ended
 
-## Max distance to a thing for the interact press to pick it.
-@export var interact_radius: float = 2.0
+## Radius of the player's sensor. Small, so the thing's zone radius is the reach.
+const SENSOR_RADIUS: float = 0.05
 
 var input_component: InputComponent
 var body: Node3D
+## Passed to [method InteractableThing.run].
+var api: PlayerApi
 
 ## True during a locking interaction.
 var is_locked: bool = false
 
 var _busy: bool = false
-# Instance ids of auto things the player is standing in. The values are unused,
-# a Dictionary gives constant time has and erase.
-var _auto_inside: Dictionary[int, bool] = { }
+var _sensor: Area3D
 
 
 func _physics_process(_delta: float) -> void:
-	if is_locked:
-		return
-	_check_auto()
-	if _busy:
+	# No sensor until _on_setup, which is deferred.
+	if is_locked or _busy or not _sensor:
 		return
 	if input_component.get_frame().interact_pressed:
 		_interact()
 
 
 func _on_setup() -> void:
-	if not _require({ "body": body, "input_component": input_component }):
+	if not _require({ "body": body, "input_component": input_component, "api": api }):
 		set_physics_process(false)
+		return
+	_add_sensor()
+
+
+# Child of the body, not of this component: a plain Node has no transform to follow.
+func _add_sensor() -> void:
+	var shape := SphereShape3D.new()
+	shape.radius = SENSOR_RADIUS
+	var collision := CollisionShape3D.new()
+	collision.shape = shape
+	_sensor = Area3D.new()
+	_sensor.name = "InteractionSensor"
+	_sensor.collision_layer = 0
+	_sensor.collision_mask = InteractableThing.ZONE_LAYER
+	_sensor.monitorable = false
+	_sensor.add_child(collision)
+	_sensor.area_entered.connect(_on_zone_entered)
+	body.add_child(_sensor)
 
 
 #region Interaction
@@ -55,7 +73,7 @@ func _interact() -> void:
 	_busy = true
 	if locks:
 		_set_locked(true)
-	await target.run(body)
+	await target.run(api)
 	# The press that closed the dialogue can still be latched as a press. Wait it
 	# out so it does not restart the interaction.
 	await get_tree().physics_frame
@@ -65,39 +83,29 @@ func _interact() -> void:
 	_busy = false
 
 
+# Closest press-to-interact thing whose zone the sensor is in.
 func _find_closest() -> InteractableThing:
 	var closest: InteractableThing = null
-	var closest_dist_sq: float = interact_radius * interact_radius
+	var closest_dist_sq: float = INF
 	var origin: Vector3 = body.global_position
-	for node: Node in get_tree().get_nodes_in_group(InteractableThing.GROUP):
-		var candidate := node as InteractableThing
-		if not candidate or not candidate.enabled or candidate.auto:
+	for zone: Area3D in _sensor.get_overlapping_areas():
+		var thing: InteractableThing = InteractableThing.from_zone(zone)
+		if not thing or not thing.enabled or thing.auto:
 			continue
-		var dist_sq: float = origin.distance_squared_to(candidate.global_position)
-		if dist_sq <= closest_dist_sq:
+		var dist_sq: float = origin.distance_squared_to(thing.global_position)
+		if dist_sq < closest_dist_sq:
 			closest_dist_sq = dist_sq
-			closest = candidate
+			closest = thing
 	return closest
 
 
-func _check_auto() -> void:
-	var origin: Vector3 = body.global_position
-	for node: Node in get_tree().get_nodes_in_group(InteractableThing.GROUP):
-		var thing := node as InteractableThing
-		if not thing or not thing.enabled or not thing.auto:
-			continue
-		var id: int = thing.get_instance_id()
-		var inside: bool = origin.distance_squared_to(thing.global_position) <= thing.auto_radius * thing.auto_radius
-		if inside and not _auto_inside.has(id):
-			_auto_inside[id] = true
-			# Not awaited, auto things never lock.
-			thing.run(body)
-		elif not inside:
-			_auto_inside.erase(id)
-	# Freed things (pickups) leave the group while their id is still in here.
-	for id: int in _auto_inside.keys():
-		if not is_instance_id_valid(id):
-			_auto_inside.erase(id)
+func _on_zone_entered(zone: Area3D) -> void:
+	if is_locked:
+		return
+	var thing: InteractableThing = InteractableThing.from_zone(zone)
+	if thing and thing.enabled and thing.auto:
+		# Not awaited, auto things never lock.
+		thing.run(api)
 #endregion
 
 

@@ -7,19 +7,19 @@ extends Label
 
 
 func _process(_delta: float) -> void:
-	# Looked up every frame, the "player" group is joined after this node is ready.
-	var player := get_tree().get_first_node_in_group(&"player") as PlayerBody
-	if not player:
+	# Looked up every frame, the player can respawn or change level.
+	var api: PlayerApi = PlayerApi.find(get_tree())
+	if not api:
 		text = "no player"
 		return
 	var lines := PackedStringArray()
-	if player.sanity:
-		lines.append("Sanity %.0f / %.0f (zone %d)" % [player.sanity.value, player.sanity.max_sanity, player.sanity.zone])
-	if player.inventory:
-		lines.append("Inventory %d / %d slots" % [player.inventory.slots_used(), player.inventory.max_slots])
-		for item: ItemData in player.inventory.items:
+	if api.sanity:
+		lines.append("Sanity %.0f / %.0f (zone %d)" % [api.sanity.value, api.sanity.max_sanity, api.sanity.zone])
+	if api.inventory:
+		lines.append("Inventory %d / %d slots" % [api.inventory.slots_used(), api.inventory.max_slots])
+		for item: ItemData in api.inventory.items:
 			var label: String = item.display_name if item.display_name != "" else item.id()
-			lines.append("  %s x%d" % [label, player.inventory.items[item]])
+			lines.append("  %s x%d" % [label, api.inventory.items[item]])
 	if not GameState.has_game_state():
 		lines.append("No save data: flags and pickups reset. Start from the main menu to keep them.")
 	text = "\n".join(lines)

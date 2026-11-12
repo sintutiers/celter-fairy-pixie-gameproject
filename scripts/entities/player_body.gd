@@ -5,22 +5,20 @@
 ## in [method Node._enter_tree]. This is the only wiring site, components never look up
 ## their siblings themselves.
 ##
-## The slots are filled in the editor with [member fill_exports] and saved in the scene,
+## The slots are filled in the editor with [member fill_components] and saved in the scene,
 ## nothing is searched at runtime. An empty slot means the component is absent.
 ## A component that is in the scene but not in a slot gets no dependencies and reports
 ## that itself in [method Component._on_setup].
 ## [MovementProfile] is a [Resource] and cannot be found in the tree, so a fresh
 ## instance is used when none is exported.
-## @note: This is a [code]@tool[/code] script only for [member fill_exports]. Wiring
-## is skipped in the editor, see [method _enter_tree].
+## Dialogue, interactables and debug commands use [member api], never the components.
+## [b]Note:[/b] This is a [code]@tool[/code] script only for [member fill_components].
+## Wiring is skipped in the editor, see [method Node._enter_tree].
 class_name PlayerBody
 extends CharacterBody3D
 
-## Editor only. Tick it to fill every empty slot below from the children. It resets itself.
-@export var DEAN_fill_components: bool:
-	set(value):
-		if value and Engine.is_editor_hint():
-			_fill_exports()
+## Editor only. Fills every empty slot below from the children.
+@export_tool_button("Fill components") var fill_components: Callable = _fill_exports
 
 @export_group("Components")
 @export var input: InputComponent
@@ -39,6 +37,9 @@ extends CharacterBody3D
 @export var collision_shape: CollisionShape3D
 @export var state_chart: StateChart
 
+## Set when the body enters the tree, see [PlayerApi].
+var api: PlayerApi
+
 
 func _enter_tree() -> void:
 	# Wiring mutates components, which are placeholders in the editor.
@@ -48,6 +49,8 @@ func _enter_tree() -> void:
 
 
 func _fill_exports() -> void:
+	if not Engine.is_editor_hint():
+		return
 	input = _pick(input, InputComponent)
 	facing = _pick(facing, FacingComponent)
 	movement = _pick(movement, Movement3DComponent)
@@ -66,12 +69,14 @@ func _fill_exports() -> void:
 func _wire_components() -> void:
 	if not movement_profile:
 		movement_profile = MovementProfile.new()
+	api = PlayerApi.new(inventory, sanity)
+	add_to_group(PlayerApi.GROUP)
 
 	if sanity:
 		sanity.interact_component = interaction
 	if inventory:
 		inventory.sanity = sanity
-		inventory.body = self
+		inventory.api = api
 	if movement:
 		movement.body = self
 		movement.profile = movement_profile
@@ -82,6 +87,7 @@ func _wire_components() -> void:
 		movement.state_chart = state_chart
 	if interaction:
 		interaction.body = self
+		interaction.api = api
 		interaction.input_component = input
 	if animation:
 		animation.sprite = sprite
@@ -95,47 +101,3 @@ func _wire_components() -> void:
 # Editor only, the export if set, otherwise the first child of [param type].
 func _pick(current: Node, type: Variant) -> Node:
 	return current if current else Component.find_component(self, type)
-
-
-#region Dialogue API
-# Called from .dialogue files, the body is passed in as extra game state.
-# Items are ids, see [method ItemData.load_id]. All of these need an [InventoryComponent].
-## Gives the item. Returns false if there is no room.
-func give_item(id: String, count: int = 1) -> bool:
-	return inventory.add(ItemData.load_id(id), count)
-
-
-func remove_item(id: String, count: int = 1) -> bool:
-	return inventory.remove(ItemData.load_id(id), count)
-
-
-func has_item(id: String, count: int = 1) -> bool:
-	return inventory.has(ItemData.load_id(id), count)
-
-
-func use_item(id: String) -> bool:
-	return inventory.use(ItemData.load_id(id))
-
-
-## Does nothing without a [SanityComponent].
-func sanity_add(amount: float) -> void:
-	if sanity:
-		sanity.add(amount)
-#endregion
-
-
-#region Flags
-# Per-level flags for dialogue consequences and quest state. Keys are strings,
-# writers use a prefix: "quest.", "favor.", "sanctuary.". Called from .dialogue
-# files as set_flag("favor.bread") and if get_flag("favor.bread").
-# @warning: requires a game state, see [GameState]. A scene run directly from
-# the editor has none and these are no-ops.
-## Returns the flag, false when unset.
-func get_flag(flag: String) -> bool:
-	return GameState.get_level_flag(GameState.get_current_level_path(), flag)
-
-
-## Sets the flag. See [method GameState.set_level_flag].
-func set_flag(flag: String, value: bool = true) -> void:
-	GameState.set_level_flag(GameState.get_current_level_path(), flag, value)
-#endregion

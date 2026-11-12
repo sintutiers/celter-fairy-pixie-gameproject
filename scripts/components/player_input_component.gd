@@ -1,8 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Reads keyboard, mouse and controller into an [InputFrame].
+## Reads the input map actions into an [InputFrame].
 ## Presses and releases come from input events and are latched. Held state is polled.
-## Side effect: adds the parent to the "player" group.
 class_name PlayerInputComponent
 extends InputComponent
 
@@ -33,7 +32,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _on_ready() -> void:
-	get_parent().add_to_group(&"player")
 	# Runs after every consumer of the frame.
 	process_physics_priority = 100
 

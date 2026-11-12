@@ -19,5 +19,6 @@ func get_frame() -> InputFrame:
 	return _frame
 
 
+## Override for a new input source. Called at most once per physics frame, see [method get_frame].
 func _build_frame() -> InputFrame:
 	return InputFrame.new()

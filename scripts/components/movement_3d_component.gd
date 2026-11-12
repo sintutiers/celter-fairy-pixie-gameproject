@@ -16,7 +16,12 @@ var _standing_height: float
 
 func _on_setup() -> void:
 	super()
+	if not _require({ "body": body }):
+		_disabled = true
+		set_physics_process(false)
+		return
 	if not collision_shape:
+		push_error("%s: no collision_shape, crouch keeps the standing size" % name)
 		return
 	_standing_shape_position = collision_shape.position
 	_capsule = collision_shape.shape as CapsuleShape3D
@@ -61,7 +66,8 @@ func _get_vertical_velocity() -> float:
 
 
 func _set_vertical_velocity(value: float) -> void:
-	body.velocity += body.up_direction * (value - body.velocity.dot(body.up_direction))
+	# up_direction is always normalized, which slide() requires.
+	body.velocity = body.velocity.slide(body.up_direction) + body.up_direction * value
 
 
 func _wall_normal() -> Vector2:

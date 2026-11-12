@@ -29,6 +29,6 @@ static func load_id(id: String) -> ItemData:
 	return load(path) as ItemData
 
 
-## The id .dialogue files and [method PlayerBody.give_item] use: the file name without extension.
+## The id .dialogue files and [method PlayerApi.give_item] use: the file name without extension.
 func id() -> String:
 	return resource_path.get_file().get_basename()

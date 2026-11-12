@@ -6,8 +6,8 @@
 ## Extend it and implement the abstract functions for 2D or 3D.
 ##
 ## Dependencies (profile, input, facing, state chart, optional interaction) are injected
-## by the body in [method Node._enter_tree], so they are set in [method _on_ready]
-## and [method _on_setup].
+## by the body in [method Node._enter_tree], so they are set in [method Component._on_ready]
+## and [method Component._on_setup].
 @abstract
 class_name PlatformerMovementBase
 extends Component
@@ -186,6 +186,7 @@ func _move_input() -> Vector2:
 	return _read_move(_frame()).limit_length(1.0)
 
 
+## Sends [param event] to the state chart, see [StateEvents]. The post-move check is skipped this frame.
 func _send(event: StringName) -> void:
 	_transition_sent = true
 	state_chart.send_event(event)

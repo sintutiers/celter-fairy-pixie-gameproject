@@ -4,9 +4,8 @@
 ## 2D twin of [PlayerBody]: owns every component on the player [CharacterBody2D] and wires
 ## their dependencies in [method Node._enter_tree]. Same rules, see [PlayerBody].
 ##
-## No interaction or net sync yet, [InteractionComponent] and [Net] are 3D only.
-## The dialogue API and flags are a copy of [PlayerBody]'s, keep them in step.
-## @note: This is a [code]@tool[/code] script only for [member fill_components].
+## No interaction yet, [InteractionComponent] is 3D only.
+## [b]Note:[/b] This is a [code]@tool[/code] script only for [member fill_components].
 class_name PlayerBody2D
 extends CharacterBody2D
 
@@ -20,6 +19,7 @@ extends CharacterBody2D
 @export var animation: AnimationComponent
 @export var sanity: SanityComponent
 @export var inventory: InventoryComponent
+@export var net_sync: NetSyncComponent
 @export_group("Data")
 @export var movement_profile: MovementProfile
 
@@ -27,6 +27,9 @@ extends CharacterBody2D
 @export var sprite: AnimatedSprite2D
 @export var collision_shape: CollisionShape2D
 @export var state_chart: StateChart
+
+## Set when the body enters the tree, see [PlayerApi].
+var api: PlayerApi
 
 
 func _enter_tree() -> void:
@@ -45,6 +48,7 @@ func _fill_exports() -> void:
 	animation = _pick(animation, AnimationComponent)
 	sanity = _pick(sanity, SanityComponent)
 	inventory = _pick(inventory, InventoryComponent)
+	net_sync = _pick(net_sync, NetSyncComponent)
 	sprite = _pick(sprite, AnimatedSprite2D)
 	collision_shape = _pick(collision_shape, CollisionShape2D)
 	state_chart = _pick(state_chart, StateChart)
@@ -55,10 +59,12 @@ func _fill_exports() -> void:
 func _wire_components() -> void:
 	if not movement_profile:
 		movement_profile = MovementProfile.new()
+	api = PlayerApi.new(inventory, sanity)
+	add_to_group(PlayerApi.GROUP)
 
 	if inventory:
 		inventory.sanity = sanity
-		inventory.body = self
+		inventory.api = api
 	if movement:
 		movement.body = self
 		movement.profile = movement_profile
@@ -70,48 +76,11 @@ func _wire_components() -> void:
 		animation.sprite = sprite
 		animation.movement = movement
 		animation.facing = facing
+	if net_sync:
+		net_sync.body = self
+		net_sync.sprite = sprite
 
 
 # Editor only, the export if set, otherwise the first child of [param type].
 func _pick(current: Node, type: Variant) -> Node:
 	return current if current else Component.find_component(self, type)
-
-
-#region Dialogue API
-# Called from .dialogue files, the body is passed in as extra game state.
-# Items are ids, see [method ItemData.load_id]. All of these need an [InventoryComponent].
-## Gives the item. Returns false if there is no room.
-func give_item(id: String, count: int = 1) -> bool:
-	return inventory.add(ItemData.load_id(id), count)
-
-
-func remove_item(id: String, count: int = 1) -> bool:
-	return inventory.remove(ItemData.load_id(id), count)
-
-
-func has_item(id: String, count: int = 1) -> bool:
-	return inventory.has(ItemData.load_id(id), count)
-
-
-func use_item(id: String) -> bool:
-	return inventory.use(ItemData.load_id(id))
-
-
-## Does nothing without a [SanityComponent].
-func sanity_add(amount: float) -> void:
-	if sanity:
-		sanity.add(amount)
-#endregion
-
-
-#region Flags
-# See [PlayerBody]. Needs a game state, a scene run directly from the editor has none.
-## Returns the flag, false when unset.
-func get_flag(flag: String) -> bool:
-	return GameState.get_level_flag(GameState.get_current_level_path(), flag)
-
-
-## Sets the flag. See [method GameState.set_level_flag].
-func set_flag(flag: String, value: bool = true) -> void:
-	GameState.set_level_flag(GameState.get_current_level_path(), flag, value)
-#endregion

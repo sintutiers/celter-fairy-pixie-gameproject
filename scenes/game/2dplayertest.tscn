@@ -26,6 +26,7 @@
 [ext_resource type="Script" uid="uid://dujfd7ts273sj" path="res://scripts/components/sanity_component.gd" id="26_0lqjd"]
 [ext_resource type="Script" uid="uid://cw670bbr1wwi6" path="res://scripts/entities/player_body_2d.gd" id="100_body2d"]
 [ext_resource type="Script" uid="uid://n0tuefldiwe2" path="res://scripts/components/movement_2d_component.gd" id="101_move2d"]
+[ext_resource type="Script" uid="uid://ejkwp3ydv186" path="res://scripts/components/net_sync_component.gd" id="102_netsync"]
 
 [sub_resource type="Resource" id="Resource_profile2d"]
 script = ExtResource("2_0lqjd")
@@ -923,7 +924,7 @@ animations = [{
 radius = 12.0
 height = 66.0
 
-[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1543907990 node_paths=PackedStringArray("input", "facing", "movement", "animation", "sanity", "inventory", "sprite", "collision_shape", "state_chart")]
+[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1543907990 node_paths=PackedStringArray("input", "facing", "movement", "animation", "sanity", "inventory", "net_sync", "sprite", "collision_shape", "state_chart")]
 collision_layer = 3
 collision_mask = 3
 script = ExtResource("100_body2d")
@@ -933,6 +934,7 @@ movement = NodePath("Movement2DComponent")
 animation = NodePath("AnimationComponent")
 sanity = NodePath("SanityComponent")
 inventory = NodePath("InventoryComponent")
+net_sync = NodePath("NetSyncComponent")
 movement_profile = SubResource("Resource_profile2d")
 sprite = NodePath("AnimatedSprite2D")
 collision_shape = NodePath("CollisionShape2D")
@@ -1099,3 +1101,7 @@ to = NodePath("../../Air")
 event = &"fall"
 delay_in_seconds = "0.0"
 metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
+
+[node name="NetSyncComponent" type="Node" parent="."]
+script = ExtResource("102_netsync")
+metadata/_custom_type_script = "uid://ejkwp3ydv186"

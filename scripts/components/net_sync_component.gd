@@ -1,15 +1,16 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Publishes the local player's position, facing and animation through [code]Net[/code].
-## Dependencies (body, sprite) are injected by the body.
+## Works for a 3D body with an [AnimatedSprite3D] and a 2D body with an [AnimatedSprite2D],
+## a 2D position is sent with z = 0. Dependencies (body, sprite) are injected by the body.
 class_name NetSyncComponent
 extends Component
 
 ## Seconds between updates.
 @export var send_interval: float = 0.1
 
-var body: Node3D
-var sprite: AnimatedSprite3D
+var body: Node
+var sprite: Node
 
 
 func _on_setup() -> void:
@@ -25,4 +26,11 @@ func _on_setup() -> void:
 
 
 func _send() -> void:
-	Net.send_state(body.global_position, sprite.flip_h, sprite.animation)
+	var is_2d: bool = body is Node2D
+	var position: Vector3
+	if is_2d:
+		var position_2d: Vector2 = (body as Node2D).global_position
+		position = Vector3(position_2d.x, position_2d.y, 0.0)
+	else:
+		position = (body as Node3D).global_position
+	Net.send_state(position, sprite.flip_h, sprite.animation, is_2d)

@@ -83,9 +83,6 @@ func _on_ready() -> void:
 	zone = _zone_for(get_ratio())
 
 
+# Index after the last threshold at or below the ratio, so thresholds must be ascending.
 func _zone_for(ratio: float) -> int:
-	var count: int = 0
-	for threshold: float in thresholds:
-		if ratio >= threshold:
-			count += 1
-	return count
+	return thresholds.bsearch(ratio, false)

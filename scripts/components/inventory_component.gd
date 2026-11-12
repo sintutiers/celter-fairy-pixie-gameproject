@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## The player's inventory, [ItemData] to count. A stack of [member ItemData.max_stack]
 ## takes one slot, [member max_slots] limits the slots used in total.
-## Dependencies (body, optional sanity) are injected by the body.
+## Dependencies (api, optional sanity) are injected by the body.
 class_name InventoryComponent
 extends Component
 
@@ -16,7 +16,8 @@ signal add_failed(item: ItemData)
 @export var debug: bool = true
 
 var sanity: SanityComponent
-var body: Node
+## Passed to item use dialogues as extra game state.
+var api: PlayerApi
 ## Item to count. Read only, change it through [method add] and [method remove].
 var items: Dictionary[ItemData, int] = { }
 
@@ -80,7 +81,7 @@ func use(item: ItemData) -> bool:
 	if item.consumed_on_use:
 		remove(item)
 	if item.use_dialogue and not _in_dialogue:
-		DialogueManager.show_dialogue_balloon(item.use_dialogue, item.use_dialogue_cue, [body])
+		DialogueManager.show_dialogue_balloon(item.use_dialogue, item.use_dialogue_cue, [api])
 	return true
 
 
@@ -96,7 +97,7 @@ func _on_ready() -> void:
 
 
 func _on_setup() -> void:
-	_require({ "body": body })
+	_require({ "api": api })
 
 
 func _log(message: String) -> void:

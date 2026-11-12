@@ -4,7 +4,7 @@
 ## Horizontal movement is the x axis, vertical is along [member CharacterBody2D.up_direction].
 ## Only the x of the move input is used, up and down do nothing.
 ## Dependencies (body, collision_shape) are injected by the body.
-## @note: [MovementProfile] values are in world units. The defaults are tuned for 3D
+## [b]Note:[/b] [MovementProfile] values are in world units. The defaults are tuned for 3D
 ## meters, a 2D game in pixels needs its own profile.
 class_name Movement2DComponent
 extends PlatformerMovementBase
@@ -24,6 +24,7 @@ func _on_setup() -> void:
 		set_physics_process(false)
 		return
 	if not collision_shape:
+		push_error("%s: no collision_shape, crouch keeps the standing size" % name)
 		return
 	_standing_shape_position = collision_shape.position
 	_shape = collision_shape.shape
@@ -50,7 +51,7 @@ func _to_world(direction: Vector2) -> Vector2:
 
 
 func _default_dash_direction() -> Vector2:
-	return Vector2(facing_component.facing.x, 0.0)
+	return Vector2(facing_component.facing, 0.0)
 
 
 func _get_horizontal_velocity() -> Vector2:
@@ -66,7 +67,8 @@ func _get_vertical_velocity() -> float:
 
 
 func _set_vertical_velocity(value: float) -> void:
-	body.velocity += body.up_direction * (value - body.velocity.dot(body.up_direction))
+	# up_direction is always normalized, which slide() requires.
+	body.velocity = body.velocity.slide(body.up_direction) + body.up_direction * value
 
 
 func _wall_normal() -> Vector2:

@@ -5,15 +5,17 @@
 ## returns when it ends, so the caller can hold the interact lock for the whole interaction.
 ## When blocked (missing [member requires_item], missing [member requires_flag] or
 ## no room) nothing is given and the thing stays.
+## It builds a sphere [Area3D] child on [constant ZONE_LAYER] in [method Node._ready],
+## the player's [InteractionComponent] detects it through that zone.
 class_name InteractableThing
 extends Node3D
 
 ## Emitted when blocked. [param reason] is [constant REQUIRES_ITEM], [constant REQUIRES_FLAG]
 ## or [constant FULL].
-signal blocked(by: Node, reason: StringName)
+signal blocked(by: PlayerApi, reason: StringName)
 
-## Group every thing joins. [InteractionComponent] scans it.
-const GROUP: StringName = &"interactable"
+## Physics layer 5 ("interaction"). Only the zones are on it, and only the player's sensor scans it.
+const ZONE_LAYER: int = 1 << 4
 const REQUIRES_ITEM: StringName = &"requires_item"
 const REQUIRES_FLAG: StringName = &"requires_flag"
 const FULL: StringName = &"full"
@@ -30,16 +32,19 @@ const FULL: StringName = &"full"
 @export var persistent_id: String = ""
 ## Defaults to the first [AnimatedSprite3D] child when [member animate_on_interact] is set.
 @export var sprite: AnimatedSprite3D
+## Reach for an interact press, measured from this node's origin. Ignored for [member auto].
+@export var interact_radius: float = 2.0
 @export_group("Pickup")
 @export var item: ItemData
 @export var item_count: int = 1
 ## Nothing is given until the player carries this. It is not taken away.
 @export var requires_item: ItemData
-## Nothing runs until this flag is set, see [method PlayerBody.set_flag].
+## Nothing runs until this flag is set, see [method PlayerApi.set_flag].
 ## Checked before [member requires_item].
 @export var requires_flag: String = ""
-## Runs when the player walks into [member auto_radius] instead of on interact press.
-## Never locks, so give it no dialogue.
+## Runs when the player walks into [member auto_radius] instead of on interact press,
+## again after leaving and re-entering. Never locks, so give it no dialogue.
+## Entering while disabled or during a locking interaction does not count, walk out and back in.
 @export var auto: bool = false
 @export var auto_radius: float = 1.0
 @export_group("Dialogue")
@@ -56,11 +61,11 @@ func _ready() -> void:
 		push_error("%s: auto things must not have a dialogue" % name)
 	if persistent_id != "" and not free_after:
 		push_warning("%s: persistent_id does nothing without free_after" % name)
-	# Already taken in an earlier visit. Gone before it joins the group.
+	# Already taken in an earlier visit. Gone before its zone exists.
 	if free_after and persistent_id != "" and GameState.get_level_flag(_level_path(), _done_key()):
 		queue_free()
 		return
-	add_to_group(GROUP)
+	_add_zone()
 	if not animate_on_interact:
 		return
 	if not sprite:
@@ -70,13 +75,9 @@ func _ready() -> void:
 
 
 ## Runs the interaction for [param by] and returns when it ends.
-## [param by] is duck typed. It needs [code]get_flag[/code] if [member requires_flag] is set,
-## [code]has_item[/code] if [member requires_item] is set and [code]give_item[/code] if
-## [member item] is set, see the dialogue API of [PlayerBody].
-func run(by: Node) -> void:
+## [param by] is also the dialogue's extra game state.
+func run(by: PlayerApi) -> void:
 	if not enabled or _running:
-		return
-	if not _has_api(by):
 		return
 	if requires_flag != "" and not by.get_flag(requires_flag):
 		await _block(by, REQUIRES_FLAG)
@@ -100,24 +101,27 @@ func run(by: Node) -> void:
 		queue_free()
 
 
-# Only the methods this thing actually calls are required of [param by].
-func _has_api(by: Node) -> bool:
-	var needed: Array[StringName] = []
-	if requires_flag != "":
-		needed.append(&"get_flag")
-	if requires_item:
-		needed.append(&"has_item")
-	if item:
-		needed.append(&"give_item")
-	for method: StringName in needed:
-		if not by.has_method(method):
-			push_error("%s: %s has no %s()" % [name, by.name, method])
-			return false
-	return true
+## The thing that owns [param zone], or null for any other area.
+static func from_zone(zone: Area3D) -> InteractableThing:
+	return zone.get_parent() as InteractableThing
 
 
-func _block(by: Node, reason: StringName) -> void:
-	print("[thing] %s blocked: %s" % [name, reason])
+# A sphere the size of the active radius. It does not monitor, the player's sensor does.
+func _add_zone() -> void:
+	var shape := SphereShape3D.new()
+	shape.radius = auto_radius if auto else interact_radius
+	var collision := CollisionShape3D.new()
+	collision.shape = shape
+	var zone := Area3D.new()
+	zone.name = "InteractionZone"
+	zone.collision_layer = ZONE_LAYER
+	zone.collision_mask = 0
+	zone.monitoring = false
+	zone.add_child(collision)
+	add_child(zone)
+
+
+func _block(by: PlayerApi, reason: StringName) -> void:
 	blocked.emit(by, reason)
 	if auto or not dialogue or blocked_cue == "":
 		return

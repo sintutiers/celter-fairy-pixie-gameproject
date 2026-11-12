@@ -6,11 +6,11 @@
 class_name AnimationComponent
 extends Component
 
-## Seconds for a full turn squash.
 @export_group("Flip")
+## Seconds for a full turn squash.
 @export var flip_duration: float = 0.1
 
-# AnimatedSprite3D or AnimatedSprite2D, they share no base class.
+## An [AnimatedSprite3D] or [AnimatedSprite2D]. Typed [Node] because they share no base class.
 var sprite: Node
 var movement: PlatformerMovementBase
 var facing: FacingComponent

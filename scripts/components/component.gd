@@ -9,7 +9,7 @@
 ## and assigns them once, see [PlayerBody]. Check them in [method _on_setup].
 ##
 ## [method _on_setup] is deferred, so every sibling has finished [method Node._ready] by then.
-## @warning: The hooks are not chained. Components extending [Component] directly must not
+## [b]Warning:[/b] The hooks are not chained. Components extending [Component] directly must not
 ## call [code]super()[/code]. Subclasses of non-leaf components (e.g. [Movement3DComponent])
 ## must, the parent does real work.
 class_name Component
@@ -29,19 +29,22 @@ static func find_component(root: Node, type: Variant, warn: bool = false) -> Nod
 
 func _ready() -> void:
 	_on_ready()
-	call_deferred("_on_setup")
+	_on_setup.call_deferred()
 
 
+## Runs in [method Node._ready]. Dependencies are set, siblings may not be ready yet.
 func _on_ready() -> void:
 	pass
 
 
+## Runs deferred, at idle time after [method Node._ready], so every sibling is ready.
+## Check dependencies here, see [method _require].
 func _on_setup() -> void:
 	pass
 
 
-# Pushes one error naming every null dependency ({ "label": value }).
-# Returns true when all are set, so the caller can bail out.
+## Pushes one error naming every null dependency ([code]{ "label": value }[/code]).
+## Returns true when all are set, so the caller can bail out.
 func _require(deps: Dictionary) -> bool:
 	var missing: PackedStringArray = PackedStringArray()
 	for dep_name: String in deps:
