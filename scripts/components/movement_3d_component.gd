@@ -10,12 +10,23 @@ var body: CharacterBody3D
 var collision_shape: CollisionShape3D
 
 var _standing_shape_position: Vector3
+var _capsule: CapsuleShape3D
+var _standing_height: float
 
 
 func _on_setup() -> void:
 	super()
-	if collision_shape:
-		_standing_shape_position = collision_shape.position
+	if not collision_shape:
+		return
+	_standing_shape_position = collision_shape.position
+	_capsule = collision_shape.shape as CapsuleShape3D
+	if not _capsule:
+		push_error("%s: crouch needs a CapsuleShape3D, the shape stays standing size" % name)
+		return
+	# Own copy: the height changes at runtime and the scene's shape resource is shared by every instance.
+	_capsule = _capsule.duplicate()
+	collision_shape.shape = _capsule
+	_standing_height = _capsule.height
 
 
 func _gravity() -> float:
@@ -78,8 +89,15 @@ func _is_on_ceiling() -> bool:
 	return body.is_on_ceiling()
 
 
+# Resizes the capsule instead of scaling the node. Jolt only scales capsules uniformly,
+# so a y scale left the bottom below the feet and lifted the body off the floor.
 func _set_crouched(crouched: bool) -> void:
-	if not collision_shape:
+	if not _capsule:
 		return
-	collision_shape.scale.y = profile.crouch_collision_scale if crouched else 1.0
-	collision_shape.position.y = _standing_shape_position.y + (profile.crouch_shape_y_offset if crouched else 0.0)
+	var height: float = _standing_height
+	if crouched:
+		# A capsule cannot be shorter than its two caps.
+		height = maxf(_standing_height * profile.crouch_collision_scale, _capsule.radius * 2.0)
+	_capsule.height = height
+	# Lowered by half the lost height, so the bottom stays at the feet.
+	collision_shape.position.y = _standing_shape_position.y - (_standing_height - height) * 0.5

@@ -54,9 +54,7 @@ extends Resource
 @export_range(1, 10, 1) var max_dashes: int = 1
 
 @export_group("Crouch")
-## Collision shape y scale while crouched.
+## Capsule height multiplier while crouched. The bottom stays at the feet.
+## Never shorter than the capsule's two caps (2 × radius).
 @export_range(0.0, 1.0, 0.01) var crouch_collision_scale: float = 0.5
-## Collision shape y offset while crouched, compensates the scale.
-## -0.5 keeps the feet down for the default 2 unit capsule at 0.5 scale.
-@export var crouch_shape_y_offset: float = -0.5
 @export_range(0.0, 1.0, 0.05) var crouch_speed_multiplier: float = 0.5

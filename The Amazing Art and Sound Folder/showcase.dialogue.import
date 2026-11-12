@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://xyndj6m2nwcq"
+path="res://.godot/imported/showcase.dialogue-381b61c06aa7ffa48ad4e7c6f827480d.tres"
+
+[deps]
+
+source_file="res://The Amazing Art and Sound Folder/showcase.dialogue"
+dest_files=["res://.godot/imported/showcase.dialogue-381b61c06aa7ffa48ad4e7c6f827480d.tres"]
+
+[params]
+
+defaults=true
