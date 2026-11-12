@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Picks the sprite animation from [PlatformerMovementBase] and [FacingComponent] signals.
 ## Dependencies (sprite, movement, facing) are injected by the body, all required.
+## The sprite can be an [AnimatedSprite3D] or an [AnimatedSprite2D].
 class_name AnimationComponent
 extends Component
 
@@ -9,7 +10,8 @@ extends Component
 @export_group("Flip")
 @export var flip_duration: float = 0.1
 
-var sprite: AnimatedSprite3D
+# AnimatedSprite3D or AnimatedSprite2D, they share no base class.
+var sprite: Node
 var movement: PlatformerMovementBase
 var facing: FacingComponent
 
