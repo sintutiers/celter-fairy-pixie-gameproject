@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://c8ku3wckuebd"]
 
+[ext_resource type="Script" uid="uid://fd0644wgnnig" path="res://scenes/game/levels/level.gd" id="1_heuvt"]
 [ext_resource type="PackedScene" uid="uid://c0hf8edi2q1ui" path="res://scenes/game/playertest1.tscn" id="1_player"]
 [ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="2_pcam_host"]
 [ext_resource type="Script" uid="uid://csjccrhj5wnx7" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_3d.gd" id="3_pcam"]
@@ -11,6 +12,8 @@
 [ext_resource type="Texture2D" uid="uid://cgdoexuttam65" path="res://The Amazing Art and Sound Folder/archive/cassie_red1.png" id="9_cassie1"]
 [ext_resource type="Texture2D" uid="uid://6yeroqsmvbna" path="res://The Amazing Art and Sound Folder/archive/cassie_red2.png" id="10_cassie2"]
 [ext_resource type="Script" uid="uid://c6flroaekdoi" path="res://scenes/game/scripts/showcase_hud.gd" id="11_hud"]
+[ext_resource type="Script" uid="uid://dcfts64u1gjqa" path="res://scenes/game/scripts/tutorial_manager.gd" id="13_l6ydm"]
+[ext_resource type="PackedScene" uid="uid://donqi00tgqoon" path="res://scenes/game/tutorials/tutorial_3.tscn" id="14_lv36y"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial_sc"]
 
@@ -56,6 +59,7 @@ albedo_color = Color(0.45, 0.25, 0.1, 1)
 script = ExtResource("4_tween")
 
 [node name="Showcase" type="Node3D" unique_id=1731593752]
+script = ExtResource("1_heuvt")
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1752342019]
 
@@ -420,3 +424,8 @@ spring_length = 3.0
 align_transform_with_view = Callable()
 align_position_with_view = Callable()
 align_rotation_with_view = Callable()
+
+[node name="TutorialManager" type="Node" parent="." unique_id=933928320]
+unique_name_in_owner = true
+script = ExtResource("13_l6ydm")
+tutorial_scenes = Array[PackedScene]([ExtResource("14_lv36y")])
