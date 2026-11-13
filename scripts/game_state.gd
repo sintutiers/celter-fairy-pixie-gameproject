@@ -9,6 +9,8 @@ const FILE_PATH = "res://scripts/game_state.gd"
 
 ## Level scene path or uid to [LevelState].
 @export var level_states: Dictionary[String, LevelState] = { }
+## Story state that outlives a level, see [method get_fact].
+@export var facts: Dictionary[String, Variant] = { }
 @export var current_level_path: String
 @export var checkpoint_level_path: String
 @export var total_games_played: int
@@ -88,10 +90,11 @@ static func continue_game() -> void:
 	GlobalState.save()
 
 
-## Wipes level progress and play time. [member total_games_played] is kept.
+## Wipes level progress, facts and play time. [member total_games_played] is kept.
 static func reset() -> void:
 	var game_state := get_or_create_state()
 	game_state.level_states.clear()
+	game_state.facts.clear()
 	game_state.current_level_path = ""
 	game_state.checkpoint_level_path = ""
 	game_state.play_time = 0
@@ -113,4 +116,24 @@ static func set_level_flag(level_path: String, flag: String, value: bool = true)
 		push_warning("no level state for '%s', flag '%s' not saved" % [level_path, flag])
 		return
 	level_state.flags[flag] = value
+	GlobalState.save()
+
+
+## Returns a fact, or [param default] when unset or without a game state.
+## Facts are global, for state that crosses levels: choices, opinions, quest stages.
+## Per-level state (taken pickups) stays in [method get_level_flag].
+## Keys use a prefix per writer: [code]"choice."[/code], [code]"opinion."[/code], [code]"quest."[/code].
+static func get_fact(key: String, default: Variant = false) -> Variant:
+	if not has_game_state():
+		return default
+	return get_or_create_state().facts.get(key, default)
+
+
+## Saves immediately. Warns and saves nothing without a game state.
+## [b]Warning:[/b] Renaming a key breaks saves that already hold it.
+static func set_fact(key: String, value: Variant = true) -> void:
+	if not has_game_state():
+		push_warning("no game state, fact '%s' not saved" % key)
+		return
+	get_or_create_state().facts[key] = value
 	GlobalState.save()
