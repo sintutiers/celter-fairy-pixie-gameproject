@@ -189,6 +189,9 @@ follow_target = NodePath("../World/CharacterBody3D")
 tween_resource = SubResource("Resource_tqokf")
 follow_distance = 3.0
 spring_length = 3.0
+align_transform_with_view = Callable()
+align_position_with_view = Callable()
+align_rotation_with_view = Callable()
 
 [node name="InteractableThing" type="Node3D" parent="." unique_id=1601618768 node_paths=PackedStringArray("sprite")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.038578, 2.8417342, 0)

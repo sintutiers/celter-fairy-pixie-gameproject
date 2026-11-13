@@ -4,11 +4,47 @@
 [ext_resource type="Script" uid="uid://6465llrn1yhi" path="res://scenes/windows/level_lost_window.gd" id="2_6m2xx"]
 [ext_resource type="PackedScene" uid="uid://cwt4p3bufkke5" path="res://addons/maaacks_game_template/base/nodes/windows/confirmation_popup_window_panel.tscn" id="3_o54tf"]
 
+[sub_resource type="PackedScene" id="PackedScene_jt3uh"]
+[node name="PopupParent" type="CanvasLayer" unique_id=2008552931]
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=968532893]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7529412)
+
+[sub_resource type="PackedScene" id="PackedScene_6m2xx"]
+[node name="PopupParent" type="CanvasLayer" unique_id=2008552931]
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=968532893]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7529412)
+
+[sub_resource type="PackedScene" id="PackedScene_o54tf"]
+[node name="PopupParent" type="CanvasLayer" unique_id=2008552931]
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=968532893]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7529412)
+
+[resource]
+
 [node name="LevelLostWindow" unique_id=493104306 instance=ExtResource("1_jt3uh")]
 process_mode = 3
 custom_minimum_size = Vector2(432, 240)
 script = ExtResource("2_6m2xx")
 pauses_game = true
+parent_scene = SubResource("PackedScene_jt3uh")
 update_content = true
 title = ""
 text = "You lost..."
@@ -48,6 +84,7 @@ unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
+parent_scene = SubResource("PackedScene_6m2xx")
 title = "Confirm Exit"
 text = "Exit to the main menu?"
 
@@ -55,6 +92,7 @@ text = "Exit to the main menu?"
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+parent_scene = SubResource("PackedScene_o54tf")
 title = "Confirm Exit"
 text = "Exit the game?"
 

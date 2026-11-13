@@ -1102,6 +1102,6 @@ event = &"fall"
 delay_in_seconds = "0.0"
 metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
 
-[node name="NetSyncComponent" type="Node" parent="."]
+[node name="NetSyncComponent" type="Node" parent="." unique_id=1623070155]
 script = ExtResource("102_netsync")
 metadata/_custom_type_script = "uid://ejkwp3ydv186"

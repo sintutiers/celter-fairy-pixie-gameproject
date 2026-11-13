@@ -192,6 +192,7 @@ callback_mode_process = 0
 tree_root = SubResource("AnimationNodeStateMachine_ckafx")
 anim_player = NodePath("../AnimationPlayer")
 parameters/Move/blend_position = -0.380028
+parameters/Move/observer = null
 
 [node name="StateChart" type="Node" parent="." unique_id=1914499670]
 script = ExtResource("3_qw75p")

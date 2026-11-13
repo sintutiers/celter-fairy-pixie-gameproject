@@ -2,7 +2,37 @@
 
 [ext_resource type="PackedScene" uid="uid://crndfbb22ri4s" path="res://addons/maaacks_game_template/base/nodes/windows/popup_window_scene_container.tscn" id="1_rkudv"]
 [ext_resource type="Script" uid="uid://cpy2ns3n3fmcs" path="res://scenes/windows/main_menu_credits_window.gd" id="2_bndrm"]
-[ext_resource type="PackedScene" uid="uid://b6x84713q6k4l" path="res://scenes/credits/scrollable_credits.tscn" id="3_8w6bb"]
+[ext_resource type="Script" uid="uid://ioqwxoiwmkuj" path="res://scenes/credits/scrollable_credits.gd" id="3_bndrm"]
+[ext_resource type="PackedScene" uid="uid://b330srwc6eynn" path="res://scenes/credits/credits_label.tscn" id="4_8w6bb"]
+
+[sub_resource type="PackedScene" id="PackedScene_gid38"]
+[node name="ScrollableCredits" type="Control" unique_id=1649718614]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_bndrm")
+
+[node name="CreditsLabel" parent="." unique_id=967293869 instance=ExtResource("4_8w6bb")]
+unique_name_in_owner = true
+layout_mode = 1
+fit_content = false
+scroll_active = true
+
+[sub_resource type="PackedScene" id="PackedScene_sej4b"]
+[node name="PopupParent" type="CanvasLayer" unique_id=2008552931]
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=968532893]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7529412)
+
+[resource]
 
 [node name="MainMenuCreditsWindow" unique_id=1453761674 instance=ExtResource("1_rkudv")]
 anchors_preset = 15
@@ -15,7 +45,8 @@ offset_top = 0.0
 offset_right = 0.0
 offset_bottom = 0.0
 script = ExtResource("2_bndrm")
-packed_scene = ExtResource("3_8w6bb")
+packed_scene = SubResource("PackedScene_gid38")
+parent_scene = SubResource("PackedScene_sej4b")
 
 [node name="CloseButton" parent="ContentContainer/BoxContainer/MenuButtonsMargin/MenuButtons" parent_id_path=PackedInt32Array(1371114575) index="0" unique_id=314526102]
 size_flags_horizontal = 0

@@ -2,9 +2,50 @@
 
 [ext_resource type="PackedScene" uid="uid://c6k5nnpbypshi" path="res://addons/maaacks_game_template/base/nodes/menus/main_menu/main_menu.tscn" id="1_sr523"]
 [ext_resource type="Script" uid="uid://bxhpa8g22miqw" path="res://scenes/menus/main_menu/main_menu_with_animations.gd" id="2_ixa71"]
-[ext_resource type="PackedScene" uid="uid://bgrayig18s6qc" path="res://scenes/windows/main_menu_options_window.tscn" id="3_2k5l7"]
-[ext_resource type="PackedScene" uid="uid://l56g41gv8e1g" path="res://scenes/windows/main_menu_credits_window.tscn" id="4_vsp5b"]
+[ext_resource type="PackedScene" uid="uid://crndfbb22ri4s" path="res://addons/maaacks_game_template/base/nodes/windows/popup_window_scene_container.tscn" id="3_2k5l7"]
+[ext_resource type="PackedScene" uid="uid://cmvwo4jx33yll" path="res://scenes/menus/options_menu/master_options_menu_with_tabs.tscn" id="4_vsp5b"]
 [ext_resource type="PackedScene" uid="uid://cwt4p3bufkke5" path="res://addons/maaacks_game_template/base/nodes/windows/confirmation_popup_window_panel.tscn" id="5_6xh1d"]
+[ext_resource type="Script" uid="uid://cpy2ns3n3fmcs" path="res://scenes/windows/main_menu_credits_window.gd" id="5_dhrx6"]
+[ext_resource type="PackedScene" uid="uid://b6x84713q6k4l" path="res://scenes/credits/scrollable_credits.tscn" id="6_xkrf4"]
+
+[sub_resource type="PackedScene" id="PackedScene_x5bcm"]
+[node name="MainMenuOptionsWindow" unique_id=1787637973 instance=ExtResource("3_2k5l7")]
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+packed_scene = ExtResource("4_vsp5b")
+update_content = true
+close_button_text = "Back"
+
+[node name="CloseButton" parent="ContentContainer/BoxContainer/MenuButtonsMargin/MenuButtons" parent_id_path=PackedInt32Array(1371114575) index="0" unique_id=314526102]
+size_flags_horizontal = 0
+text = "Back"
+
+[sub_resource type="PackedScene" id="PackedScene_672y5"]
+[node name="MainMenuCreditsWindow" unique_id=1453761674 instance=ExtResource("3_2k5l7")]
+anchors_preset = 15
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+script = ExtResource("5_dhrx6")
+packed_scene = ExtResource("6_xkrf4")
+
+[node name="CloseButton" parent="ContentContainer/BoxContainer/MenuButtonsMargin/MenuButtons" parent_id_path=PackedInt32Array(1371114575) index="0" unique_id=314526102]
+size_flags_horizontal = 0
+text = "Back"
 
 [sub_resource type="Animation" id="1"]
 resource_name = "Intro"
@@ -290,12 +331,25 @@ states/Start/position = Vector2(82, 123)
 transitions = ["Intro", "OpenMainMenu", SubResource("11"), "OpenMainMenu", "OpenSubMenu", SubResource("14"), "Start", "Intro", SubResource("AnimationNodeStateMachineTransition_j0orr"), "OpenSubMenu", "OpenMainMenu", SubResource("AnimationNodeStateMachineTransition_63dxc")]
 graph_offset = Vector2(-180.277, 49)
 
+[sub_resource type="PackedScene" id="PackedScene_8dhfv"]
+[node name="PopupParent" type="CanvasLayer" unique_id=2008552931]
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=968532893]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7529412)
+
+[resource]
+
 [node name="MainMenu" unique_id=589811630 instance=ExtResource("1_sr523")]
 script = ExtResource("2_ixa71")
 level_select_packed_scene = null
 confirm_new_game = true
-options_packed_scene = ExtResource("3_2k5l7")
-credits_packed_scene = ExtResource("4_vsp5b")
+options_packed_scene = SubResource("PackedScene_x5bcm")
+credits_packed_scene = SubResource("PackedScene_672y5")
 
 [node name="MenuAnimationPlayer" type="AnimationPlayer" parent="." index="1" unique_id=1492532975]
 libraries/ = SubResource("AnimationLibrary_2kqig")
@@ -341,6 +395,7 @@ offset_left = -210.0
 offset_top = -100.0
 offset_right = 210.0
 offset_bottom = 100.0
+parent_scene = SubResource("PackedScene_8dhfv")
 title = "New Game"
 text = "Are you sure you want to start a new game?
 
