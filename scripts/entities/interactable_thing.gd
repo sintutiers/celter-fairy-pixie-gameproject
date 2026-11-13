@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
+@icon("res://scripts/entities/interactable_thing.svg")
 ## Anything the player can interact with: a tree, a box, a person.
 ## [method run] gives [member item] (if any), shows [member dialogue] (if any) and
 ## returns when it ends, so the caller can hold the interact lock for the whole interaction.

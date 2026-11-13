@@ -1,12 +1,13 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
+@icon("res://scripts/components/component.svg")
 ## Base class for everything that lives on a character as a component.
 ## Extend it instead of [Node] to get the [method _on_ready] and [method _on_setup] hooks.
 ##
 ## The body (the ancestor that owns the components) injects dependencies in its
 ## [method Node._enter_tree]. That runs top-down, so they are set in both hooks.
-## Dependencies are plain typed fields, not [code]@export[/code]. The body holds the exports
-## and assigns them once, see [PlayerBody]. Check them in [method _on_setup].
+## Dependencies are plain typed fields, not [code]@export[/code]. The body finds the
+## components and assigns them once, see [PlayerBody]. Check them in [method _on_setup].
 ##
 ## [method _on_setup] is deferred, so every sibling has finished [method Node._ready] by then.
 ## [b]Warning:[/b] The hooks are not chained. Components extending [Component] directly must not
