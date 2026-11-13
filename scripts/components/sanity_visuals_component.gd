@@ -51,4 +51,9 @@ func _on_zone_changed(zone: int) -> void:
 	if _tween:
 		_tween.kill()
 	_tween = create_tween()
-	_tween.tween_property(_material, "shader_parameter/strength", strength_per_zone[zone], fade_time)
+	_tween.tween_property(
+		_material,
+		"shader_parameter/strength",
+		strength_per_zone[zone],
+		fade_time,
+	)

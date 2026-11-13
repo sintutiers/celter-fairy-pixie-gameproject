@@ -143,7 +143,12 @@ func _on_ready() -> void:
 
 
 func _on_setup() -> void:
-	var deps := { "profile": profile, "input_component": input_component, "facing_component": facing_component, "state_chart": state_chart }
+	var deps := {
+		"profile": profile,
+		"input_component": input_component,
+		"facing_component": facing_component,
+		"state_chart": state_chart,
+	}
 	if not _require(deps):
 		_disabled = true
 		set_physics_process(false)
@@ -198,14 +203,21 @@ func _is_pushing_into_wall(input_dir: Vector2) -> bool:
 	return _to_world(input_dir).dot(-_wall_normal()) > 0.0
 
 
-func _apply_horizontal(delta: float, input_dir: Vector2, is_running: bool, speed_multiplier: float = 1.0) -> void:
+func _apply_horizontal(
+	delta: float,
+	input_dir: Vector2,
+	is_running: bool,
+	speed_multiplier: float = 1.0,
+) -> void:
 	# Wall jump lock ignores input, facing included.
 	if _wall_jump_lock_timer > 0.0:
 		return
 	var velocity_xz: Vector2 = _get_horizontal_velocity()
 
 	if input_dir.is_zero_approx():
-		_set_horizontal_velocity(velocity_xz.move_toward(Vector2.ZERO, profile.move_friction * delta))
+		_set_horizontal_velocity(
+			velocity_xz.move_toward(Vector2.ZERO, profile.move_friction * delta)
+		)
 		return
 
 	var direction: Vector2 = _to_world(input_dir)
@@ -247,7 +259,9 @@ func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
 	if _jump_buffer_timer <= 0.0 or not can_jump:
 		return false
 
-	var height: float = profile.jump_height * (profile.running_jump_height_multiplier if is_running else 1.0)
+	var height: float = profile.jump_height * (
+		profile.running_jump_height_multiplier if is_running else 1.0
+	)
 	var rise_gravity: float = profile.jump_gravity if profile.jump_gravity > 0.0 else _gravity()
 	# v = sqrt(2 * g * h) reaches exactly [param height] under rise gravity.
 	_set_vertical_velocity(sqrt(2.0 * rise_gravity * height))
@@ -258,7 +272,9 @@ func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
 	else:
 		var velocity_xz: Vector2 = _get_horizontal_velocity()
 		var speed_ratio: float = clampf(velocity_xz.length() / profile.run_speed, 0.0, 1.0)
-		_set_horizontal_velocity(velocity_xz * lerpf(1.0, profile.momentum_jump_distance_multiplier, speed_ratio))
+		_set_horizontal_velocity(
+			velocity_xz * lerpf(1.0, profile.momentum_jump_distance_multiplier, speed_ratio)
+		)
 
 	_coyote_timer = 0.0
 	_jump_buffer_timer = 0.0
@@ -336,9 +352,11 @@ func _on_air_physics(delta: float) -> void:
 
 	var vertical: float = _get_vertical_velocity()
 	# Rise gravity only while going up, so jump height and fall speed tune separately.
-	var gravity: float = (profile.jump_gravity
+	var gravity: float = (
+		profile.jump_gravity
 		if (profile.jump_gravity > 0.0 and vertical > 0.0)
-		else _gravity() + profile.fall_gravity_offset)
+		else _gravity() + profile.fall_gravity_offset
+	)
 	# Less gravity near the apex for hang time.
 	if absf(vertical) < profile.apex_hang_threshold:
 		gravity *= profile.apex_hang_gravity_multiplier
@@ -397,7 +415,9 @@ func _on_wall_slide_physics(delta: float) -> void:
 	if _disabled:
 		return
 	var gravity: float = _gravity() + profile.fall_gravity_offset
-	_set_vertical_velocity(maxf(_get_vertical_velocity() - gravity * delta, -profile.wall_slide_speed))
+	_set_vertical_velocity(
+		maxf(_get_vertical_velocity() - gravity * delta, -profile.wall_slide_speed)
+	)
 	wall_slid.emit()
 	_update_jump_buffer(delta)
 

@@ -10,7 +10,11 @@ extends Node
 
 func _ready() -> void:
 	LimboConsole.register_command(give_item, "give", "Gives an item. Usage: give <item_id> <count>")
-	LimboConsole.register_command(set_sanity, "sanity", "Sets the player's sanity. Usage: sanity <value>")
+	LimboConsole.register_command(
+		set_sanity,
+		"sanity",
+		"Sets the player's sanity. Usage: sanity <value>",
+	)
 	LimboConsole.register_command(use_item, "use", "Uses a carried item. Usage: use <item_id>")
 	LimboConsole.add_argument_autocomplete_source("give", 0, _item_ids)
 	LimboConsole.add_argument_autocomplete_source("use", 0, _item_ids)

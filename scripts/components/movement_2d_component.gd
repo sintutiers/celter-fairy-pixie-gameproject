@@ -29,7 +29,10 @@ func _on_setup() -> void:
 	_standing_shape_position = collision_shape.position
 	_shape = collision_shape.shape
 	if not (_shape is CapsuleShape2D or _shape is RectangleShape2D):
-		push_error("%s: crouch needs a CapsuleShape2D or RectangleShape2D, the shape stays standing size" % name)
+		push_error(
+			"%s: crouch needs a CapsuleShape2D or RectangleShape2D, the shape stays standing size"
+			% name
+		)
 		_shape = null
 		return
 	# Own copy: the height changes at runtime and the scene's shape resource is shared by every instance.
