@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Debug commands for [LimboConsole]. Autoload.
 ## Commands go through [PlayerApi], so they work for the 2D and the 3D player.
+## Also checks every .dialogue file for unknown item and quest ids on startup,
+## see [method _check_dialogue_ids].
 ##
 ## [LimboConsole] silently fails to register a bare callable, the command name
 ## must be passed as the second argument even when the function name matches.
@@ -18,6 +20,9 @@ func _ready() -> void:
 	LimboConsole.register_command(use_item, "use", "Uses a carried item. Usage: use <item_id>")
 	LimboConsole.add_argument_autocomplete_source("give", 0, _item_ids)
 	LimboConsole.add_argument_autocomplete_source("use", 0, _item_ids)
+	# Exported builds hold no .dialogue source, only compiled resources.
+	if OS.has_feature("editor"):
+		_check_dialogue_ids()
 
 
 #region Commands
@@ -74,3 +79,35 @@ func _item_ids() -> Array[String]:
 		if file.get_extension() == "tres":
 			ids.append(file.get_basename())
 	return ids
+
+
+#region Dialogue check
+# A typo in a .dialogue id only fails when that line is reached in play, which for a
+# rare branch is never during testing. This reports them all on every run from editor.
+# Only literal ids are seen. Flags and facts have no list to check against.
+func _check_dialogue_ids() -> void:
+	var calls: RegEx = RegEx.create_from_string(
+		"\\b(give_item|remove_item|has_item|use_item|quest_stage|quest_done|advance_quest)\\(\\s*\"([^\"]*)\"",
+	)
+	for path: String in _dialogue_files("res://"):
+		var text: String = FileAccess.get_file_as_string(path)
+		for found: RegExMatch in calls.search_all(text):
+			var id: String = found.get_string(2)
+			var directory: String = QuestData.DIR if "quest" in found.get_string(1) else ItemData.DIR
+			if ResourceLoader.exists("%s%s.tres" % [directory, id]):
+				continue
+			var line: int = text.count("\n", 0, found.get_start()) + 1
+			push_error("%s:%d: %s(\"%s\") but %s%s.tres does not exist" % [path, line, found.get_string(1), id, directory, id])
+
+
+# Hidden folders are skipped by DirAccess, addons hold only example dialogue.
+func _dialogue_files(directory: String) -> PackedStringArray:
+	var files: PackedStringArray = PackedStringArray()
+	for folder: String in DirAccess.get_directories_at(directory):
+		if folder != "addons":
+			files.append_array(_dialogue_files(directory.path_join(folder)))
+	for file: String in DirAccess.get_files_at(directory):
+		if file.get_extension() == "dialogue":
+			files.append(directory.path_join(file))
+	return files
+#endregion
