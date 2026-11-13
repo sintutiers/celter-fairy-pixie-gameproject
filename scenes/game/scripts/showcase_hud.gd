@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Shows the player's sanity and inventory as text, for the showcase level.
+## Shows the player's sanity, inventory and facts as text, for the showcase level.
 ## Polled every frame because it is a debug view, not the real HUD.
 class_name ShowcaseHud
 extends Label
@@ -21,5 +21,9 @@ func _process(_delta: float) -> void:
 			var label: String = item.display_name if item.display_name != "" else item.id()
 			lines.append("  %s x%d" % [label, api.inventory.items[item]])
 	if not GameState.has_game_state():
-		lines.append("No save data: flags and pickups reset. Start from the main menu to keep them.")
+		lines.append("No save data: flags, facts and pickups reset. Start from the main menu to keep them.")
+	else:
+		var facts: Dictionary[String, Variant] = GameState.get_or_create_state().facts
+		for key: String in facts:
+			lines.append("  %s = %s" % [key, facts[key]])
 	text = "\n".join(lines)

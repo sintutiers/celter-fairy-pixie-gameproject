@@ -4,10 +4,15 @@ Sign: Things can lock the player (Cassie) or not (this sign).
 => END
 
 ~ npc
+if quest_done("help_cassie")
+	Cassie: You opened my door! Quests remember their stage, even in another level.
+	=> END
 if has_item("showcase_key")
 	Cassie: You already have my key. The locked door is right behind me.
 	=> END
-if get_flag("showcase.met")
+if opinion("cassie") < 0
+	Cassie: You again. I remember being ignored, opinions are saved too.
+elif get_flag("showcase.met")
 	Cassie: Back again? Dialogue remembers things with flags.
 else
 	Cassie: Hi! While we talk you cannot move.
@@ -16,10 +21,14 @@ Cassie: Will you help me? Choices can change your sanity.
 - Help her
 	do sanity_add(10)
 	do give_item("showcase_key")
+	if quest_stage("help_cassie") == -1
+		do advance_quest("help_cassie")
+	do add_opinion("cassie", 1)
 	Cassie: Thanks! Take my key, it opens the door behind me.
 	Cassie: Look at the top left, your sanity went up and the key is in your inventory.
 - Ignore her
 	do sanity_add(-20)
+	do add_opinion("cassie", -1)
 	Cassie: Oh. That cost you some sanity. Talk to me again if you change your mind.
 => END
 
@@ -28,6 +37,7 @@ The door is locked. Maybe Cassie has a key.
 => END
 
 ~ door_open
+do advance_quest("help_cassie")
 You unlock the door with Cassie's key. Things can need an item first.
 => END
 
