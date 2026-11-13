@@ -950,6 +950,7 @@ metadata/_custom_type_script = "uid://b0bul4sdikiw3"
 
 [node name="SanityComponent" type="Node" parent="." unique_id=1591365796]
 script = ExtResource("26_0lqjd")
+drain_per_second = 1.0
 metadata/_custom_type_script = "uid://dujfd7ts273sj"
 
 [node name="SanityVisualsComponent" type="Node" parent="."]
