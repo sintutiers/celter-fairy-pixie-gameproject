@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="4_tween"]
 [ext_resource type="Script" uid="uid://dq5r7n4mxqqoa" path="res://scripts/entities/interactable_thing.gd" id="5_thing"]
 [ext_resource type="Resource" uid="uid://ds0jpb0tn23s0" path="res://scenes/items/aspect_of_hate.tres" id="6_hate"]
-[ext_resource type="Resource" path="res://scenes/items/showcase_key.tres" id="7_key"]
+[ext_resource type="Resource" uid="uid://du4dj54nwpfrb" path="res://scenes/items/showcase_key.tres" id="7_key"]
 [ext_resource type="Resource" uid="uid://xyndj6m2nwcq" path="res://The Amazing Art and Sound Folder/showcase.dialogue" id="8_dialogue"]
 [ext_resource type="Texture2D" uid="uid://cgdoexuttam65" path="res://The Amazing Art and Sound Folder/archive/cassie_red1.png" id="9_cassie1"]
 [ext_resource type="Texture2D" uid="uid://6yeroqsmvbna" path="res://The Amazing Art and Sound Folder/archive/cassie_red2.png" id="10_cassie2"]
@@ -429,3 +429,5 @@ spring_length = 3.0
 align_transform_with_view = Callable()
 align_position_with_view = Callable()
 align_rotation_with_view = Callable()
+
+[connection signal="finished" from="World/7_Room/Chest" to="." method="win"]

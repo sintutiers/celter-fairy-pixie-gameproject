@@ -12,6 +12,12 @@ signal level_changed(level_path : String)
 
 var level_state : LevelState
 
+## Wins the level. Connect any signal to it in the level scene, such as
+## [signal InteractableThing.finished]. Goes to [member next_level_path], or when empty
+## to the next level in the level manager's list.
+func win(_by: PlayerApi = null) -> void:
+	level_won.emit(next_level_path)
+
 func open_tutorials() -> void:
 	%TutorialManager.open_tutorials()
 	if level_state:
