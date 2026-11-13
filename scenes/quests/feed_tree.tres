@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="QuestData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/quest_data.gd" id="1_quest"]
+
+[resource]
+script = ExtResource("1_quest")
+title = "The Dying Tree"
+stages = PackedStringArray("Bring the tree a loaf of bread.", "Go through the gate the tree opened.")

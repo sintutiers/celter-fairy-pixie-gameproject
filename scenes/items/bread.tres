@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" uid="uid://0j5hlery3ufs" path="res://scripts/data/item_data.gd" id="1_item"]
+[ext_resource type="Resource" uid="uid://xyndj6m2nwcq" path="res://The Amazing Art and Sound Folder/showcase.dialogue" id="2_dialogue"]
+
+[resource]
+script = ExtResource("1_item")
+display_name = "Bread"
+description = "Stale. Eating it restores some sanity."
+max_stack = 5
+sanity_restore = 15.0
+use_dialogue = ExtResource("2_dialogue")
+use_dialogue_cue = "bread_used"

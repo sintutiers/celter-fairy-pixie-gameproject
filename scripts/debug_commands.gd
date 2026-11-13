@@ -11,7 +11,9 @@ extends Node
 func _ready() -> void:
 	LimboConsole.register_command(give_item, "give", "Gives an item. Usage: give <item_id> <count>")
 	LimboConsole.register_command(set_sanity, "sanity", "Sets the player's sanity. Usage: sanity <value>")
+	LimboConsole.register_command(use_item, "use", "Uses a carried item. Usage: use <item_id>")
 	LimboConsole.add_argument_autocomplete_source("give", 0, _item_ids)
+	LimboConsole.add_argument_autocomplete_source("use", 0, _item_ids)
 
 
 #region Commands
@@ -25,6 +27,18 @@ func give_item(id: String, count: int = 1) -> void:
 		LimboConsole.info("+%d %s" % [count, id])
 	else:
 		LimboConsole.error("could not give %d %s, see the errors above" % [count, id])
+
+
+## Uses the carried item with [param id], see [method InventoryComponent.use].
+## The only way to use an item until there is an inventory UI.
+func use_item(id: String) -> void:
+	var api: PlayerApi = _api()
+	if not api:
+		return
+	if api.use_item(id):
+		LimboConsole.info("used %s" % id)
+	else:
+		LimboConsole.error("could not use %s, is it carried?" % id)
 
 
 ## Sets the sanity meter to [param value], clamped to [member SanityComponent.max_sanity].

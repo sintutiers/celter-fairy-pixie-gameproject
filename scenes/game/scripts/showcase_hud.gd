@@ -26,4 +26,14 @@ func _process(_delta: float) -> void:
 		var facts: Dictionary[String, Variant] = GameState.get_or_create_state().facts
 		for key: String in facts:
 			lines.append("  %s = %s" % [key, facts[key]])
+			if key.begins_with("quest."):
+				lines.append("    " + _quest_line(key.trim_prefix("quest."), facts[key]))
 	text = "\n".join(lines)
+
+
+# Title and journal text of the quest's stage. Placeholder for the quest journal.
+func _quest_line(id: String, stage: int) -> String:
+	var quest: QuestData = QuestData.load_id(id)
+	if not quest:
+		return "unknown quest"
+	return "%s: %s" % [quest.title, quest.stages[stage] if stage < quest.stages.size() else "done"]
