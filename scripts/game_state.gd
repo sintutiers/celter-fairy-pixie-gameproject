@@ -1,14 +1,24 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Saved game data, accessed through the static helpers.
+## Changing what saved data means (renamed fact key, reordered quest stages, new key format)
+## needs a bump of [constant SAVE_VERSION] and a step in [method _migrate], or old saves break.
 class_name GameState
 extends Resource
 
 const STATE_NAME: String = "GameState"
 const FILE_PATH = "res://scripts/game_state.gd"
+## Version this game writes. Older saves are migrated on load.
+const SAVE_VERSION: int = 1
 
-## Level scene path or uid to [LevelState].
+## 0 = save from before versions existed.
+@export var save_version: int = 0
+## Level scene uid to [LevelState].
 @export var level_states: Dictionary[String, LevelState] = { }
+## Carried items, item id to count. Written by [InventoryComponent].
+@export var inventory: Dictionary[String, int] = { }
+## Negative = never saved. Written by [SanityComponent].
+@export var sanity: float = -1.0
 ## Story state that outlives a level, see [method get_fact].
 @export var facts: Dictionary[String, Variant] = { }
 @export var current_level_path: String
@@ -21,7 +31,7 @@ const FILE_PATH = "res://scripts/game_state.gd"
 ## Returns the saved [LevelState] for a level scene path or uid, or null without a game state.
 ## A level seen for the first time gets a state created and saved, so a read can write.
 static func get_level_state(level_state_key: String) -> LevelState:
-	level_state_key = ResourceUID.ensure_path(level_state_key)
+	level_state_key = _level_key(level_state_key)
 	if not has_game_state():
 		return
 	var game_state := get_or_create_state()
@@ -40,8 +50,12 @@ static func has_game_state() -> bool:
 	return GlobalState.has_state(STATE_NAME)
 
 
+## Every access goes through here, so this is where old saves get migrated.
 static func get_or_create_state() -> GameState:
-	return GlobalState.get_or_create_state(STATE_NAME, FILE_PATH)
+	var game_state: GameState = GlobalState.get_or_create_state(STATE_NAME, FILE_PATH)
+	if game_state.save_version != SAVE_VERSION:
+		_migrate(game_state)
+	return game_state
 
 
 static func get_current_level_path() -> String:
@@ -90,11 +104,14 @@ static func continue_game() -> void:
 	GlobalState.save()
 
 
-## Wipes level progress, facts and play time. [member total_games_played] is kept.
+## Wipes level progress, facts, inventory, sanity and play time.
+## [member total_games_played] is kept.
 static func reset() -> void:
 	var game_state := get_or_create_state()
 	game_state.level_states.clear()
 	game_state.facts.clear()
+	game_state.inventory.clear()
+	game_state.sanity = -1.0
 	game_state.current_level_path = ""
 	game_state.checkpoint_level_path = ""
 	game_state.play_time = 0
@@ -136,4 +153,30 @@ static func set_fact(key: String, value: Variant = true) -> void:
 		push_warning("no game state, fact '%s' not saved" % key)
 		return
 	get_or_create_state().facts[key] = value
+	GlobalState.save()
+
+
+# Uid survives renaming or moving level scene, path does not.
+# Scene without uid keeps its path as key.
+static func _level_key(level_path: String) -> String:
+	if level_path.is_empty() or level_path.begins_with("uid://"):
+		return level_path
+	return ResourceUID.path_to_uid(level_path)
+
+
+# One step per version, in order, each lifts save by one.
+# Never edit old step: saves already out there were written by it.
+static func _migrate(game_state: GameState) -> void:
+	if game_state.save_version > SAVE_VERSION:
+		push_error(
+			"save is version %d, this game only knows %d. Loaded as is, expect missing progress."
+			% [game_state.save_version, SAVE_VERSION],
+		)
+	# 0 to 1: level states were keyed by scene path.
+	if game_state.save_version < 1:
+		var by_uid: Dictionary[String, LevelState] = { }
+		for level_path: String in game_state.level_states:
+			by_uid[_level_key(level_path)] = game_state.level_states[level_path]
+		game_state.level_states = by_uid
+	game_state.save_version = SAVE_VERSION
 	GlobalState.save()

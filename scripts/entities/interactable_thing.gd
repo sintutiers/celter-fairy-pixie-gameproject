@@ -94,6 +94,10 @@ func run(by: PlayerApi) -> void:
 	if item and not by.give_item(item.id(), item_count):
 		await _block(by, FULL)
 		return
+	# Saved now, not after dialogue: item is already saved in inventory, so quitting
+	# mid dialogue would leave both pickup and item.
+	if free_after and persistent_id != "":
+		GameState.set_level_flag(_level_path(), _done_key())
 	_running = true
 	started.emit(by)
 	if animate_on_interact and sprite:
@@ -104,8 +108,6 @@ func run(by: PlayerApi) -> void:
 	_running = false
 	finished.emit(by)
 	if free_after:
-		if persistent_id != "":
-			GameState.set_level_flag(_level_path(), _done_key())
 		queue_free()
 
 

@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## The player's inventory, [ItemData] to count. A stack of [member ItemData.max_stack]
 ## takes one slot, [member max_slots] limits the slots used in total.
+## Saved in [member GameState.inventory] on every change and loaded on ready,
+## so it survives level changes and restarts. Without game state nothing is saved.
 ## Dependencies (api, optional sanity) are injected by the body.
 class_name InventoryComponent
 extends Component
@@ -53,6 +55,7 @@ func add(item: ItemData, count: int = 1) -> bool:
 		add_failed.emit(item)
 		return false
 	items[item] = items.get(item, 0) + count
+	_save()
 	_log("+%d %s" % [count, item.id()])
 	item_added.emit(item, count)
 	return true
@@ -65,6 +68,7 @@ func remove(item: ItemData, count: int = 1) -> bool:
 	items[item] -= count
 	if items[item] <= 0:
 		items.erase(item)
+	_save()
 	_log("-%d %s" % [count, item.id()])
 	return true
 
@@ -94,10 +98,34 @@ func _on_ready() -> void:
 		func(_r: DialogueResource) -> void:
 			_in_dialogue = false,
 	)
+	_load_saved()
 
 
 func _on_setup() -> void:
 	_require({ "api": api })
+
+
+# No signals: nothing was picked up, pickup toast must stay quiet.
+# Item whose .tres is gone is reported by load_id and dropped on next save.
+func _load_saved() -> void:
+	if not GameState.has_game_state():
+		return
+	var saved: Dictionary[String, int] = GameState.get_or_create_state().inventory
+	for id: String in saved:
+		var item: ItemData = ItemData.load_id(id)
+		if item:
+			items[item] = saved[id]
+
+
+# Saved by id, not by resource. Renaming item file breaks saves that hold it.
+func _save() -> void:
+	if not GameState.has_game_state():
+		return
+	var saved: Dictionary[String, int] = { }
+	for item: ItemData in items:
+		saved[item.id()] = items[item]
+	GameState.get_or_create_state().inventory = saved
+	GlobalState.save()
 
 
 func _log(message: String) -> void:

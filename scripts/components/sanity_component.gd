@@ -3,6 +3,8 @@
 ## The sanity meter. Changes through [method add] or a flat [member drain_per_second].
 ## Drain pauses during interaction (interact_component is injected by the body)
 ## and inside sanctuaries (see [method pause]).
+## Value is kept in [member GameState.sanity], so it survives level changes and restarts.
+## Without game state it starts at [member max_sanity] every time.
 class_name SanityComponent
 extends Component
 
@@ -67,6 +69,9 @@ func set_value(new_value: float) -> void:
 	if new_value == value:
 		return
 	value = new_value
+	# Only mirrored here. Drain changes it every physics frame, file is written in _exit_tree.
+	if GameState.has_game_state():
+		GameState.get_or_create_state().sanity = value
 	changed.emit(value, get_ratio())
 
 	var new_zone: int = _zone_for(get_ratio())
@@ -80,7 +85,19 @@ func set_value(new_value: float) -> void:
 
 func _on_ready() -> void:
 	value = max_sanity
+	if GameState.has_game_state():
+		var saved: float = GameState.get_or_create_state().sanity
+		# Placeholder until FDD decides what sanity 0 does: level is lost and restart
+		# refills. Loading 0 would restart into a meter that can never deplete again.
+		if saved > 0.0:
+			value = minf(saved, max_sanity)
 	zone = _zone_for(get_ratio())
+
+
+# Level change, restart and quit all free player, so this covers them.
+func _exit_tree() -> void:
+	if GameState.has_game_state():
+		GlobalState.save()
 
 
 # Index after the last threshold at or below the ratio, so thresholds must be ascending.
