@@ -1,23 +1,24 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## The player's inventory, [ItemData] to count. A stack of [member ItemData.max_stack]
-## takes one slot, [member max_slots] limits the slots used in total.
+## Player inventory, [ItemData] to count. Stack of [member ItemData.max_stack]
+## takes one slot, [member max_slots] limits slots used in total.
 ## Saved in [member GameState.inventory] on every change and loaded on ready,
 ## so it survives level changes and restarts. Without game state nothing is saved.
-## Dependencies (api, optional sanity) are injected by the body.
+## Dependencies (api, optional sanity_component) are injected by body.
 class_name InventoryComponent
 extends Component
 
-## Emitted after an item was added.
+## Emitted after item was added.
 signal item_added(item: ItemData, count: int)
 ## Emitted when [method add] found no room.
 signal add_failed(item: ItemData)
 
+## Slots in total, see [method slots_used].
 @export var max_slots: int = 8
 ## Prints inventory changes. Testing only.
 @export var debug: bool = true
 
-var sanity: SanityComponent
+var sanity_component: SanityComponent
 ## Passed to item use dialogues as extra game state.
 var api: PlayerApi
 ## Item to count. Read only, change it through [method add] and [method remove].
@@ -32,6 +33,7 @@ func has(item: ItemData, count: int = 1) -> bool:
 	return item != null and items.get(item, 0) >= count
 
 
+## Slots taken by all carried stacks together.
 func slots_used() -> int:
 	var used: int = 0
 	for item: ItemData in items:
@@ -39,7 +41,7 @@ func slots_used() -> int:
 	return used
 
 
-## True if [param count] more of [param item] fit in the free slots.
+## True if [param count] more of [param item] fit in free slots.
 func can_carry(item: ItemData, count: int = 1) -> bool:
 	var have: int = items.get(item, 0)
 	var extra: int = _slots_for(item, have + count) - _slots_for(item, have)
@@ -47,8 +49,12 @@ func can_carry(item: ItemData, count: int = 1) -> bool:
 
 
 ## All or nothing. Returns false when there is no room and nothing was added.
+## Pushes error when [param count] is below 1.
 func add(item: ItemData, count: int = 1) -> bool:
 	if not item:
+		return false
+	if count < 1:
+		push_error("%s: add count must be at least 1, got %d" % [name, count])
 		return false
 	if not can_carry(item, count):
 		_log("no room for %s" % item.id())
@@ -62,7 +68,11 @@ func add(item: ItemData, count: int = 1) -> bool:
 
 
 ## Returns false when fewer than [param count] are carried and nothing was removed.
+## Pushes error when [param count] is below 1.
 func remove(item: ItemData, count: int = 1) -> bool:
+	if count < 1:
+		push_error("%s: remove count must be at least 1, got %d" % [name, count])
+		return false
 	if not has(item, count):
 		return false
 	items[item] -= count
@@ -73,15 +83,15 @@ func remove(item: ItemData, count: int = 1) -> bool:
 	return true
 
 
-## Applies the item's effects and consumes it if [member ItemData.consumed_on_use].
+## Applies item effects and consumes it if [member ItemData.consumed_on_use].
 ## Its use dialogue only shows when no dialogue is open.
-## Returns false if the item is not carried.
+## Returns false if item is not carried.
 func use(item: ItemData) -> bool:
 	if not has(item):
 		return false
 	_log("used %s" % item.id())
-	if sanity and item.sanity_restore != 0.0:
-		sanity.add(item.sanity_restore)
+	if sanity_component and item.sanity_restore != 0.0:
+		sanity_component.add(item.sanity_restore)
 	if item.consumed_on_use:
 		remove(item)
 	if item.use_dialogue and not _in_dialogue:

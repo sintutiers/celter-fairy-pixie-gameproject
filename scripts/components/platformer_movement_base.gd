@@ -1,29 +1,32 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Platformer movement: walk, run, jump, wall slide, dash, crouch.
-## The state chart picks the active state, this does the physics for it and sends
-## events back through [method _send]. Values come from a [MovementProfile].
-## Extend it and implement the abstract functions for 2D or 3D.
+## State chart picks active state, this does physics for it and sends
+## events back through [method _send]. Values come from [MovementProfile].
+## Extend it and implement abstract functions for 2D or 3D.
 ##
 ## Dependencies (profile, input, facing, state chart, optional interaction) are injected
-## by the body in [method Node._enter_tree], so they are set in [method Component._on_ready]
+## by body in [method Node._enter_tree], so they are set in [method Component._on_ready]
 ## and [method Component._on_setup].
 @abstract
 class_name PlatformerMovementBase
 extends Component
 
-## Emitted when the idle, walk, run, push or crouch motion changes on the ground.
+## Emitted when idle, walk, run, push or crouch motion changes on ground.
 signal ground_motion_changed(motion: StringName)
-## [param jump_count] is the jump number in this airtime, 1 for the first.
+## [param jump_count] is jump number in this airtime, 1 for first.
 signal jumped(jump_count: int)
+## Emitted instead of [signal jumped] when jump pushes off wall.
 signal wall_jumped
-## [param motion] is the ground motion at the moment of landing.
+## [param motion] is ground motion at moment of landing.
 signal landed(motion: StringName)
 ## Emitted once when vertical velocity turns downward.
 signal started_falling
-## Emitted every physics frame while sliding.
+## Emitted once when wall slide starts.
 signal wall_slid
+## Emitted when wall slide ends by losing wall, not by landing or wall jump.
 signal fell_from_wall
+## Emitted once when dash starts.
 signal dashed
 
 ## Ignore input during interactions (see [InteractionComponent]).
@@ -32,16 +35,14 @@ signal dashed
 var profile: MovementProfile
 var input_component: InputComponent
 var facing_component: FacingComponent
-var interact_component: InteractionComponent
+var interaction_component: InteractionComponent
 var state_chart: StateChart
 
 var _empty_frame: InputFrame = InputFrame.new()
-# A transition was sent this frame, so the post-move check is stale and skipped.
+# Transition was sent this frame, so post-move check is stale and skipped.
 var _transition_sent: bool = false
 var _grounded_before_move: bool = false
 var _locked: bool = false
-var _disabled: bool = false
-var _last_land_frame: int = -1
 var _coyote_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
 var _jumps_used: int = 0
@@ -53,19 +54,17 @@ var _dash_direction: Vector2 = Vector2.RIGHT
 var _wall_jump_lock_timer: float = 0.0
 var _was_falling: bool = false
 
-@onready var ground_state: StateChartState = %Ground
-@onready var air_state: StateChartState = %Air
-@onready var wall_slide_state: StateChartState = %WallSlide
-@onready var dash_state: StateChartState = %Dash
-@onready var crouch_state: StateChartState = %Crouch
+@onready var _ground_state: StateChartState = %Ground
+@onready var _air_state: StateChartState = %Air
+@onready var _wall_slide_state: StateChartState = %WallSlide
+@onready var _dash_state: StateChartState = %Dash
+@onready var _crouch_state: StateChartState = %Crouch
 
 
 #region Lifecycle
-# Order per frame: the state chart runs the active state's physics (priority 0),
-# then this runs move_and_slide and the post-move checks (priority 1).
+# Order per frame: state chart runs active state physics (priority 0),
+# then this runs move_and_slide and post-move checks (priority 1).
 func _physics_process(delta: float) -> void:
-	if _disabled or not input_component or not facing_component:
-		return
 	if _dash_cooldown_timer > 0.0:
 		_dash_cooldown_timer -= delta
 	if _wall_jump_lock_timer > 0.0:
@@ -79,7 +78,7 @@ func _physics_process(delta: float) -> void:
 
 #region Abstract
 # Horizontal vectors are in world space (x/z in 3D). Vertical values are along up.
-# _gravity returns a positive magnitude.
+# _gravity returns positive magnitude.
 @abstract func _gravity() -> float
 
 
@@ -128,18 +127,19 @@ func _physics_process(delta: float) -> void:
 
 func _on_ready() -> void:
 	process_physics_priority = 1
+	# _on_setup reports missing state chart.
 	if not state_chart:
-		return # _on_setup reports the missing dependency.
+		return
 	state_chart.process_physics_priority = 0
-	ground_state.state_physics_processing.connect(_on_ground_physics)
-	air_state.state_physics_processing.connect(_on_air_physics)
-	wall_slide_state.state_entered.connect(_on_wall_slide_entered)
-	wall_slide_state.state_physics_processing.connect(_on_wall_slide_physics)
-	dash_state.state_entered.connect(_on_dash_entered)
-	dash_state.state_physics_processing.connect(_on_dash_physics)
-	crouch_state.state_entered.connect(_on_crouch_entered)
-	crouch_state.state_physics_processing.connect(_on_crouch_physics)
-	crouch_state.state_exited.connect(_on_crouch_exited)
+	_ground_state.state_physics_processing.connect(_on_ground_physics)
+	_air_state.state_physics_processing.connect(_on_air_physics)
+	_wall_slide_state.state_entered.connect(_on_wall_slide_entered)
+	_wall_slide_state.state_physics_processing.connect(_on_wall_slide_physics)
+	_dash_state.state_entered.connect(_on_dash_entered)
+	_dash_state.state_physics_processing.connect(_on_dash_physics)
+	_crouch_state.state_entered.connect(_on_crouch_entered)
+	_crouch_state.state_physics_processing.connect(_on_crouch_physics)
+	_crouch_state.state_exited.connect(_on_crouch_exited)
 
 
 func _on_setup() -> void:
@@ -150,40 +150,44 @@ func _on_setup() -> void:
 		"state_chart": state_chart,
 	}
 	if not _require(deps):
-		_disabled = true
-		set_physics_process(false)
-		if state_chart:
-			state_chart.process_mode = Node.PROCESS_MODE_DISABLED
+		_disable()
 		return
 
-	if locks_during_interact and interact_component:
-		interact_component.interact_started.connect(_set_locked.bind(true))
-		interact_component.interact_ended.connect(_set_locked.bind(false))
+	if locks_during_interact and interaction_component:
+		interaction_component.interact_started.connect(_set_locked.bind(true))
+		interaction_component.interact_ended.connect(_set_locked.bind(false))
 #endregion
 
 
 #region Helpers
+# Stops state chart too, so no state handler runs on missing dependencies.
+func _disable() -> void:
+	set_physics_process(false)
+	if state_chart:
+		state_chart.process_mode = Node.PROCESS_MODE_DISABLED
+
+
 func _set_locked(value: bool) -> void:
 	_locked = value
 
 
 # Empty while locked, so every state sees no input instead of needing its own check.
 func _frame() -> InputFrame:
-	if _locked or not input_component:
+	if _locked:
 		return _empty_frame
 	return input_component.get_frame()
 
 
 func _run_post_move() -> void:
-	if ground_state.active:
+	if _ground_state.active:
 		_after_ground()
-	elif air_state.active:
+	elif _air_state.active:
 		_after_air()
-	elif wall_slide_state.active:
+	elif _wall_slide_state.active:
 		_after_wall_slide()
-	elif dash_state.active:
+	elif _dash_state.active:
 		_after_dash()
-	elif crouch_state.active:
+	elif _crouch_state.active:
 		_after_crouch()
 
 
@@ -191,7 +195,7 @@ func _move_input() -> Vector2:
 	return _read_move(_frame()).limit_length(1.0)
 
 
-## Sends [param event] to the state chart, see [StateEvents]. The post-move check is skipped this frame.
+# Sends event to state chart, see StateEvents. Post-move check is skipped this frame.
 func _send(event: StringName) -> void:
 	_transition_sent = true
 	state_chart.send_event(event)
@@ -212,19 +216,19 @@ func _apply_horizontal(
 	# Wall jump lock ignores input, facing included.
 	if _wall_jump_lock_timer > 0.0:
 		return
-	var velocity_xz: Vector2 = _get_horizontal_velocity()
+	var horizontal_velocity: Vector2 = _get_horizontal_velocity()
 
 	if input_dir.is_zero_approx():
 		_set_horizontal_velocity(
-			velocity_xz.move_toward(Vector2.ZERO, profile.move_friction * delta)
+			horizontal_velocity.move_toward(Vector2.ZERO, profile.move_friction * delta)
 		)
 		return
 
 	var direction: Vector2 = _to_world(input_dir)
-	var turning: bool = not velocity_xz.is_zero_approx() and velocity_xz.dot(direction) < 0.0
+	var turning: bool = not horizontal_velocity.is_zero_approx() and horizontal_velocity.dot(direction) < 0.0
 	var accel_rate: float = profile.turn_acceleration if turning else profile.move_acceleration
 	var target_speed: float = (profile.run_speed if is_running else profile.move_speed) * speed_multiplier
-	_set_horizontal_velocity(velocity_xz.move_toward(direction * target_speed, accel_rate * delta))
+	_set_horizontal_velocity(horizontal_velocity.move_toward(direction * target_speed, accel_rate * delta))
 	facing_component.update(input_dir)
 
 
@@ -242,7 +246,7 @@ func _update_current_motion(on_ground: bool, input_dir: Vector2, is_running: boo
 	if motion == _current_motion:
 		return
 	_current_motion = motion
-	# Tracked in the air too, so landing reports the right motion. Only emitted on the ground.
+	# Tracked in air too, so landing reports right motion. Only emitted on ground.
 	if on_ground:
 		ground_motion_changed.emit(motion)
 
@@ -255,7 +259,7 @@ func _update_jump_buffer(delta: float) -> void:
 
 
 func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
-	var can_jump: bool = _coyote_timer > 0.0 or _jumps_used < profile.default_max_jumps
+	var can_jump: bool = _coyote_timer > 0.0 or _jumps_used < profile.max_jumps
 	if _jump_buffer_timer <= 0.0 or not can_jump:
 		return false
 
@@ -263,17 +267,17 @@ func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
 		profile.running_jump_height_multiplier if is_running else 1.0
 	)
 	var rise_gravity: float = profile.jump_gravity if profile.jump_gravity > 0.0 else _gravity()
-	# v = sqrt(2 * g * h) reaches exactly [param height] under rise gravity.
+	# v = sqrt(2 * g * h) reaches exactly height under rise gravity.
 	_set_vertical_velocity(sqrt(2.0 * rise_gravity * height))
 
 	if is_wall_jump:
 		_set_horizontal_velocity(_wall_normal() * profile.wall_jump_push_speed)
 		_wall_jump_lock_timer = profile.wall_jump_lock_duration
 	else:
-		var velocity_xz: Vector2 = _get_horizontal_velocity()
-		var speed_ratio: float = clampf(velocity_xz.length() / profile.run_speed, 0.0, 1.0)
+		var horizontal_velocity: Vector2 = _get_horizontal_velocity()
+		var speed_ratio: float = clampf(horizontal_velocity.length() / profile.run_speed, 0.0, 1.0)
 		_set_horizontal_velocity(
-			velocity_xz * lerpf(1.0, profile.momentum_jump_distance_multiplier, speed_ratio)
+			horizontal_velocity * lerpf(1.0, profile.momentum_jump_distance_multiplier, speed_ratio)
 		)
 
 	_coyote_timer = 0.0
@@ -288,24 +292,19 @@ func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
 	return true
 
 
-func _try_dash() -> bool:
+func _wants_dash() -> bool:
 	if _dash_cooldown_timer > 0.0 or _dashes_used >= profile.max_dashes:
 		return false
 	return _frame().dash_pressed
 
 
-# Refills jumps and dashes, whatever state the landing came from.
+# Refills jumps and dashes, whatever state landing came from.
 func _land() -> void:
-	# Several post-move checks can detect the same landing, only the first counts.
-	var frame: int = Engine.get_physics_frames()
-	if _last_land_frame == frame:
-		return
-	_last_land_frame = frame
 	_dashes_used = 0
 	_jumps_used = 0
 	_was_falling = false
-	# landed already carries the motion. Emitting ground_motion_changed here
-	# would replace the landing animation on the same frame, see
+	# landed already carries motion. Emitting ground_motion_changed here
+	# would replace landing animation on same frame, see
 	# AnimationComponent._on_ground_motion_changed.
 	landed.emit(_current_motion)
 	_send(StateEvents.LAND)
@@ -314,14 +313,12 @@ func _land() -> void:
 
 #region Ground
 func _on_ground_physics(delta: float) -> void:
-	if _disabled:
-		return
 	var frame: InputFrame = _frame()
 
 	_coyote_timer = profile.coyote_time
 	_update_jump_buffer(delta)
 
-	if _try_dash():
+	if _wants_dash():
 		_send(StateEvents.DASH)
 		return
 
@@ -344,9 +341,7 @@ func _after_ground() -> void:
 
 #region Air
 func _on_air_physics(delta: float) -> void:
-	if _disabled:
-		return
-	if _try_dash():
+	if _wants_dash():
 		_send(StateEvents.DASH)
 		return
 
@@ -357,7 +352,7 @@ func _on_air_physics(delta: float) -> void:
 		if (profile.jump_gravity > 0.0 and vertical > 0.0)
 		else _gravity() + profile.fall_gravity_offset
 	)
-	# Less gravity near the apex for hang time.
+	# Less gravity near apex for hang time.
 	if absf(vertical) < profile.apex_hang_threshold:
 		gravity *= profile.apex_hang_gravity_multiplier
 	vertical = maxf(vertical - gravity * delta, -profile.max_fall_speed)
@@ -372,7 +367,7 @@ func _on_air_physics(delta: float) -> void:
 		_was_falling = false
 
 	_coyote_timer -= delta
-	# Walking off a ledge spends the ground jump once the grace time is over,
+	# Walking off ledge spends ground jump once grace time is over,
 	# otherwise every air jump is still available.
 	if _coyote_timer <= 0.0 and _jumps_used == 0:
 		_jumps_used = 1
@@ -401,10 +396,9 @@ func _after_air() -> void:
 
 #region Wall slide
 func _on_wall_slide_entered() -> void:
-	if _disabled:
-		return
 	_jump_buffer_timer = 0.0
 	_was_falling = false
+	wall_slid.emit()
 	# Wall contact refills jumps so wall jumps can chain.
 	if profile.wall_jump_enabled:
 		_jumps_used = 0
@@ -412,13 +406,10 @@ func _on_wall_slide_entered() -> void:
 
 
 func _on_wall_slide_physics(delta: float) -> void:
-	if _disabled:
-		return
 	var gravity: float = _gravity() + profile.fall_gravity_offset
 	_set_vertical_velocity(
 		maxf(_get_vertical_velocity() - gravity * delta, -profile.wall_slide_speed)
 	)
-	wall_slid.emit()
 	_update_jump_buffer(delta)
 
 	if profile.wall_jump_enabled and _try_jump(false, true):
@@ -441,8 +432,6 @@ func _after_wall_slide() -> void:
 
 #region Dash
 func _on_dash_entered() -> void:
-	if _disabled:
-		return
 	_dash_timer = profile.dash_duration
 	_dash_cooldown_timer = profile.dash_cooldown
 	_dashes_used += 1
@@ -454,8 +443,6 @@ func _on_dash_entered() -> void:
 
 
 func _on_dash_physics(delta: float) -> void:
-	if _disabled:
-		return
 	_set_horizontal_velocity(_dash_direction * profile.dash_speed)
 	_set_vertical_velocity(0.0)
 	_dash_timer -= delta
@@ -469,7 +456,7 @@ func _after_dash() -> void:
 		_update_current_motion(true, _move_input(), _frame().run)
 		_land()
 	else:
-		# Dash entry cleared _was_falling, so the next air frame emits started_falling.
+		# Dash entry cleared _was_falling, so next air frame emits started_falling.
 		_send(StateEvents.FALL)
 #endregion
 
@@ -480,10 +467,8 @@ func _on_crouch_entered() -> void:
 
 
 func _on_crouch_physics(delta: float) -> void:
-	if _disabled:
-		return
 	_apply_horizontal(delta, _move_input(), false, profile.crouch_speed_multiplier)
-	# Never carry upward velocity into a crouch.
+	# Never carry upward velocity into crouch.
 	_set_vertical_velocity(minf(_get_vertical_velocity(), 0.0) - _gravity() * delta)
 
 

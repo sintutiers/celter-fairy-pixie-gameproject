@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://bx6g1m5t34uod" path="res://scenes/game/scripts/input_display_label.gd" id="2_u6go3"]
 [ext_resource type="Script" uid="uid://dcfts64u1gjqa" path="res://scenes/game/scripts/tutorial_manager.gd" id="3_nllpq"]
 [ext_resource type="PackedScene" uid="uid://cuwre2gnkqrgq" path="res://scenes/game/tutorials/tutorial_2.tscn" id="4_6jaki"]
-[ext_resource type="PackedScene" uid="uid://ru5nsfiyifrw" path="res://scenes/game/2dplayertest.tscn" id="5_6eghb"]
+[ext_resource type="PackedScene" uid="uid://ru5nsfiyifrw" path="res://scenes/game/player_2d.tscn" id="5_6eghb"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_0gu67"]
 

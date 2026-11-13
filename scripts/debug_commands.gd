@@ -1,12 +1,12 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Debug commands for [LimboConsole]. Autoload.
-## Commands go through [PlayerApi], so they work for the 2D and the 3D player.
+## Commands go through [PlayerApi], so they work for 2D and 3D player.
 ## Also checks every .dialogue file for unknown item and quest ids on startup,
 ## see [method _check_dialogue_ids].
 ##
-## [LimboConsole] silently fails to register a bare callable, the command name
-## must be passed as the second argument even when the function name matches.
+## [LimboConsole] silently fails to register bare callable, command name
+## must be passed as second argument even when function name matches.
 extends Node
 
 
@@ -26,7 +26,7 @@ func _ready() -> void:
 
 
 #region Commands
-## Gives [param count] of the item with [param id]. The id is the .tres file name,
+## Gives [param count] of item with [param id]. Id is .tres file name,
 ## same as in .dialogue files, see [method ItemData.load_id].
 func give_item(id: String, count: int = 1) -> void:
 	var api: PlayerApi = _api()
@@ -38,8 +38,8 @@ func give_item(id: String, count: int = 1) -> void:
 		LimboConsole.error("could not give %d %s, see the errors above" % [count, id])
 
 
-## Uses the carried item with [param id], see [method InventoryComponent.use].
-## The only way to use an item until there is an inventory UI.
+## Uses carried item with [param id], see [method InventoryComponent.use].
+## Only way to use item until there is inventory UI.
 func use_item(id: String) -> void:
 	var api: PlayerApi = _api()
 	if not api:
@@ -50,7 +50,7 @@ func use_item(id: String) -> void:
 		LimboConsole.error("could not use %s, is it carried?" % id)
 
 
-## Sets the sanity meter to [param value], clamped to [member SanityComponent.max_sanity].
+## Sets sanity meter to [param value], clamped to [member SanityComponent.max_sanity].
 func set_sanity(value: float) -> void:
 	var api: PlayerApi = _api()
 	if not api:
@@ -63,7 +63,7 @@ func set_sanity(value: float) -> void:
 #endregion
 
 
-# Looked up per command, a cached one goes stale on respawn or level change.
+# Looked up per command, cached one goes stale on respawn or level change.
 func _api() -> PlayerApi:
 	var api: PlayerApi = PlayerApi.find(get_tree())
 	if not api:
@@ -71,10 +71,10 @@ func _api() -> PlayerApi:
 	return api
 
 
-# Autocomplete for the give command: every .tres in ItemData.DIR, by id.
+# Autocomplete for give and use: every .tres in ItemData.DIR, by id.
 func _item_ids() -> Array[String]:
 	var ids: Array[String] = []
-	# Not DirAccess, in an exported project it lists the PCK contents, not the original file names.
+	# Not DirAccess, in exported project it lists PCK contents, not original file names.
 	for file: String in ResourceLoader.list_directory(ItemData.DIR):
 		if file.get_extension() == "tres":
 			ids.append(file.get_basename())
@@ -82,7 +82,7 @@ func _item_ids() -> Array[String]:
 
 
 #region Dialogue check
-# A typo in a .dialogue id only fails when that line is reached in play, which for a
+# Typo in .dialogue id only fails when that line is reached in play, which for
 # rare branch is never during testing. This reports them all on every run from editor.
 # Only literal ids are seen. Flags and facts have no list to check against.
 func _check_dialogue_ids() -> void:

@@ -1,31 +1,40 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 @icon("res://scripts/components/component.svg")
-## Base class for everything that lives on a character as a component.
-## Extend it instead of [Node] to get the [method _on_ready] and [method _on_setup] hooks.
+## Base class for everything that lives on character as component.
+## Extend it instead of [Node] to get [method _on_ready] and [method _on_setup] hooks.
 ##
-## The body (the ancestor that owns the components) injects dependencies in its
+## Body (ancestor that owns components) injects dependencies in its
 ## [method Node._enter_tree]. That runs top-down, so they are set in both hooks.
-## Dependencies are plain typed fields, not [code]@export[/code]. The body finds the
+## Dependencies are plain typed fields, not [code]@export[/code]. Body finds
 ## components and assigns them once, see [PlayerBody]. Check them in [method _on_setup].
 ##
 ## [method _on_setup] is deferred, so every sibling has finished [method Node._ready] by then.
-## [b]Warning:[/b] The hooks are not chained. Components extending [Component] directly must not
-## call [code]super()[/code]. Subclasses of non-leaf components (e.g. [Movement3DComponent])
-## must, the parent does real work.
+## [b]Warning:[/b] Hooks are not chained. They do nothing here, so components extending
+## [Component] directly need no [code]super()[/code]. Subclasses of other components
+## (e.g. [Movement3DComponent]) must call it, parent does real work.
 class_name Component
 extends Node
 
 
-## Returns the first descendant of [param root] that is a [param type], or null.
-## Pushes a warning when nothing is found and [param warn] is true.
+## Returns descendant of [param root] that is [param type], or null.
+## Pushes error when there are several and returns first.
+## Pushes warning when nothing is found and [param warn] is true.
 static func find_component(root: Node, type: Variant, warn: bool = false) -> Node:
+	var found: Node = null
 	for node: Node in root.find_children("*", "", true, false):
-		if is_instance_of(node, type):
-			return node
-	if warn:
+		if not is_instance_of(node, type):
+			continue
+		if found:
+			push_error(
+				"%s: more than one %s, using %s and not %s"
+				% [root.name, type, found.name, node.name]
+			)
+			break
+		found = node
+	if not found and warn:
 		push_warning("%s: no %s found." % [root.name, type])
-	return null
+	return found
 
 
 func _ready() -> void:
@@ -45,7 +54,7 @@ func _on_setup() -> void:
 
 
 ## Pushes one error naming every null dependency ([code]{ "label": value }[/code]).
-## Returns true when all are set, so the caller can bail out.
+## Returns true when all are set, so caller can bail out.
 func _require(deps: Dictionary) -> bool:
 	var missing: PackedStringArray = PackedStringArray()
 	for dep_name: String in deps:

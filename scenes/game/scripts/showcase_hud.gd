@@ -1,13 +1,13 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Shows the player's sanity, inventory and facts as text, for the showcase level.
-## Polled every frame because it is a debug view, not the real HUD.
+## Shows player sanity, inventory and facts as text, for showcase level.
+## Polled every frame because it is debug view, not real HUD.
 class_name ShowcaseHud
 extends Label
 
 
 func _process(_delta: float) -> void:
-	# Looked up every frame, the player can respawn or change level.
+	# Looked up every frame, player can respawn or change level.
 	var api: PlayerApi = PlayerApi.find(get_tree())
 	if not api:
 		text = "no player"
@@ -31,7 +31,7 @@ func _process(_delta: float) -> void:
 	text = "\n".join(lines)
 
 
-# Title and journal text of the quest's stage. Placeholder for the quest journal.
+# Title and journal text of quest stage. Placeholder for quest journal.
 func _quest_line(id: String, stage: int) -> String:
 	var quest: QuestData = QuestData.load_id(id)
 	if not quest:

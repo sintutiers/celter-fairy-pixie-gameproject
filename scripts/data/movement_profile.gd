@@ -15,15 +15,15 @@ extends Resource
 @export var move_friction: float = 120.0
 
 @export_group("Jump")
-## Peak height of a standing jump.
+## Peak height of standing jump.
 @export var jump_height: float = 5.0
 ## Gravity while rising. 0 or less uses world gravity.
 @export var jump_gravity: float = 10.0
-## Grace time to still jump after leaving the ground.
+## Grace time to still jump after leaving ground.
 @export_range(0.0, 1.0, 0.01) var coyote_time: float = 0.1
-## Grace time for a jump pressed before landing.
+## Grace time for jump pressed before landing.
 @export_range(0.0, 1.0, 0.01) var jump_buffer_time: float = 0.1
-@export_range(1, 10, 1) var default_max_jumps: int = 2
+@export_range(1, 10, 1) var max_jumps: int = 2
 ## Vertical velocity multiplier when jump is released while rising. Lower = shorter hop.
 @export_range(0.0, 1.0, 0.05) var jump_cut_multiplier: float = 0.5
 @export_range(0.0, 3.0, 0.05) var running_jump_height_multiplier: float = 1.5
@@ -35,7 +35,7 @@ extends Resource
 ## Added to world gravity while falling.
 @export var fall_gravity_offset: float = 0.0
 ## Hang time applies while vertical speed is below this.
-## Keep it well under the jump launch speed (about 10 for the default jump), or it covers the whole jump.
+## Keep it well under jump launch speed (about 10 for default jump), or it covers whole jump.
 @export var apex_hang_threshold: float = 2.0
 @export_range(0.0, 1.0, 0.05) var apex_hang_gravity_multiplier: float = 0.5
 
@@ -43,7 +43,7 @@ extends Resource
 @export var wall_jump_enabled: bool = true
 @export var wall_slide_speed: float = 3.0
 @export var wall_jump_push_speed: float = 12.0
-## Horizontal input is ignored for this long after a wall jump.
+## Horizontal input is ignored for this long after wall jump.
 @export_range(0.0, 1.0, 0.01) var wall_jump_lock_duration: float = 0.1
 
 @export_group("Dash")
@@ -54,7 +54,7 @@ extends Resource
 @export_range(1, 10, 1) var max_dashes: int = 1
 
 @export_group("Crouch")
-## Capsule height multiplier while crouched. The bottom stays at the feet.
-## Never shorter than the capsule's two caps (2 × radius).
+## Collision shape height multiplier while crouched. Bottom stays at feet.
+## Capsule never gets shorter than its two caps (2 × radius).
 @export_range(0.0, 1.0, 0.01) var crouch_collision_scale: float = 0.5
 @export_range(0.0, 1.0, 0.05) var crouch_speed_multiplier: float = 0.5

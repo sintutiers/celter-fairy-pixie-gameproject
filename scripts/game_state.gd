@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Saved game data, accessed through the static helpers.
+## Saved game data, accessed through static helpers.
 ## Changing what saved data means (renamed fact key, reordered quest stages, new key format)
-## needs a bump of [constant SAVE_VERSION] and a step in [method _migrate], or old saves break.
+## needs bump of [constant SAVE_VERSION] and step in [method _migrate], or old saves break.
 class_name GameState
 extends Resource
 
@@ -19,7 +19,7 @@ const SAVE_VERSION: int = 1
 @export var inventory: Dictionary[String, int] = { }
 ## Negative = never saved. Written by [SanityComponent].
 @export var sanity: float = -1.0
-## Story state that outlives a level, see [method get_fact].
+## Story state that outlives level, see [method get_fact].
 @export var facts: Dictionary[String, Variant] = { }
 @export var current_level_path: String
 @export var checkpoint_level_path: String
@@ -28,8 +28,8 @@ const SAVE_VERSION: int = 1
 @export var total_time: int
 
 
-## Returns the saved [LevelState] for a level scene path or uid, or null without a game state.
-## A level seen for the first time gets a state created and saved, so a read can write.
+## Returns saved [LevelState] for level scene path or uid, or null without game state.
+## Level seen for first time gets state created and saved, so read can write.
 static func get_level_state(level_state_key: String) -> LevelState:
 	level_state_key = _level_key(level_state_key)
 	if not has_game_state():
@@ -46,6 +46,8 @@ static func get_level_state(level_state_key: String) -> LevelState:
 		return new_level_state
 
 
+## False until something called [method get_or_create_state], as in scene run
+## straight from editor. Getters then return defaults and nothing is saved.
 static func has_game_state() -> bool:
 	return GlobalState.has_state(STATE_NAME)
 
@@ -58,6 +60,7 @@ static func get_or_create_state() -> GameState:
 	return game_state
 
 
+## Level being played, empty without game state.
 static func get_current_level_path() -> String:
 	if not has_game_state():
 		return ""
@@ -65,6 +68,7 @@ static func get_current_level_path() -> String:
 	return game_state.current_level_path
 
 
+## Level that [method continue_game] goes back to, empty without game state.
 static func get_checkpoint_level_path() -> String:
 	if not has_game_state():
 		return ""
@@ -72,6 +76,7 @@ static func get_checkpoint_level_path() -> String:
 	return game_state.checkpoint_level_path
 
 
+## Number of levels that have saved [LevelState].
 static func get_levels_reached() -> int:
 	if not has_game_state():
 		return 0
@@ -79,6 +84,7 @@ static func get_levels_reached() -> int:
 	return game_state.level_states.size()
 
 
+## Saves immediately. Also creates [LevelState] of that level when new.
 static func set_checkpoint_level_path(level_path: String) -> void:
 	var game_state := get_or_create_state()
 	game_state.checkpoint_level_path = level_path
@@ -86,18 +92,21 @@ static func set_checkpoint_level_path(level_path: String) -> void:
 	GlobalState.save()
 
 
+## Saves immediately.
 static func set_current_level_path(level_path: String) -> void:
 	var game_state := get_or_create_state()
 	game_state.current_level_path = level_path
 	GlobalState.save()
 
 
+## Counts one more game in [member total_games_played]. Progress is kept, see [method reset].
 static func start_game() -> void:
 	var game_state := get_or_create_state()
 	game_state.total_games_played += 1
 	GlobalState.save()
 
 
+## Makes checkpoint level current one and saves.
 static func continue_game() -> void:
 	var game_state := get_or_create_state()
 	game_state.current_level_path = game_state.checkpoint_level_path
@@ -126,7 +135,7 @@ static func get_level_flag(level_path: String, flag: String) -> bool:
 	return level_state != null and level_state.flags.get(flag, false)
 
 
-## Saves immediately. Warns and saves nothing if the level has no state.
+## Saves immediately. Warns and saves nothing if level has no state.
 static func set_level_flag(level_path: String, flag: String, value: bool = true) -> void:
 	var level_state := get_level_state(level_path)
 	if not level_state:
@@ -136,18 +145,18 @@ static func set_level_flag(level_path: String, flag: String, value: bool = true)
 	GlobalState.save()
 
 
-## Returns a fact, or [param default] when unset or without a game state.
+## Returns fact, or [param default] when unset or without game state.
 ## Facts are global, for state that crosses levels: choices, opinions, quest stages.
 ## Per-level state (taken pickups) stays in [method get_level_flag].
-## Keys use a prefix per writer: [code]"choice."[/code], [code]"opinion."[/code], [code]"quest."[/code].
+## Keys use prefix per writer: [code]"choice."[/code], [code]"opinion."[/code], [code]"quest."[/code].
 static func get_fact(key: String, default: Variant = false) -> Variant:
 	if not has_game_state():
 		return default
 	return get_or_create_state().facts.get(key, default)
 
 
-## Saves immediately. Warns and saves nothing without a game state.
-## [b]Warning:[/b] Renaming a key breaks saves that already hold it.
+## Saves immediately. Warns and saves nothing without game state.
+## [b]Warning:[/b] Renaming key breaks saves that already hold it.
 static func set_fact(key: String, value: Variant = true) -> void:
 	if not has_game_state():
 		push_warning("no game state, fact '%s' not saved" % key)

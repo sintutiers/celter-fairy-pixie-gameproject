@@ -6,5 +6,5 @@ extends Resource
 
 @export var color: Color
 @export var tutorial_read: bool = false
-## Per-level flags, e.g. "thing.box_01" for a pickup that is gone for good.
+## Per-level flags, e.g. "thing.box_01" for pickup that is gone for good.
 @export var flags: Dictionary[String, bool] = { }

@@ -1,53 +1,53 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Picks the sprite animation from [PlatformerMovementBase] and [FacingComponent] signals.
-## Dependencies (sprite, movement, facing) are injected by the body, all required.
-## The sprite can be an [AnimatedSprite3D] or an [AnimatedSprite2D].
+## Picks sprite animation from [PlatformerMovementBase] and [FacingComponent] signals.
+## Dependencies (sprite, movement_component, facing_component) are injected by body, all required.
+## Sprite can be [AnimatedSprite3D] or [AnimatedSprite2D].
 class_name AnimationComponent
 extends Component
 
 @export_group("Flip")
-## Seconds for a full turn squash.
+## Seconds for full turn squash.
 @export var flip_duration: float = 0.1
 
-## An [AnimatedSprite3D] or [AnimatedSprite2D]. Typed [Node] because they share no base class.
+## [AnimatedSprite3D] or [AnimatedSprite2D]. Typed [Node] because they share no base class.
 var sprite: Node
-var movement: PlatformerMovementBase
-var facing: FacingComponent
+var movement_component: PlatformerMovementBase
+var facing_component: FacingComponent
 
 var _is_airborne: bool = false
 # Landing animation is playing. Ground motion changes are held back until it ends.
 var _is_landing: bool = false
-# Tumbling (airspin) must not be replaced by the falling loop.
+# Tumbling (airspin) must not be replaced by falling loop.
 var _is_tumbling: bool = false
 var _pending_ground_motion: StringName = Animations.IDLE
 var _flip_tween: Tween
 var _base_scale_x: float = 1.0
 
 
-func _on_ready() -> void:
-	if not sprite:
-		return # _on_setup reports the error.
+func _on_setup() -> void:
+	var deps := {
+		"sprite": sprite,
+		"movement_component": movement_component,
+		"facing_component": facing_component,
+	}
+	if not _require(deps):
+		return
 	_base_scale_x = sprite.scale.x
 	sprite.animation_finished.connect(_on_animation_finished)
+	movement_component.ground_motion_changed.connect(_on_ground_motion_changed)
+	movement_component.jumped.connect(_on_jumped)
+	movement_component.wall_jumped.connect(_on_wall_jumped)
+	movement_component.landed.connect(_on_landed)
+	movement_component.wall_slid.connect(_on_wall_slid)
+	movement_component.fell_from_wall.connect(_on_fell_from_wall)
+	movement_component.dashed.connect(_on_dashed)
+	movement_component.started_falling.connect(_on_started_falling)
+	facing_component.flipped.connect(_on_flipped)
+	sprite.flip_h = not facing_component.default_facing_right
 
 
-func _on_setup() -> void:
-	if not _require({ "sprite": sprite, "movement": movement, "facing": facing }):
-		return
-	movement.ground_motion_changed.connect(_on_ground_motion_changed)
-	movement.jumped.connect(_on_jumped)
-	movement.wall_jumped.connect(_on_wall_jumped)
-	movement.landed.connect(_on_landed)
-	movement.wall_slid.connect(_on_wall_slid)
-	movement.fell_from_wall.connect(_on_airspin)
-	movement.dashed.connect(_on_dashed)
-	movement.started_falling.connect(_on_started_falling)
-	facing.flipped.connect(_on_flipped)
-	sprite.flip_h = not facing.default_facing_right
-
-
-# Every airborne animation sets the same two flags.
+# Every airborne animation sets same two flags.
 func _play_air(animation: StringName, tumbling: bool = false) -> void:
 	_is_airborne = true
 	_is_tumbling = tumbling
@@ -56,7 +56,7 @@ func _play_air(animation: StringName, tumbling: bool = false) -> void:
 
 func _on_ground_motion_changed(motion: StringName) -> void:
 	if _is_landing:
-		# Moving cuts the landing short, anything else waits for it to finish.
+		# Moving cuts landing short, anything else waits for it to finish.
 		if motion == Animations.WALK or motion == Animations.RUN:
 			_is_landing = false
 			sprite.play(motion)
@@ -76,16 +76,12 @@ func _on_wall_jumped() -> void:
 	_play_air(Animations.JUMP)
 
 
-func _on_airspin() -> void:
+func _on_fell_from_wall() -> void:
 	_play_air(Animations.AIRSPIN, true)
 
 
 func _on_wall_slid() -> void:
-	_is_airborne = true
-	_is_tumbling = false
-	# Emitted every physics frame, restarting would freeze the animation.
-	if sprite.animation != Animations.WALL_SLIDE:
-		sprite.play(Animations.WALL_SLIDE)
+	_play_air(Animations.WALL_SLIDE)
 
 
 func _on_dashed() -> void:
@@ -97,7 +93,7 @@ func _on_landed(motion: StringName) -> void:
 	_is_landing = true
 	_is_tumbling = false
 	_pending_ground_motion = motion
-	sprite.play(Animations.FALL)
+	sprite.play(Animations.LAND)
 
 
 func _on_started_falling() -> void:
@@ -108,7 +104,7 @@ func _on_started_falling() -> void:
 
 
 func _on_animation_finished() -> void:
-	if sprite.animation != Animations.FALL:
+	if sprite.animation != Animations.LAND:
 		return
 	_is_landing = false
 	sprite.play(_pending_ground_motion)
@@ -118,7 +114,7 @@ func _on_flipped(new_facing_x: float) -> void:
 	var flip: bool = new_facing_x < 0.0
 	if _flip_tween:
 		_flip_tween.kill()
-	# Squash x to 0, swap the flip at the midpoint, expand back.
+	# Squash x to 0, swap flip at midpoint, expand back.
 	_flip_tween = create_tween()
 	_flip_tween.tween_property(sprite, "scale:x", 0.0, flip_duration * 0.5)
 	_flip_tween.tween_callback(

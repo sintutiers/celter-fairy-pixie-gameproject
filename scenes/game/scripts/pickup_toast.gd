@@ -1,12 +1,12 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Shows "+1 bread" or "no room for bread" for a moment, then fades.
+## Shows "+1 bread" or "no room for bread" briefly, then fades.
 ## Listens to [signal InventoryComponent.item_added] and [signal InventoryComponent.add_failed].
-## @experimental: Placeholder until there is an inventory UI.
+## @experimental: Placeholder until there is inventory UI.
 class_name PickupToast
 extends Label
 
-## Seconds until a message has faded out.
+## Seconds until message has faded out.
 @export var fade_time: float = 3.0
 
 var _tween: Tween
@@ -14,7 +14,7 @@ var _tween: Tween
 
 func _ready() -> void:
 	text = ""
-	# A player placed in the level scene made its api in _enter_tree, so it exists by now.
+	# Player made its api in _enter_tree, which runs before any _ready, see PlayerSpawner.
 	var api: PlayerApi = PlayerApi.find(get_tree())
 	if not api or not api.inventory:
 		push_error("%s: no player with an InventoryComponent in the scene" % name)

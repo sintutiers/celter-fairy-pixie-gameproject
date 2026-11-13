@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://bx6g1m5t34uod" path="res://scenes/game/scripts/input_display_label.gd" id="3_tqokf"]
 [ext_resource type="Script" uid="uid://dcfts64u1gjqa" path="res://scenes/game/scripts/tutorial_manager.gd" id="4_q87u7"]
 [ext_resource type="PackedScene" uid="uid://donqi00tgqoon" path="res://scenes/game/tutorials/tutorial_3.tscn" id="5_k8llc"]
-[ext_resource type="PackedScene" uid="uid://c0hf8edi2q1ui" path="res://scenes/game/playertest1.tscn" id="6_tqokf"]
+[ext_resource type="PackedScene" uid="uid://c0hf8edi2q1ui" path="res://scenes/game/player.tscn" id="6_tqokf"]
 [ext_resource type="Script" uid="uid://bd046eokvcnu2" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="8_q87u7"]
 [ext_resource type="Script" uid="uid://csjccrhj5wnx7" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_3d.gd" id="9_k8llc"]
 [ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="10_fj4qb"]

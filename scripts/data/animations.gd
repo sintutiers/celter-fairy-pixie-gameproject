@@ -1,10 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Sprite animation names, must match the animations in the player's sprite frames.
-## The ground motions ([constant IDLE] to [constant CROUCH_IDLE]) are also what
+## Sprite animation names, must match animations in player sprite frames.
+## Ground motions ([constant IDLE] to [constant CROUCH_IDLE]) are also what
 ## [signal PlatformerMovementBase.ground_motion_changed] reports, and
 ## [AnimationComponent] plays them as is.
-## [constant FALL] is the landing animation, [constant FALLING] is the air loop.
 class_name Animations
 extends RefCounted
 
@@ -18,5 +17,5 @@ const JUMP: StringName = &"jump"
 const AIRSPIN: StringName = &"airspin"
 const WALL_SLIDE: StringName = &"wall_slide"
 const DASH: StringName = &"dash"
-const FALL: StringName = &"fall"
 const FALLING: StringName = &"falling"
+const LAND: StringName = &"land"

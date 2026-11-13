@@ -1,56 +1,58 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 @icon("res://scripts/entities/interactable_thing.svg")
-## Anything the player can interact with: a tree, a box, a person.
+## Anything player can interact with: tree, box, person.
 ## [method run] gives [member item] (if any), shows [member dialogue] (if any) and
-## returns when it ends, so the caller can hold the interact lock for the whole interaction.
+## returns when it ends, so caller can hold interact lock for whole interaction.
 ## When blocked (missing [member requires_item], missing [member requires_flag] or
-## no room) nothing is given and the thing stays.
-## It builds a sphere [Area3D] child on [constant ZONE_LAYER] in [method Node._ready],
-## the player's [InteractionComponent] detects it through that zone.
+## no room) nothing is given and thing stays.
+## It builds sphere [Area3D] child on [constant ZONE_LAYER] in [method Node._ready],
+## player [InteractionComponent] detects it through that zone.
 class_name InteractableThing
 extends Node3D
 
 ## Emitted when blocked. [param reason] is [constant REQUIRES_ITEM], [constant REQUIRES_FLAG]
 ## or [constant FULL].
 signal blocked(by: PlayerApi, reason: StringName)
-## Emitted when an interaction passed every gate and begins. Not emitted when blocked.
-## Lets siblings react (an NPC stops walking, turns to the player) without this knowing them.
+## Emitted when interaction passed every gate and begins. Not emitted when blocked.
+## Lets siblings react (NPC stops walking, turns to player) without this knowing them.
 signal started(by: PlayerApi)
-## Emitted when that interaction ended, before [member free_after] frees the node.
+## Emitted when that interaction ended, before [member free_after] frees node.
 signal finished(by: PlayerApi)
 
-## Physics layer 5 ("interaction"). Only the zones are on it, and only the player's sensor scans it.
+## Physics layer 5 ("interaction"). Only zones are on it, and only player sensor scans it.
 const ZONE_LAYER: int = 1 << 4
 const REQUIRES_ITEM: StringName = &"requires_item"
 const REQUIRES_FLAG: StringName = &"requires_flag"
 const FULL: StringName = &"full"
 
+## Off = [method run] does nothing and player sensor skips it.
 @export var enabled: bool = true
 ## Plays [member sprite] on interact, paused otherwise.
 @export var animate_on_interact: bool = false
-## Frees the node after the interaction ended (pickups).
+## Frees node after interaction ended (pickups).
 @export var free_after: bool = false
-## Freezes the player until the interaction ended. Off = player keeps moving (signs, barks).
+## Freezes player until interaction ended. Off = player keeps moving (signs, barks).
 @export var locks_player: bool = true
 ## With [member free_after]: once freed it stays gone, saved per level in [LevelState].
-## Must be unique within the level.
+## Must be unique within level.
 @export var persistent_id: String = ""
-## Defaults to the first [AnimatedSprite3D] child when [member animate_on_interact] is set.
+## Defaults to single [AnimatedSprite3D] below this node when [member animate_on_interact] is set.
 @export var sprite: AnimatedSprite3D
-## Reach for an interact press, measured from this node's origin. Ignored for [member auto].
+## Reach for interact press, measured from this node origin. Ignored for [member auto].
 @export var interact_radius: float = 2.0
 @export_group("Pickup")
+## Given on interaction, all or nothing: with no room it blocks with [constant FULL].
 @export var item: ItemData
 @export var item_count: int = 1
-## Nothing is given until the player carries this. It is not taken away.
+## Nothing is given until player carries this. It is not taken away.
 @export var requires_item: ItemData
 ## Nothing runs until this flag is set, see [method PlayerApi.set_flag].
 ## Checked before [member requires_item].
 @export var requires_flag: String = ""
-## Runs when the player walks into [member auto_radius] instead of on interact press,
+## Runs when player walks into [member auto_radius] instead of on interact press,
 ## again after leaving and re-entering. Never locks, so give it no dialogue.
-## Entering while disabled or during a locking interaction does not count, walk out and back in.
+## Entering while disabled or during locking interaction does not count, walk out and back in.
 @export var auto: bool = false
 @export var auto_radius: float = 1.0
 @export_group("Dialogue")
@@ -67,7 +69,7 @@ func _ready() -> void:
 		push_error("%s: auto things must not have a dialogue" % name)
 	if persistent_id != "" and not free_after:
 		push_warning("%s: persistent_id does nothing without free_after" % name)
-	# Already taken in an earlier visit. Gone before its zone exists.
+	# Already taken in earlier visit. Gone before its zone exists.
 	if free_after and persistent_id != "" and GameState.get_level_flag(_level_path(), _done_key()):
 		queue_free()
 		return
@@ -80,8 +82,8 @@ func _ready() -> void:
 		sprite.pause()
 
 
-## Runs the interaction for [param by] and returns when it ends.
-## [param by] is also the dialogue's extra game state.
+## Runs interaction for [param by] and returns when it ends.
+## [param by] is also dialogue extra game state.
 func run(by: PlayerApi) -> void:
 	if not enabled or _running:
 		return
@@ -111,12 +113,12 @@ func run(by: PlayerApi) -> void:
 		queue_free()
 
 
-## The thing that owns [param zone], or null for any other area.
+## Thing that owns [param zone], or null for any other area.
 static func from_zone(zone: Area3D) -> InteractableThing:
 	return zone.get_parent() as InteractableThing
 
 
-# A sphere the size of the active radius. It does not monitor, the player's sensor does.
+# Sphere sized to active radius. It does not monitor, player sensor does.
 func _add_zone() -> void:
 	var shape := SphereShape3D.new()
 	shape.radius = auto_radius if auto else interact_radius
@@ -145,10 +147,10 @@ func _done_key() -> String:
 	return "thing." + persistent_id
 
 
-# Scene path of the level this was placed in. Falls back to the current level
+# Scene path of level this was placed in. Falls back to current level
 # when there is no owner (added from code).
-# The topmost owner, not the direct one: inside an instanced prefab the direct
-# owner is the prefab root, which would share the flag across every level.
+# Topmost owner, not direct one: inside instanced prefab direct
+# owner is prefab root, which would share flag across every level.
 func _level_path() -> String:
 	if not owner:
 		return GameState.get_current_level_path()

@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Publishes the local player's position, facing and animation through [code]Net[/code].
-## Works for a 3D body with an [AnimatedSprite3D] and a 2D body with an [AnimatedSprite2D],
-## a 2D position is sent with z = 0. Dependencies (body, sprite) are injected by the body.
+## Publishes local player position, facing and animation through [code]Net[/code].
+## Works for 3D body with [AnimatedSprite3D] and 2D body with [AnimatedSprite2D],
+## 2D position is sent with z = 0. Dependencies (body, sprite) are injected by body.
 class_name NetSyncComponent
 extends Component
 
@@ -18,7 +18,7 @@ func _on_setup() -> void:
 		return
 	var timer := Timer.new()
 	timer.wait_time = send_interval
-	# Sampled in the physics step, where the body has moved.
+	# Sampled in physics step, where body has moved.
 	timer.process_callback = Timer.TIMER_PROCESS_PHYSICS
 	timer.autostart = true
 	timer.timeout.connect(_send)

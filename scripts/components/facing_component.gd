@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Tracks which way the character faces.
+## Tracks which way character faces.
 ## Feed it with [method update] every frame.
 class_name FacingComponent
 extends Component
 
-## Emitted when the facing changes.
+## Emitted when facing changes.
 signal flipped(new_facing_x: float)
 
 ## Initial horizontal facing.
@@ -15,7 +15,7 @@ signal flipped(new_facing_x: float)
 var facing: float
 
 
-## [param direction] is the raw input. A zero x keeps the old facing.
+## [param direction] is raw input. Zero x keeps old facing.
 func update(direction: Vector2) -> void:
 	if is_zero_approx(direction.x):
 		return

@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## The sanity meter. Changes through [method add] or a flat [member drain_per_second].
-## Drain pauses during interaction (interact_component is injected by the body)
-## and inside sanctuaries (see [method pause]).
+## Sanity meter. Changes through [method add] or flat [member drain_per_second].
+## Drain stops through [method pause]: body pauses it during locking interactions,
+## [Sanctuary] while player is inside.
 ## Value is kept in [member GameState.sanity], so it survives level changes and restarts.
 ## Without game state it starts at [member max_sanity] every time.
 class_name SanityComponent
@@ -10,21 +10,21 @@ extends Component
 
 ## Emitted on every change.
 signal changed(value: float, ratio: float)
-## Emitted when the ratio crosses one of [member thresholds], up or down.
+## Emitted when ratio crosses one of [member thresholds], up or down.
 signal zone_changed(zone: int)
-## Emitted when the value hits 0.
+## Emitted when value hits 0.
 signal depleted
 
+## Top of meter, also start value when nothing is saved.
 @export var max_sanity: float = 100.0
 ## 0 = no drain.
 @export var drain_per_second: float = 0.0
-## Ratios (0 to 1, ascending) that split the meter into zones.
+## Ratios (0 to 1, ascending) that split meter into zones.
 @export var thresholds: PackedFloat32Array = PackedFloat32Array([0.25, 0.5, 0.75])
 
-var interact_component: InteractionComponent
-
+## Current sanity. Read only, change it through [method add] or [method set_value].
 var value: float
-## Number of [member thresholds] the ratio is at or above. 0 = lowest zone.
+## Number of [member thresholds] ratio is at or above. 0 = lowest zone.
 var zone: int = 0
 
 ## True while at least one caller has paused drain.
@@ -37,8 +37,6 @@ var _pause_count: int = 0
 
 func _physics_process(delta: float) -> void:
 	if _pause_count > 0 or drain_per_second <= 0.0:
-		return
-	if interact_component and interact_component.is_locked:
 		return
 	add(-drain_per_second * delta)
 
@@ -59,13 +57,20 @@ func pause() -> void:
 
 
 ## Resumes drain once every caller has called [method unpause].
+## Pushes error when called more often than [method pause].
 func unpause() -> void:
-	_pause_count = maxi(0, _pause_count - 1)
+	if _pause_count == 0:
+		push_error("%s: unpause without matching pause" % name)
+		return
+	_pause_count -= 1
 
 
+## Sets meter to [param new_value], clamped to 0 and [member max_sanity].
+## Mirrors it into [member GameState.sanity] and emits [signal changed], plus
+## [signal zone_changed] and [signal depleted] when they apply. Same value does nothing.
 func set_value(new_value: float) -> void:
 	new_value = clampf(new_value, 0.0, max_sanity)
-	# Exact on purpose: is_equal_approx scales with the value and swallows a slow drain.
+	# Exact on purpose: is_equal_approx scales with value and swallows slow drain.
 	if new_value == value:
 		return
 	value = new_value
@@ -88,10 +93,19 @@ func _on_ready() -> void:
 	if GameState.has_game_state():
 		var saved: float = GameState.get_or_create_state().sanity
 		# Placeholder until FDD decides what sanity 0 does: level is lost and restart
-		# refills. Loading 0 would restart into a meter that can never deplete again.
+		# refills. Loading 0 would restart into meter that can never deplete again.
 		if saved > 0.0:
 			value = minf(saved, max_sanity)
 	zone = _zone_for(get_ratio())
+
+
+func _on_setup() -> void:
+	if max_sanity <= 0.0:
+		push_error("%s: max_sanity must be above 0, is %s" % [name, max_sanity])
+	var ascending: PackedFloat32Array = thresholds.duplicate()
+	ascending.sort()
+	if ascending != thresholds:
+		push_error("%s: thresholds must be ascending, zones are wrong" % name)
 
 
 # Level change, restart and quit all free player, so this covers them.
@@ -100,6 +114,6 @@ func _exit_tree() -> void:
 		GlobalState.save()
 
 
-# Index after the last threshold at or below the ratio, so thresholds must be ascending.
+# Index after last threshold at or below ratio, so thresholds must be ascending.
 func _zone_for(ratio: float) -> int:
 	return thresholds.bsearch(ratio, false)

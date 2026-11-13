@@ -654,7 +654,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_rpvn3")
 }],
 "loop": 0,
-"name": &"fall",
+"name": &"land",
 "speed": 10.0
 }, {
 "frames": [{

@@ -1,27 +1,29 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Owns every component on the player [CharacterBody3D] and wires their dependencies
-## in [method Node._enter_tree]. This is the only wiring site, components never look up
-## their siblings themselves.
+## Owns every component on player [CharacterBody3D] and wires their dependencies
+## in [method Node._enter_tree]. This is only wiring site, components never look up
+## each other themselves.
 ##
-## Components are found by type among the descendants, so one of each. A missing one is
+## Components are found by type among descendants, so one of each. Missing one is
 ## skipped, and whoever depends on it reports that in [method Component._on_setup].
-## Adding a component takes two steps: add the node to the scene, wire it here.
-## [MovementProfile] is a [Resource] and cannot be found in the tree, so a fresh
-## instance is used when none is exported.
-## Dialogue, interactables and debug commands use [member api], never the components.
+## Adding component takes two steps: add node to scene, wire it here.
+## [MovementProfile] is [Resource] and cannot be found in tree, so it is exported.
+## Without one, movement reports it and stays off.
+## Dialogue and interactables only call [member api] methods. Other code (HUD, debug
+## commands, [Sanctuary]) reads components through it.
 class_name PlayerBody
 extends CharacterBody3D
 
 @export var movement_profile: MovementProfile
 
-## Set when the body enters the tree, see [PlayerApi].
+## Set when body enters tree, see [PlayerApi].
 var api: PlayerApi
 
 
 func _enter_tree() -> void:
-	if not movement_profile:
-		movement_profile = MovementProfile.new()
+	# Runs again when body is moved in tree. First wiring still holds.
+	if api:
+		return
 	var input: InputComponent = _find(InputComponent)
 	var facing: FacingComponent = _find(FacingComponent)
 	var movement: Movement3DComponent = _find(Movement3DComponent)
@@ -35,19 +37,20 @@ func _enter_tree() -> void:
 	api = PlayerApi.new(inventory, sanity)
 	add_to_group(PlayerApi.GROUP)
 
-	if sanity:
-		sanity.interact_component = interaction
+	if sanity and interaction:
+		interaction.interact_started.connect(sanity.pause)
+		interaction.interact_ended.connect(sanity.unpause)
 	if sanity_visuals:
-		sanity_visuals.sanity = sanity
+		sanity_visuals.sanity_component = sanity
 	if inventory:
-		inventory.sanity = sanity
+		inventory.sanity_component = sanity
 		inventory.api = api
 	if movement:
 		movement.body = self
 		movement.profile = movement_profile
 		movement.input_component = input
 		movement.facing_component = facing
-		movement.interact_component = interaction
+		movement.interaction_component = interaction
 		movement.collision_shape = _find(CollisionShape3D)
 		movement.state_chart = _find(StateChart)
 	if interaction:
@@ -56,8 +59,8 @@ func _enter_tree() -> void:
 		interaction.input_component = input
 	if animation:
 		animation.sprite = sprite
-		animation.movement = movement
-		animation.facing = facing
+		animation.movement_component = movement
+		animation.facing_component = facing
 	if net_sync:
 		net_sync.body = self
 		net_sync.sprite = sprite

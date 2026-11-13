@@ -1,16 +1,16 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Spawns the player where this marker stands, so a level holds one spawner
-## instead of its own copy of the player scene.
-## The player becomes a child of the spawner and is found like any other player,
+## Spawns player where this marker stands, so level holds one spawner
+## instead of its own copy of player scene.
+## Player becomes child of spawner and is found like any other player,
 ## through [method PlayerApi.find].
-## Per level changes to the player (an edited component value) are not possible this way,
-## put those in [member player_scene] or in the level script.
+## Per level changes to player (edited component value) are not possible this way,
+## put those in [member player_scene] or in level script.
 class_name PlayerSpawner
 extends Marker3D
 
-@export var player_scene: PackedScene = preload("res://scenes/game/playertest1.tscn")
-## Gets the player as follow target. Leave empty for a level with a fixed camera.
+@export var player_scene: PackedScene = preload("res://scenes/game/player.tscn")
+## Gets player as follow target. Leave empty for level with fixed camera.
 @export var camera: PhantomCamera3D
 
 var _player: Node3D

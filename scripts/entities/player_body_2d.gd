@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## 2D twin of [PlayerBody]: owns every component on the player [CharacterBody2D] and wires
+## 2D twin of [PlayerBody]: owns every component on player [CharacterBody2D] and wires
 ## their dependencies in [method Node._enter_tree]. Same rules, see [PlayerBody].
 ##
 ## No interaction yet, [InteractionComponent] is 3D only.
@@ -9,13 +9,14 @@ extends CharacterBody2D
 
 @export var movement_profile: MovementProfile
 
-## Set when the body enters the tree, see [PlayerApi].
+## Set when body enters tree, see [PlayerApi].
 var api: PlayerApi
 
 
 func _enter_tree() -> void:
-	if not movement_profile:
-		movement_profile = MovementProfile.new()
+	# Runs again when body is moved in tree. First wiring still holds.
+	if api:
+		return
 	var input: InputComponent = _find(InputComponent)
 	var facing: FacingComponent = _find(FacingComponent)
 	var movement: Movement2DComponent = _find(Movement2DComponent)
@@ -29,9 +30,9 @@ func _enter_tree() -> void:
 	add_to_group(PlayerApi.GROUP)
 
 	if sanity_visuals:
-		sanity_visuals.sanity = sanity
+		sanity_visuals.sanity_component = sanity
 	if inventory:
-		inventory.sanity = sanity
+		inventory.sanity_component = sanity
 		inventory.api = api
 	if movement:
 		movement.body = self
@@ -42,8 +43,8 @@ func _enter_tree() -> void:
 		movement.state_chart = _find(StateChart)
 	if animation:
 		animation.sprite = sprite
-		animation.movement = movement
-		animation.facing = facing
+		animation.movement_component = movement
+		animation.facing_component = facing
 	if net_sync:
 		net_sync.body = self
 		net_sync.sprite = sprite

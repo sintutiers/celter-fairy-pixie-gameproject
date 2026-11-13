@@ -1,19 +1,19 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## 2D twin of [RemotePlayer], shown from a net_player row. Display only, no physics or input.
-## Expects an [AnimatedSprite2D] child whose animations match [Animations].
-## Uses x and y of the row, z is ignored. Keep it in step with [RemotePlayer].
+## 2D twin of [RemotePlayer], shown from net_player row. Display only, no physics or input.
+## Expects [AnimatedSprite2D] child whose animations match [Animations].
+## Uses x and y of row, z is ignored. Keep it in step with [RemotePlayer].
 class_name RemotePlayer2D
 extends Node2D
 
-## Seconds to ease toward the latest position. Keep it above the send interval of
+## Seconds to ease toward latest position. Keep it above send interval of
 ## [NetSyncComponent] or motion stutters between updates.
 @export var smoothing: float = 0.15
 
 var _sprite: AnimatedSprite2D
 var _target: Vector2
 var _placed: bool = false
-# Last animation reported missing. The row repeats every update, so it is logged once.
+# Last animation reported missing. Row repeats every update, so it is logged once.
 var _missing_animation: String = ""
 
 
@@ -27,12 +27,7 @@ func _process(delta: float) -> void:
 	global_position = global_position.lerp(_target, 1.0 - exp(-delta / smoothing))
 
 
-## Forgets the old position, so a pooled remote snaps to its next row.
-func reset() -> void:
-	_placed = false
-
-
-## Applies the latest row. The first call snaps to the position instead of easing from the origin.
+## Applies latest row. First call snaps to position instead of easing from origin.
 func apply(row: FaerieNetPlayer) -> void:
 	_target = Vector2(row.x, row.y)
 	if not _placed:

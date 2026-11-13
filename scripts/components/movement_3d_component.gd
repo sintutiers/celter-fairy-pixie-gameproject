@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## [PlatformerMovementBase] for a [CharacterBody3D].
-## Horizontal movement is the x/z plane, vertical is along [member CharacterBody3D.up_direction].
-## Dependencies (body, collision_shape) are injected by the body.
+## [PlatformerMovementBase] for [CharacterBody3D].
+## Horizontal movement is x/z plane, vertical is along [member CharacterBody3D.up_direction].
+## Dependencies (body, collision_shape) are injected by body.
 class_name Movement3DComponent
 extends PlatformerMovementBase
 
@@ -17,8 +17,7 @@ var _standing_height: float
 func _on_setup() -> void:
 	super()
 	if not _require({ "body": body }):
-		_disabled = true
-		set_physics_process(false)
+		_disable()
 		return
 	if not collision_shape:
 		push_error("%s: no collision_shape, crouch keeps the standing size" % name)
@@ -28,7 +27,7 @@ func _on_setup() -> void:
 	if not _capsule:
 		push_error("%s: crouch needs a CapsuleShape3D, the shape stays standing size" % name)
 		return
-	# Own copy: the height changes at runtime and the scene's shape resource is shared by every instance.
+	# Own copy: height changes at runtime and scene shape resource is shared by every instance.
 	_capsule = _capsule.duplicate()
 	collision_shape.shape = _capsule
 	_standing_height = _capsule.height
@@ -42,7 +41,7 @@ func _read_move(frame: InputFrame) -> Vector2:
 	return frame.move
 
 
-# Input y maps to world z, rotated by the body's basis.
+# Input y maps to world z, rotated by body basis.
 func _to_world(direction: Vector2) -> Vector2:
 	var world: Vector3 = body.global_basis * Vector3(direction.x, 0.0, direction.y)
 	return Vector2(world.x, world.z)
@@ -95,15 +94,15 @@ func _is_on_ceiling() -> bool:
 	return body.is_on_ceiling()
 
 
-# Resizes the capsule instead of scaling the node. Jolt only scales capsules uniformly,
-# so a y scale left the bottom below the feet and lifted the body off the floor.
+# Resizes capsule instead of scaling node. Jolt only scales capsules uniformly,
+# so y scale left bottom below feet and lifted body off floor.
 func _set_crouched(crouched: bool) -> void:
 	if not _capsule:
 		return
 	var height: float = _standing_height
 	if crouched:
-		# A capsule cannot be shorter than its two caps.
+		# Capsule cannot be shorter than its two caps.
 		height = maxf(_standing_height * profile.crouch_collision_scale, _capsule.radius * 2.0)
 	_capsule.height = height
-	# Lowered by half the lost height, so the bottom stays at the feet.
+	# Lowered by half lost height, so bottom stays at feet.
 	collision_shape.position.y = _standing_shape_position.y - (_standing_height - height) * 0.5
