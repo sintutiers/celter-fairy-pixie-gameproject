@@ -27,6 +27,7 @@ extends CharacterBody3D
 @export var interaction: InteractionComponent
 @export var animation: AnimationComponent
 @export var sanity: SanityComponent
+@export var sanity_visuals: SanityVisualsComponent
 @export var inventory: InventoryComponent
 @export var net_sync: NetSyncComponent
 @export_group("Data")
@@ -57,6 +58,7 @@ func _fill_exports() -> void:
 	interaction = _pick(interaction, InteractionComponent)
 	animation = _pick(animation, AnimationComponent)
 	sanity = _pick(sanity, SanityComponent)
+	sanity_visuals = _pick(sanity_visuals, SanityVisualsComponent)
 	inventory = _pick(inventory, InventoryComponent)
 	net_sync = _pick(net_sync, NetSyncComponent)
 	sprite = _pick(sprite, AnimatedSprite3D)
@@ -74,6 +76,8 @@ func _wire_components() -> void:
 
 	if sanity:
 		sanity.interact_component = interaction
+	if sanity_visuals:
+		sanity_visuals.sanity = sanity
 	if inventory:
 		inventory.sanity = sanity
 		inventory.api = api

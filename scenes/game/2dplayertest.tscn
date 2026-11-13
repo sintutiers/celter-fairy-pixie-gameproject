@@ -24,6 +24,7 @@
 [ext_resource type="Texture2D" uid="uid://biwl0swru74qt" path="res://The Amazing Art and Sound Folder/archive/player wall slide 48x48.png" id="15_hmb15"]
 [ext_resource type="Script" uid="uid://c76xrhf8h0lp4" path="res://scripts/components/inventory_component.gd" id="23_7hl3x"]
 [ext_resource type="Script" uid="uid://dujfd7ts273sj" path="res://scripts/components/sanity_component.gd" id="26_0lqjd"]
+[ext_resource type="Script" path="res://scripts/components/sanity_visuals_component.gd" id="27_sanvis"]
 [ext_resource type="Script" uid="uid://cw670bbr1wwi6" path="res://scripts/entities/player_body_2d.gd" id="100_body2d"]
 [ext_resource type="Script" uid="uid://n0tuefldiwe2" path="res://scripts/components/movement_2d_component.gd" id="101_move2d"]
 [ext_resource type="Script" uid="uid://ejkwp3ydv186" path="res://scripts/components/net_sync_component.gd" id="102_netsync"]
@@ -924,7 +925,7 @@ animations = [{
 radius = 12.0
 height = 66.0
 
-[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1543907990 node_paths=PackedStringArray("input", "facing", "movement", "animation", "sanity", "inventory", "net_sync", "sprite", "collision_shape", "state_chart")]
+[node name="CharacterBody2D" type="CharacterBody2D" unique_id=1543907990 node_paths=PackedStringArray("input", "facing", "movement", "animation", "sanity", "sanity_visuals", "inventory", "net_sync", "sprite", "collision_shape", "state_chart")]
 collision_layer = 3
 collision_mask = 3
 script = ExtResource("100_body2d")
@@ -933,6 +934,7 @@ facing = NodePath("FacingComponent")
 movement = NodePath("Movement2DComponent")
 animation = NodePath("AnimationComponent")
 sanity = NodePath("SanityComponent")
+sanity_visuals = NodePath("SanityVisualsComponent")
 inventory = NodePath("InventoryComponent")
 net_sync = NodePath("NetSyncComponent")
 movement_profile = SubResource("Resource_profile2d")
@@ -971,6 +973,9 @@ metadata/_custom_type_script = "uid://b0bul4sdikiw3"
 [node name="SanityComponent" type="Node" parent="." unique_id=1867378277]
 script = ExtResource("26_0lqjd")
 metadata/_custom_type_script = "uid://dujfd7ts273sj"
+
+[node name="SanityVisualsComponent" type="Node" parent="."]
+script = ExtResource("27_sanvis")
 
 [node name="InventoryComponent" type="Node" parent="." unique_id=11059476]
 script = ExtResource("23_7hl3x")

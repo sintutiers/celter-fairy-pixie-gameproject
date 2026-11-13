@@ -18,6 +18,7 @@ extends CharacterBody2D
 @export var movement: Movement2DComponent
 @export var animation: AnimationComponent
 @export var sanity: SanityComponent
+@export var sanity_visuals: SanityVisualsComponent
 @export var inventory: InventoryComponent
 @export var net_sync: NetSyncComponent
 @export_group("Data")
@@ -47,6 +48,7 @@ func _fill_exports() -> void:
 	movement = _pick(movement, Movement2DComponent)
 	animation = _pick(animation, AnimationComponent)
 	sanity = _pick(sanity, SanityComponent)
+	sanity_visuals = _pick(sanity_visuals, SanityVisualsComponent)
 	inventory = _pick(inventory, InventoryComponent)
 	net_sync = _pick(net_sync, NetSyncComponent)
 	sprite = _pick(sprite, AnimatedSprite2D)
@@ -62,6 +64,8 @@ func _wire_components() -> void:
 	api = PlayerApi.new(inventory, sanity)
 	add_to_group(PlayerApi.GROUP)
 
+	if sanity_visuals:
+		sanity_visuals.sanity = sanity
 	if inventory:
 		inventory.sanity = sanity
 		inventory.api = api

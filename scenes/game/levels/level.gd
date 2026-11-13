@@ -23,6 +23,11 @@ func _ready() -> void:
 	level_state = GameState.get_level_state(scene_file_path)
 	if level_state and not level_state.tutorial_read:
 		open_tutorials()
+	# Placeholder rule until the FDD decides what sanity 0 does: the level is lost.
+	# A player placed in the level scene is ready before this runs.
+	var player: PlayerApi = PlayerApi.find(get_tree())
+	if player and player.sanity:
+		player.sanity.depleted.connect(level_lost.emit)
 
 func _on_tutorial_button_pressed() -> void:
 	open_tutorials()
