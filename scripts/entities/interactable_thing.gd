@@ -13,6 +13,11 @@ extends Node3D
 ## Emitted when blocked. [param reason] is [constant REQUIRES_ITEM], [constant REQUIRES_FLAG]
 ## or [constant FULL].
 signal blocked(by: PlayerApi, reason: StringName)
+## Emitted when an interaction passed every gate and begins. Not emitted when blocked.
+## Lets siblings react (an NPC stops walking, turns to the player) without this knowing them.
+signal started(by: PlayerApi)
+## Emitted when that interaction ended, before [member free_after] frees the node.
+signal finished(by: PlayerApi)
 
 ## Physics layer 5 ("interaction"). Only the zones are on it, and only the player's sensor scans it.
 const ZONE_LAYER: int = 1 << 4
@@ -89,12 +94,14 @@ func run(by: PlayerApi) -> void:
 		await _block(by, FULL)
 		return
 	_running = true
+	started.emit(by)
 	if animate_on_interact and sprite:
 		sprite.play()
 	if dialogue:
 		DialogueManager.show_dialogue_balloon(dialogue, dialogue_cue, [by])
 		await DialogueManager.dialogue_ended
 	_running = false
+	finished.emit(by)
 	if free_after:
 		if persistent_id != "":
 			GameState.set_level_flag(_level_path(), _done_key())
