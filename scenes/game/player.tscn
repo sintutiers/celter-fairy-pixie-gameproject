@@ -911,6 +911,7 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_0gu67"]
+height = 1.4233398
 
 [node name="CharacterBody3D" type="CharacterBody3D" unique_id=542873658]
 collision_layer = 3
@@ -920,12 +921,14 @@ movement_profile = SubResource("Resource_tqokf")
 
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="." unique_id=62784842]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+offset = Vector2(0, -7.5)
 texture_filter = 2
 sprite_frames = SubResource("SpriteFrames_7pn2u")
 animation = &"aim"
 autoplay = "airspin"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=944734473]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.28833008, 0)
 shape = SubResource("CapsuleShape3D_0gu67")
 
 [node name="FacingComponent" type="Node" parent="." unique_id=813367788]
