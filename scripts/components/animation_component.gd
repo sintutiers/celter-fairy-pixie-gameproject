@@ -26,15 +26,15 @@ var _base_scale_x: float = 1.0
 
 
 func _on_setup() -> void:
-	var deps := {
+	var dependencies := {
 		"sprite": sprite,
 		"movement_component": movement_component,
 		"facing_component": facing_component,
 	}
-	if not _require(deps):
+	if not _require_dependencies(dependencies):
 		return
 	_base_scale_x = sprite.scale.x
-	sprite.animation_finished.connect(_on_animation_finished)
+	sprite.animation_finished.connect(_on_sprite_animation_finished)
 	movement_component.ground_motion_changed.connect(_on_ground_motion_changed)
 	movement_component.jumped.connect(_on_jumped)
 	movement_component.wall_jumped.connect(_on_wall_jumped)
@@ -43,12 +43,12 @@ func _on_setup() -> void:
 	movement_component.fell_from_wall.connect(_on_fell_from_wall)
 	movement_component.dashed.connect(_on_dashed)
 	movement_component.started_falling.connect(_on_started_falling)
-	facing_component.flipped.connect(_on_flipped)
+	facing_component.flipped.connect(_on_facing_flipped)
 	sprite.flip_h = not facing_component.default_facing_right
 
 
 # Every airborne animation sets same two flags.
-func _play_air(animation: StringName, tumbling: bool = false) -> void:
+func _play_airborne_animation(animation: StringName, tumbling: bool = false) -> void:
 	_is_airborne = true
 	_is_tumbling = tumbling
 	sprite.play(animation)
@@ -69,23 +69,23 @@ func _on_ground_motion_changed(motion: StringName) -> void:
 
 
 func _on_jumped(jump_number: int) -> void:
-	_play_air(Animations.JUMP if jump_number == 1 else Animations.AIRSPIN, jump_number != 1)
+	_play_airborne_animation(Animations.JUMP if jump_number == 1 else Animations.AIRSPIN, jump_number != 1)
 
 
 func _on_wall_jumped() -> void:
-	_play_air(Animations.JUMP)
+	_play_airborne_animation(Animations.JUMP)
 
 
 func _on_fell_from_wall() -> void:
-	_play_air(Animations.AIRSPIN, true)
+	_play_airborne_animation(Animations.AIRSPIN, true)
 
 
 func _on_wall_slid() -> void:
-	_play_air(Animations.WALL_SLIDE)
+	_play_airborne_animation(Animations.WALL_SLIDE)
 
 
 func _on_dashed() -> void:
-	_play_air(Animations.DASH)
+	_play_airborne_animation(Animations.DASH)
 
 
 func _on_landed(motion: StringName) -> void:
@@ -103,14 +103,14 @@ func _on_started_falling() -> void:
 	sprite.play(Animations.FALLING)
 
 
-func _on_animation_finished() -> void:
+func _on_sprite_animation_finished() -> void:
 	if sprite.animation != Animations.LAND:
 		return
 	_is_landing = false
 	sprite.play(_pending_ground_motion)
 
 
-func _on_flipped(new_facing_x: float) -> void:
+func _on_facing_flipped(new_facing_x: float) -> void:
 	var flip: bool = new_facing_x < 0.0
 	if _flip_tween:
 		_flip_tween.kill()

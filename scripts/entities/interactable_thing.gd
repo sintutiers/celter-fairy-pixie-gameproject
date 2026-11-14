@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 @icon("res://scripts/entities/interactable_thing.svg")
 ## Anything player can interact with: tree, box, person.
-## [method run] gives [member item] (if any), shows [member dialogue] (if any) and
+## [method execute_interaction_for_actor] gives [member item] (if any), shows [member dialogue] (if any) and
 ## returns when it ends, so caller can hold interact lock for whole interaction.
 ## When blocked (missing [member requires_item], missing [member requires_flag] or
 ## no room) nothing is given and thing stays.
@@ -26,7 +26,7 @@ const REQUIRES_ITEM: StringName = &"requires_item"
 const REQUIRES_FLAG: StringName = &"requires_flag"
 const FULL: StringName = &"full"
 
-## Off = [method run] does nothing and player sensor skips it.
+## Off = [method execute_interaction_for_actor] does nothing and player sensor skips it.
 @export var enabled: bool = true
 ## Plays [member sprite] on interact, paused otherwise.
 @export var animate_on_interact: bool = false
@@ -47,7 +47,7 @@ const FULL: StringName = &"full"
 @export var item_count: int = 1
 ## Nothing is given until player carries this. It is not taken away.
 @export var requires_item: ItemData
-## Nothing runs until this flag is set, see [method PlayerApi.set_flag].
+## Nothing runs until this flag is set, see [method PlayerApi.set_level_flag].
 ## Checked before [member requires_item].
 @export var requires_flag: String = ""
 ## Runs when player walks into [member auto_radius] instead of on interact press,
@@ -70,56 +70,56 @@ func _ready() -> void:
 	if persistent_id != "" and not free_after:
 		push_warning("%s: persistent_id does nothing without free_after" % name)
 	# Already taken in earlier visit. Gone before its zone exists.
-	if free_after and persistent_id != "" and GameState.get_level_flag(_level_path(), _done_key()):
+	if free_after and persistent_id != "" and GameState.get_level_flag(_get_placed_level_path(), _get_finished_flag_key()):
 		queue_free()
 		return
-	_add_zone()
+	_add_interaction_zone()
 	if not animate_on_interact:
 		return
 	if not sprite:
-		sprite = Component.find_component(self, AnimatedSprite3D, true) as AnimatedSprite3D
+		sprite = Component.find_descendant_of_type(self, AnimatedSprite3D, true) as AnimatedSprite3D
 	if sprite:
 		sprite.pause()
 
 
-## Runs interaction for [param by] and returns when it ends.
-## [param by] is also dialogue extra game state.
-func run(by: PlayerApi) -> void:
+## Runs interaction for [param actor] and returns when it ends.
+## [param actor] is also dialogue extra game state.
+func execute_interaction_for_actor(actor: PlayerApi) -> void:
 	if not enabled or _running:
 		return
-	if requires_flag != "" and not by.get_flag(requires_flag):
-		await _block(by, REQUIRES_FLAG)
+	if requires_flag != "" and not actor.get_level_flag(requires_flag):
+		await _block_interaction_for_actor(actor, REQUIRES_FLAG)
 		return
-	if requires_item and not by.has_item(requires_item.id()):
-		await _block(by, REQUIRES_ITEM)
+	if requires_item and not actor.has_item(requires_item.get_item_id()):
+		await _block_interaction_for_actor(actor, REQUIRES_ITEM)
 		return
-	if item and not by.give_item(item.id(), item_count):
-		await _block(by, FULL)
+	if item and not actor.give_item(item.get_item_id(), item_count):
+		await _block_interaction_for_actor(actor, FULL)
 		return
 	# Saved now, not after dialogue: item is already saved in inventory, so quitting
 	# mid dialogue would leave both pickup and item.
 	if free_after and persistent_id != "":
-		GameState.set_level_flag(_level_path(), _done_key())
+		GameState.set_level_flag(_get_placed_level_path(), _get_finished_flag_key())
 	_running = true
-	started.emit(by)
+	started.emit(actor)
 	if animate_on_interact and sprite:
 		sprite.play()
 	if dialogue:
-		DialogueManager.show_dialogue_balloon(dialogue, dialogue_cue, [by])
+		DialogueManager.show_dialogue_balloon(dialogue, dialogue_cue, [actor])
 		await DialogueManager.dialogue_ended
 	_running = false
-	finished.emit(by)
+	finished.emit(actor)
 	if free_after:
 		queue_free()
 
 
 ## Thing that owns [param zone], or null for any other area.
-static func from_zone(zone: Area3D) -> InteractableThing:
+static func get_interactable_from_zone(zone: Area3D) -> InteractableThing:
 	return zone.get_parent() as InteractableThing
 
 
 # Sphere sized to active radius. It does not monitor, player sensor does.
-func _add_zone() -> void:
+func _add_interaction_zone() -> void:
 	var shape := SphereShape3D.new()
 	shape.radius = auto_radius if auto else interact_radius
 	var collision := CollisionShape3D.new()
@@ -133,17 +133,17 @@ func _add_zone() -> void:
 	add_child(zone)
 
 
-func _block(by: PlayerApi, reason: StringName) -> void:
-	blocked.emit(by, reason)
+func _block_interaction_for_actor(actor: PlayerApi, reason: StringName) -> void:
+	blocked.emit(actor, reason)
 	if auto or not dialogue or blocked_cue == "":
 		return
 	_running = true
-	DialogueManager.show_dialogue_balloon(dialogue, blocked_cue, [by])
+	DialogueManager.show_dialogue_balloon(dialogue, blocked_cue, [actor])
 	await DialogueManager.dialogue_ended
 	_running = false
 
 
-func _done_key() -> String:
+func _get_finished_flag_key() -> String:
 	return "thing." + persistent_id
 
 
@@ -151,7 +151,7 @@ func _done_key() -> String:
 # when there is no owner (added from code).
 # Topmost owner, not direct one: inside instanced prefab direct
 # owner is prefab root, which would share flag across every level.
-func _level_path() -> String:
+func _get_placed_level_path() -> String:
 	if not owner:
 		return GameState.get_current_level_path()
 	var level: Node = owner

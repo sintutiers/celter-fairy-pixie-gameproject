@@ -14,18 +14,18 @@ var sprite: Node
 
 
 func _on_setup() -> void:
-	if not _require({ "body": body, "sprite": sprite }):
+	if not _require_dependencies({ "body": body, "sprite": sprite }):
 		return
 	var timer := Timer.new()
 	timer.wait_time = send_interval
 	# Sampled in physics step, where body has moved.
 	timer.process_callback = Timer.TIMER_PROCESS_PHYSICS
 	timer.autostart = true
-	timer.timeout.connect(_send)
+	timer.timeout.connect(_send_local_player_state)
 	add_child(timer)
 
 
-func _send() -> void:
+func _send_local_player_state() -> void:
 	var is_2d: bool = body is Node2D
 	var position: Vector3
 	if is_2d:
@@ -33,4 +33,4 @@ func _send() -> void:
 		position = Vector3(position_2d.x, position_2d.y, 0.0)
 	else:
 		position = (body as Node3D).global_position
-	Net.send_state(position, sprite.flip_h, sprite.animation, is_2d)
+	Net.send_local_player_state(position, sprite.flip_h, sprite.animation, is_2d)

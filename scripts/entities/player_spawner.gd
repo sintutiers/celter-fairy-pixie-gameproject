@@ -3,7 +3,7 @@
 ## Spawns player where this marker stands, so level holds one spawner
 ## instead of its own copy of player scene.
 ## Player becomes child of spawner and is found like any other player,
-## through [method PlayerApi.find].
+## through [method PlayerApi.find_local_player_api].
 ## Per level changes to player (edited component value) are not possible this way,
 ## put those in [member player_scene] or in level script.
 class_name PlayerSpawner

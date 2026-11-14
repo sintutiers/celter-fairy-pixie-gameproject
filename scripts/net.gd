@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Multiplayer through SpacetimeDB. Autoload it as "Net".
 ## Connects on startup and keeps one remote per net_player row of other players.
-## Local player publishes through [method send_state], see [NetSyncComponent].
+## Local player publishes through [method send_local_player_state], see [NetSyncComponent].
 ## Remotes are shown as [RemotePlayer] or [RemotePlayer2D], whichever matches local player,
 ## so players in 2D level see each other in 2D. Row carries no dimension, 2D uses z = 0.
 ## Failed connection is reported once and game keeps running offline.
@@ -20,7 +20,7 @@ var _module
 # True once local player published from 2D body.
 var _local_2d: bool = false
 # Keyed by hex identity, PackedByteArray is poor dictionary key.
-# Values are RemotePlayer or RemotePlayer2D, they share apply() but no base class.
+# Values are RemotePlayer or RemotePlayer2D, they share apply_net_player_row() but no base class.
 var _remotes: Dictionary[String, Node] = { }
 
 
@@ -44,7 +44,7 @@ func _notification(what: int) -> void:
 ## Publishes local player state. Does nothing while disconnected,
 ## connection error was already reported. [param is_2d] picks remote scene
 ## other players are shown with, 2D player passes its position with z = 0.
-func send_state(position: Vector3, flip: bool, animation: StringName, is_2d: bool = false) -> void:
+func send_local_player_state(position: Vector3, flip: bool, animation: StringName, is_2d: bool = false) -> void:
 	_local_2d = is_2d
 	if not _module.is_connected_db():
 		return
@@ -60,13 +60,13 @@ func _on_connected(_identity: PackedByteArray, _token: String) -> void:
 	if subscription.error != OK:
 		push_error("net: subscribe failed (%s)" % error_string(subscription.error))
 		return
-	subscription.applied.connect(_on_applied)
+	subscription.applied.connect(_on_subscription_applied)
 
 
 func _on_disconnected() -> void:
 	push_warning("net: disconnected.")
 	for id: String in _remotes.keys():
-		_release(id)
+		_release_remote_player(id)
 
 
 func _on_connection_error(code: int, reason: String) -> void:
@@ -78,29 +78,29 @@ func _on_reducer_error(message: String) -> void:
 
 
 # Local database is only guaranteed to exist once subscription is applied.
-# Register first, then iterate, so no row is missed. _apply is idempotent in case
+# Register first, then iterate, so no row is missed. _apply_net_player_row is idempotent in case
 # row shows up in both.
-func _on_applied() -> void:
+func _on_subscription_applied() -> void:
 	var table = _module.db.net_player
-	table.on_insert(_apply)
-	table.on_update(_on_updated)
-	table.on_delete(_on_deleted)
+	table.on_insert(_apply_net_player_row)
+	table.on_update(_on_net_player_row_updated)
+	table.on_delete(_on_net_player_row_deleted)
 	for row: FaerieNetPlayer in table.iter():
-		_apply(row)
+		_apply_net_player_row(row)
 
 
-func _on_updated(_previous: FaerieNetPlayer, row: FaerieNetPlayer) -> void:
-	_apply(row)
+func _on_net_player_row_updated(_previous: FaerieNetPlayer, row: FaerieNetPlayer) -> void:
+	_apply_net_player_row(row)
 
 
-func _on_deleted(row: FaerieNetPlayer) -> void:
+func _on_net_player_row_deleted(row: FaerieNetPlayer) -> void:
 	var id: String = row.identity.hex_encode()
 	if _remotes.has(id):
-		_release(id)
+		_release_remote_player(id)
 
 
 # Insert and update are same thing here: spawn remote if missing, then apply.
-func _apply(row: FaerieNetPlayer) -> void:
+func _apply_net_player_row(row: FaerieNetPlayer) -> void:
 	if row.identity == _module.get_local_identity():
 		return
 	var id: String = row.identity.hex_encode()
@@ -108,27 +108,27 @@ func _apply(row: FaerieNetPlayer) -> void:
 	var remote: Node = _remotes.get(id)
 	# Local player changed dimension since this remote was made.
 	if remote and remote.scene_file_path != scene.resource_path:
-		_release(id)
+		_release_remote_player(id)
 		remote = null
 	if not remote:
-		remote = _spawn(scene)
+		remote = _spawn_remote_player(scene)
 		if not remote:
 			return
 		_remotes[id] = remote
-	remote.apply(row)
+	remote.apply_net_player_row(row)
 	remote.visible = row.level == GameState.get_current_level_path()
 
 
-func _spawn(scene: PackedScene) -> Node:
+func _spawn_remote_player(scene: PackedScene) -> Node:
 	var remote: Node = scene.instantiate()
-	if not remote.has_method(&"apply"):
-		push_error("net: %s root has no apply(), it is not a remote player" % scene.resource_path)
+	if not remote.has_method(&"apply_net_player_row"):
+		push_error("net: %s root has no apply_net_player_row(), it is not a remote player" % scene.resource_path)
 		remote.free()
 		return null
 	add_child(remote)
 	return remote
 
 
-func _release(id: String) -> void:
+func _release_remote_player(id: String) -> void:
 	_remotes[id].queue_free()
 	_remotes.erase(id)

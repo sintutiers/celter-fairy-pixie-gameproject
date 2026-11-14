@@ -18,7 +18,7 @@ var _missing_animation: String = ""
 
 
 func _ready() -> void:
-	_sprite = Component.find_component(self, AnimatedSprite2D) as AnimatedSprite2D
+	_sprite = Component.find_descendant_of_type(self, AnimatedSprite2D) as AnimatedSprite2D
 	if not _sprite:
 		push_error("%s: no AnimatedSprite2D child, position only" % name)
 
@@ -28,7 +28,7 @@ func _process(delta: float) -> void:
 
 
 ## Applies latest row. First call snaps to position instead of easing from origin.
-func apply(row: FaerieNetPlayer) -> void:
+func apply_net_player_row(row: FaerieNetPlayer) -> void:
 	_target = Vector2(row.x, row.y)
 	if not _placed:
 		global_position = _target

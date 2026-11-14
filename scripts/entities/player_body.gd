@@ -24,22 +24,22 @@ func _enter_tree() -> void:
 	# Runs again when body is moved in tree. First wiring still holds.
 	if api:
 		return
-	var input: InputComponent = _find(InputComponent)
-	var facing: FacingComponent = _find(FacingComponent)
-	var movement: Movement3DComponent = _find(Movement3DComponent)
-	var interaction: InteractionComponent = _find(InteractionComponent)
-	var animation: AnimationComponent = _find(AnimationComponent)
-	var sanity: SanityComponent = _find(SanityComponent)
-	var sanity_visuals: SanityVisualsComponent = _find(SanityVisualsComponent)
-	var inventory: InventoryComponent = _find(InventoryComponent)
-	var net_sync: NetSyncComponent = _find(NetSyncComponent)
-	var sprite: AnimatedSprite3D = _find(AnimatedSprite3D)
+	var input: InputComponent = _find_descendant_of_type(InputComponent)
+	var facing: FacingComponent = _find_descendant_of_type(FacingComponent)
+	var movement: Movement3DComponent = _find_descendant_of_type(Movement3DComponent)
+	var interaction: InteractionComponent = _find_descendant_of_type(InteractionComponent)
+	var animation: AnimationComponent = _find_descendant_of_type(AnimationComponent)
+	var sanity: SanityComponent = _find_descendant_of_type(SanityComponent)
+	var sanity_visuals: SanityVisualsComponent = _find_descendant_of_type(SanityVisualsComponent)
+	var inventory: InventoryComponent = _find_descendant_of_type(InventoryComponent)
+	var net_sync: NetSyncComponent = _find_descendant_of_type(NetSyncComponent)
+	var sprite: AnimatedSprite3D = _find_descendant_of_type(AnimatedSprite3D)
 	api = PlayerApi.new(inventory, sanity)
 	add_to_group(PlayerApi.GROUP)
 
 	if sanity and interaction:
-		interaction.interact_started.connect(sanity.pause)
-		interaction.interact_ended.connect(sanity.unpause)
+		interaction.interact_started.connect(sanity.pause_sanity_drain)
+		interaction.interact_ended.connect(sanity.resume_sanity_drain)
 	if sanity_visuals:
 		sanity_visuals.sanity_component = sanity
 	if inventory:
@@ -51,8 +51,8 @@ func _enter_tree() -> void:
 		movement.input_component = input
 		movement.facing_component = facing
 		movement.interaction_component = interaction
-		movement.collision_shape = _find(CollisionShape3D)
-		movement.state_chart = _find(StateChart)
+		movement.collision_shape = _find_descendant_of_type(CollisionShape3D)
+		movement.state_chart = _find_descendant_of_type(StateChart)
 	if interaction:
 		interaction.body = self
 		interaction.api = api
@@ -66,5 +66,5 @@ func _enter_tree() -> void:
 		net_sync.sprite = sprite
 
 
-func _find(type: Variant) -> Node:
-	return Component.find_component(self, type)
+func _find_descendant_of_type(type: Variant) -> Node:
+	return Component.find_descendant_of_type(self, type)

@@ -4,30 +4,30 @@ Sign: Cassie does.
 => END
 
 ~ npc
-if quest_done("help_cassie")
+if is_quest_done("help_cassie")
 	Cassie: You opened my door. Quests persist across levels.
 	=> END
 if has_item("showcase_key")
 	Cassie: You have my key. Door's behind me.
 	=> END
-if opinion("cassie") < 0
+if get_opinion("cassie") < 0
 	Cassie: You again. I remember being ignored.
-elif get_flag("showcase.met")
+elif get_level_flag("showcase.met")
 	Cassie: Back again.
 else
 	Cassie: Hi. Stay put while we talk.
-	do set_flag("showcase.met")
+	do set_level_flag("showcase.met")
 Cassie: Help me? It affects your sanity.
 - Help her
-	do sanity_add(10)
+	do add_sanity(10)
 	do give_item("showcase_key")
-	if quest_stage("help_cassie") == -1
+	if get_quest_stage("help_cassie") == -1
 		do advance_quest("help_cassie")
 	do add_opinion("cassie", 1)
 	Cassie: Take my key. It opens the door.
 	Cassie: Sanity up. Key added.
 - Ignore her
-	do sanity_add(-20)
+	do add_sanity(-20)
 	do add_opinion("cassie", -1)
 	Cassie: Fine. Sanity down. Ask again if you change your mind.
 => END
@@ -46,12 +46,12 @@ ASPECT OF HATE.
 => END
 
 ~ tree
-if quest_done("feed_tree")
+if is_quest_done("feed_tree")
 	Tree: You went through.
 	=> END
-if sanity_zone() == 0
+if get_sanity_zone() == 0
 	Tree: Y o u  a r e  f a d i n g.
-if quest_stage("feed_tree") == -1
+if get_quest_stage("feed_tree") == -1
 	Tree: I'm dying. Help me?
 	- Yes
 		do advance_quest("feed_tree")
@@ -63,14 +63,14 @@ if quest_stage("feed_tree") == -1
 		do add_opinion("tree", -1)
 		Tree: Then leave. Ask again if you change your mind.
 	=> END
-if quest_stage("feed_tree") == 0
+if get_quest_stage("feed_tree") == 0
 	if has_item("bread")
 		Tree: You have bread. Give it to me?
 		- Give the bread
 			do remove_item("bread")
-			do set_flag("showcase.gate_open")
+			do set_level_flag("showcase.gate_open")
 			do advance_quest("feed_tree")
-			do sanity_add(20)
+			do add_sanity(20)
 			Tree: The gate is open.
 		- Keep it
 			do add_opinion("tree", -1)

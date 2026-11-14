@@ -15,21 +15,21 @@ var _tween: Tween
 func _ready() -> void:
 	text = ""
 	# Player made its api in _enter_tree, which runs before any _ready, see PlayerSpawner.
-	var api: PlayerApi = PlayerApi.find(get_tree())
+	var api: PlayerApi = PlayerApi.find_local_player_api(get_tree())
 	if not api or not api.inventory:
 		push_error("%s: no player with an InventoryComponent in the scene" % name)
 		return
 	api.inventory.item_added.connect(
 		func(item: ItemData, count: int) -> void:
-			_show("+%d %s" % [count, item.id()]),
+			_show_toast_message("+%d %s" % [count, item.get_item_id()]),
 	)
 	api.inventory.add_failed.connect(
 		func(item: ItemData) -> void:
-			_show("no room for %s" % item.id()),
+			_show_toast_message("no room for %s" % item.get_item_id()),
 	)
 
 
-func _show(message: String) -> void:
+func _show_toast_message(message: String) -> void:
 	text = message
 	modulate.a = 1.0
 	if _tween:

@@ -16,8 +16,8 @@ var _standing_height: float
 
 func _on_setup() -> void:
 	super()
-	if not _require({ "body": body }):
-		_disable()
+	if not _require_dependencies({ "body": body }):
+		_disable_movement()
 		return
 	if not collision_shape:
 		push_error("%s: no collision_shape, crouch keeps the standing size" % name)
@@ -33,22 +33,22 @@ func _on_setup() -> void:
 	_standing_height = _capsule.height
 
 
-func _gravity() -> float:
+func _get_gravity_magnitude() -> float:
 	return -body.get_gravity().dot(body.up_direction)
 
 
-func _read_move(frame: InputFrame) -> Vector2:
+func _get_movement_input(frame: InputFrame) -> Vector2:
 	return frame.move
 
 
 # Input y maps to world z, rotated by body basis.
-func _to_world(direction: Vector2) -> Vector2:
+func _convert_input_direction_to_world(direction: Vector2) -> Vector2:
 	var world: Vector3 = body.global_basis * Vector3(direction.x, 0.0, direction.y)
 	return Vector2(world.x, world.z)
 
 
-func _default_dash_direction() -> Vector2:
-	return _to_world(Vector2.UP)
+func _get_default_dash_direction() -> Vector2:
+	return _convert_input_direction_to_world(Vector2.UP)
 
 
 func _get_horizontal_velocity() -> Vector2:
@@ -69,7 +69,7 @@ func _set_vertical_velocity(value: float) -> void:
 	body.velocity = body.velocity.slide(body.up_direction) + body.up_direction * value
 
 
-func _wall_normal() -> Vector2:
+func _get_wall_normal() -> Vector2:
 	var normal: Vector3 = body.get_wall_normal()
 	return Vector2(normal.x, normal.z)
 
@@ -96,7 +96,7 @@ func _is_on_ceiling() -> bool:
 
 # Resizes capsule instead of scaling node. Jolt only scales capsules uniformly,
 # so y scale left bottom below feet and lifted body off floor.
-func _set_crouched(crouched: bool) -> void:
+func _set_collision_shape_crouched(crouched: bool) -> void:
 	if not _capsule:
 		return
 	var height: float = _standing_height

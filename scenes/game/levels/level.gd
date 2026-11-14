@@ -31,7 +31,7 @@ func _ready() -> void:
 		open_tutorials()
 	# Placeholder rule until the FDD decides what sanity 0 does: the level is lost.
 	# A player placed in the level scene is ready before this runs.
-	var player: PlayerApi = PlayerApi.find(get_tree())
+	var player: PlayerApi = PlayerApi.find_local_player_api(get_tree())
 	if player and player.sanity:
 		player.sanity.depleted.connect(level_lost.emit)
 

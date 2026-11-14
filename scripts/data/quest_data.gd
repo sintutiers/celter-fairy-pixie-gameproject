@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## One quest or favor, saved as .tres in [constant DIR]. Id is file name,
 ## which is what .dialogue files use: [code]advance_quest("help_cassie")[/code].
-## Holds no progress, that is fact [code]"quest.<id>"[/code], see [method PlayerApi.quest_stage].
+## Holds no progress, that is fact [code]"quest.<id>"[/code], see [method PlayerApi.get_quest_stage].
 ## Rewards are given by dialogue that advances quest, it can react to full inventory.
 class_name QuestData
 extends Resource
@@ -16,7 +16,7 @@ const DIR: String = "res://scenes/quests/"
 
 
 ## Loads quest with this id. Pushes error and returns null if it does not exist.
-static func load_id(id: String) -> QuestData:
+static func load_quest_by_id(id: String) -> QuestData:
 	var path: String = "%s%s.tres" % [DIR, id]
 	if not ResourceLoader.exists(path):
 		push_error("no quest '%s', expected %s" % [id, path])

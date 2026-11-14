@@ -17,15 +17,15 @@ func _enter_tree() -> void:
 	# Runs again when body is moved in tree. First wiring still holds.
 	if api:
 		return
-	var input: InputComponent = _find(InputComponent)
-	var facing: FacingComponent = _find(FacingComponent)
-	var movement: Movement2DComponent = _find(Movement2DComponent)
-	var animation: AnimationComponent = _find(AnimationComponent)
-	var sanity: SanityComponent = _find(SanityComponent)
-	var sanity_visuals: SanityVisualsComponent = _find(SanityVisualsComponent)
-	var inventory: InventoryComponent = _find(InventoryComponent)
-	var net_sync: NetSyncComponent = _find(NetSyncComponent)
-	var sprite: AnimatedSprite2D = _find(AnimatedSprite2D)
+	var input: InputComponent = _find_descendant_of_type(InputComponent)
+	var facing: FacingComponent = _find_descendant_of_type(FacingComponent)
+	var movement: Movement2DComponent = _find_descendant_of_type(Movement2DComponent)
+	var animation: AnimationComponent = _find_descendant_of_type(AnimationComponent)
+	var sanity: SanityComponent = _find_descendant_of_type(SanityComponent)
+	var sanity_visuals: SanityVisualsComponent = _find_descendant_of_type(SanityVisualsComponent)
+	var inventory: InventoryComponent = _find_descendant_of_type(InventoryComponent)
+	var net_sync: NetSyncComponent = _find_descendant_of_type(NetSyncComponent)
+	var sprite: AnimatedSprite2D = _find_descendant_of_type(AnimatedSprite2D)
 	api = PlayerApi.new(inventory, sanity)
 	add_to_group(PlayerApi.GROUP)
 
@@ -39,8 +39,8 @@ func _enter_tree() -> void:
 		movement.profile = movement_profile
 		movement.input_component = input
 		movement.facing_component = facing
-		movement.collision_shape = _find(CollisionShape2D)
-		movement.state_chart = _find(StateChart)
+		movement.collision_shape = _find_descendant_of_type(CollisionShape2D)
+		movement.state_chart = _find_descendant_of_type(StateChart)
 	if animation:
 		animation.sprite = sprite
 		animation.movement_component = movement
@@ -50,5 +50,5 @@ func _enter_tree() -> void:
 		net_sync.sprite = sprite
 
 
-func _find(type: Variant) -> Node:
-	return Component.find_component(self, type)
+func _find_descendant_of_type(type: Variant) -> Node:
+	return Component.find_descendant_of_type(self, type)

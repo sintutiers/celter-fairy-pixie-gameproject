@@ -21,7 +21,7 @@ const DIR: String = "res://scenes/items/"
 
 
 ## Loads item with this id. Pushes error and returns null if it does not exist.
-static func load_id(id: String) -> ItemData:
+static func load_item_by_id(id: String) -> ItemData:
 	var path: String = "%s%s.tres" % [DIR, id]
 	if not ResourceLoader.exists(path):
 		push_error("no item '%s', expected %s" % [id, path])
@@ -30,5 +30,5 @@ static func load_id(id: String) -> ItemData:
 
 
 ## Id .dialogue files and [method PlayerApi.give_item] use: file name without extension.
-func id() -> String:
+func get_item_id() -> String:
 	return resource_path.get_file().get_basename()

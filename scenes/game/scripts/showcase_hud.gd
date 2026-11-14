@@ -8,7 +8,7 @@ extends Label
 
 func _process(_delta: float) -> void:
 	# Looked up every frame, player can respawn or change level.
-	var api: PlayerApi = PlayerApi.find(get_tree())
+	var api: PlayerApi = PlayerApi.find_local_player_api(get_tree())
 	if not api:
 		text = "no player"
 		return
@@ -16,9 +16,9 @@ func _process(_delta: float) -> void:
 	if api.sanity:
 		lines.append("Sanity %.0f / %.0f (zone %d)" % [api.sanity.value, api.sanity.max_sanity, api.sanity.zone])
 	if api.inventory:
-		lines.append("Inventory %d / %d slots" % [api.inventory.slots_used(), api.inventory.max_slots])
+		lines.append("Inventory %d / %d slots" % [api.inventory.get_used_slot_count(), api.inventory.max_slots])
 		for item: ItemData in api.inventory.items:
-			var label: String = item.display_name if item.display_name != "" else item.id()
+			var label: String = item.display_name if item.display_name != "" else item.get_item_id()
 			lines.append("  %s x%d" % [label, api.inventory.items[item]])
 	if not GameState.has_game_state():
 		lines.append("No save data: flags, facts and pickups reset. Start from the main menu to keep them.")
@@ -27,13 +27,13 @@ func _process(_delta: float) -> void:
 		for key: String in facts:
 			lines.append("  %s = %s" % [key, facts[key]])
 			if key.begins_with("quest."):
-				lines.append("    " + _quest_line(key.trim_prefix("quest."), facts[key]))
+				lines.append("    " + _format_quest_stage_line(key.trim_prefix("quest."), facts[key]))
 	text = "\n".join(lines)
 
 
 # Title and journal text of quest stage. Placeholder for quest journal.
-func _quest_line(id: String, stage: int) -> String:
-	var quest: QuestData = QuestData.load_id(id)
+func _format_quest_stage_line(id: String, stage: int) -> String:
+	var quest: QuestData = QuestData.load_quest_by_id(id)
 	if not quest:
 		return "unknown quest"
 	return "%s: %s" % [quest.title, quest.stages[stage] if stage < quest.stages.size() else "done"]

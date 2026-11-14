@@ -9,7 +9,7 @@ const JUMP_VELOCITY = 4.5
 
 func _ready() -> void:
 	if not input:
-		input = Component.find_component(self, InputComponent, true) as InputComponent
+		input = Component.find_descendant_of_type(self, InputComponent, true) as InputComponent
 	if not input:
 		set_physics_process(false)
 

@@ -19,8 +19,8 @@ var _standing_height: float
 
 func _on_setup() -> void:
 	super()
-	if not _require({ "body": body }):
-		_disable()
+	if not _require_dependencies({ "body": body }):
+		_disable_movement()
 		return
 	if not collision_shape:
 		push_error("%s: no collision_shape, crouch keeps the standing size" % name)
@@ -37,22 +37,22 @@ func _on_setup() -> void:
 	# Own copy: height changes at runtime and scene shape resource is shared by every instance.
 	_shape = _shape.duplicate()
 	collision_shape.shape = _shape
-	_standing_height = _get_shape_height()
+	_standing_height = _get_collision_shape_height()
 
 
-func _gravity() -> float:
+func _get_gravity_magnitude() -> float:
 	return -body.get_gravity().dot(body.up_direction)
 
 
-func _read_move(frame: InputFrame) -> Vector2:
+func _get_movement_input(frame: InputFrame) -> Vector2:
 	return Vector2(frame.move.x, 0.0)
 
 
-func _to_world(direction: Vector2) -> Vector2:
+func _convert_input_direction_to_world(direction: Vector2) -> Vector2:
 	return Vector2(direction.x, 0.0)
 
 
-func _default_dash_direction() -> Vector2:
+func _get_default_dash_direction() -> Vector2:
 	return Vector2(facing_component.facing, 0.0)
 
 
@@ -73,7 +73,7 @@ func _set_vertical_velocity(value: float) -> void:
 	body.velocity = body.velocity.slide(body.up_direction) + body.up_direction * value
 
 
-func _wall_normal() -> Vector2:
+func _get_wall_normal() -> Vector2:
 	return Vector2(body.get_wall_normal().x, 0.0)
 
 
@@ -98,24 +98,24 @@ func _is_on_ceiling() -> bool:
 
 
 # Resizes shape instead of scaling node, so bottom can be kept at feet.
-func _set_crouched(crouched: bool) -> void:
+func _set_collision_shape_crouched(crouched: bool) -> void:
 	if not _shape:
 		return
 	var height: float = _standing_height
 	if crouched:
-		height = maxf(_standing_height * profile.crouch_collision_scale, _min_shape_height())
-	_set_shape_height(height)
+		height = maxf(_standing_height * profile.crouch_collision_scale, _get_minimum_collision_shape_height())
+	_set_collision_shape_height(height)
 	# 2D y points down, so shape moves down by half lost height to keep bottom at feet.
 	collision_shape.position.y = _standing_shape_position.y + (_standing_height - height) * 0.5
 
 
-func _get_shape_height() -> float:
+func _get_collision_shape_height() -> float:
 	if _shape is CapsuleShape2D:
 		return (_shape as CapsuleShape2D).height
 	return (_shape as RectangleShape2D).size.y
 
 
-func _set_shape_height(height: float) -> void:
+func _set_collision_shape_height(height: float) -> void:
 	if _shape is CapsuleShape2D:
 		(_shape as CapsuleShape2D).height = height
 	else:
@@ -123,7 +123,7 @@ func _set_shape_height(height: float) -> void:
 
 
 # Capsule cannot be shorter than its two caps.
-func _min_shape_height() -> float:
+func _get_minimum_collision_shape_height() -> float:
 	if _shape is CapsuleShape2D:
 		return (_shape as CapsuleShape2D).radius * 2.0
 	return 0.0

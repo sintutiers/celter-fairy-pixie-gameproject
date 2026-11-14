@@ -35,7 +35,7 @@ func _on_ready() -> void:
 
 
 func _on_setup() -> void:
-	if not _require({ "sanity_component": sanity_component }):
+	if not _require_dependencies({ "sanity_component": sanity_component }):
 		return
 	if strength_per_zone.size() != sanity_component.thresholds.size() + 1:
 		push_error(
@@ -44,10 +44,10 @@ func _on_setup() -> void:
 		)
 		return
 	_material.set_shader_parameter(&"strength", strength_per_zone[sanity_component.zone])
-	sanity_component.zone_changed.connect(_on_zone_changed)
+	sanity_component.zone_changed.connect(_on_sanity_zone_changed)
 
 
-func _on_zone_changed(zone: int) -> void:
+func _on_sanity_zone_changed(zone: int) -> void:
 	if _tween:
 		_tween.kill()
 	_tween = create_tween()

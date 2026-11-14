@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Saved game data, accessed through static helpers.
 ## Changing what saved data means (renamed fact key, reordered quest stages, new key format)
-## needs bump of [constant SAVE_VERSION] and step in [method _migrate], or old saves break.
+## needs bump of [constant SAVE_VERSION] and step in [method _migrate_save_to_current_version], or old saves break.
 class_name GameState
 extends Resource
 
@@ -31,7 +31,7 @@ const SAVE_VERSION: int = 1
 ## Returns saved [LevelState] for level scene path or uid, or null without game state.
 ## Level seen for first time gets state created and saved, so read can write.
 static func get_level_state(level_state_key: String) -> LevelState:
-	level_state_key = _level_key(level_state_key)
+	level_state_key = _get_level_state_key(level_state_key)
 	if not has_game_state():
 		return
 	var game_state := get_or_create_state()
@@ -56,7 +56,7 @@ static func has_game_state() -> bool:
 static func get_or_create_state() -> GameState:
 	var game_state: GameState = GlobalState.get_or_create_state(STATE_NAME, FILE_PATH)
 	if game_state.save_version != SAVE_VERSION:
-		_migrate(game_state)
+		_migrate_save_to_current_version(game_state)
 	return game_state
 
 
@@ -167,7 +167,7 @@ static func set_fact(key: String, value: Variant = true) -> void:
 
 # Uid survives renaming or moving level scene, path does not.
 # Scene without uid keeps its path as key.
-static func _level_key(level_path: String) -> String:
+static func _get_level_state_key(level_path: String) -> String:
 	if level_path.is_empty() or level_path.begins_with("uid://"):
 		return level_path
 	return ResourceUID.path_to_uid(level_path)
@@ -175,7 +175,7 @@ static func _level_key(level_path: String) -> String:
 
 # One step per version, in order, each lifts save by one.
 # Never edit old step: saves already out there were written by it.
-static func _migrate(game_state: GameState) -> void:
+static func _migrate_save_to_current_version(game_state: GameState) -> void:
 	if game_state.save_version > SAVE_VERSION:
 		push_error(
 			"save is version %d, this game only knows %d. Loaded as is, expect missing progress."
@@ -185,7 +185,7 @@ static func _migrate(game_state: GameState) -> void:
 	if game_state.save_version < 1:
 		var by_uid: Dictionary[String, LevelState] = { }
 		for level_path: String in game_state.level_states:
-			by_uid[_level_key(level_path)] = game_state.level_states[level_path]
+			by_uid[_get_level_state_key(level_path)] = game_state.level_states[level_path]
 		game_state.level_states = by_uid
 	game_state.save_version = SAVE_VERSION
 	GlobalState.save()

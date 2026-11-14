@@ -13,19 +13,19 @@ func _ready() -> void:
 
 
 func _on_body_entered(body: Node3D) -> void:
-	var sanity: SanityComponent = _sanity_of(body)
+	var sanity: SanityComponent = _get_sanity_component_of_body(body)
 	if sanity:
-		sanity.pause()
+		sanity.pause_sanity_drain()
 
 
 func _on_body_exited(body: Node3D) -> void:
-	var sanity: SanityComponent = _sanity_of(body)
+	var sanity: SanityComponent = _get_sanity_component_of_body(body)
 	if sanity:
-		sanity.unpause()
+		sanity.resume_sanity_drain()
 
 
-# Through api, same as PlayerApi.find, so body can be any player body.
-func _sanity_of(body: Node3D) -> SanityComponent:
+# Through api, same as PlayerApi.find_local_player_api, so body can be any player body.
+func _get_sanity_component_of_body(body: Node3D) -> SanityComponent:
 	var api: PlayerApi = body.get(&"api") as PlayerApi
 	if not api or not api.sanity:
 		push_error("%s: %s has no SanityComponent, drain not paused" % [name, body.name])

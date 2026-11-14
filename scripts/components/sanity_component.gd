@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Sanity meter. Changes through [method add] or flat [member drain_per_second].
-## Drain stops through [method pause]: body pauses it during locking interactions,
+## Sanity meter. Changes through [method add_sanity] or flat [member drain_per_second].
+## Drain stops through [method pause_sanity_drain]: body pauses it during locking interactions,
 ## [Sanctuary] while player is inside.
 ## Value is kept in [member GameState.sanity], so it survives level changes and restarts.
 ## Without game state it starts at [member max_sanity] every time.
@@ -22,7 +22,7 @@ signal depleted
 ## Ratios (0 to 1, ascending) that split meter into zones.
 @export var thresholds: PackedFloat32Array = PackedFloat32Array([0.25, 0.5, 0.75])
 
-## Current sanity. Read only, change it through [method add] or [method set_value].
+## Current sanity. Read only, change it through [method add_sanity] or [method set_current_sanity_value].
 var value: float
 ## Number of [member thresholds] ratio is at or above. 0 = lowest zone.
 var zone: int = 0
@@ -38,29 +38,29 @@ var _pause_count: int = 0
 func _physics_process(delta: float) -> void:
 	if _pause_count > 0 or drain_per_second <= 0.0:
 		return
-	add(-drain_per_second * delta)
+	add_sanity(-drain_per_second * delta)
 
 
 ## Returns value / max_sanity, from 0 to 1.
-func get_ratio() -> float:
+func get_current_sanity_ratio() -> float:
 	return value / max_sanity
 
 
 ## Adds [param amount] (negative drains), clamped to 0 and [member max_sanity].
-func add(amount: float) -> void:
-	set_value(value + amount)
+func add_sanity(amount: float) -> void:
+	set_current_sanity_value(value + amount)
 
 
-## Pauses drain. Balance with [method unpause], safe to nest.
-func pause() -> void:
+## Pauses drain. Balance with [method resume_sanity_drain], safe to nest.
+func pause_sanity_drain() -> void:
 	_pause_count += 1
 
 
-## Resumes drain once every caller has called [method unpause].
-## Pushes error when called more often than [method pause].
-func unpause() -> void:
+## Resumes drain once every caller has called [method resume_sanity_drain].
+## Pushes error when called more often than [method pause_sanity_drain].
+func resume_sanity_drain() -> void:
 	if _pause_count == 0:
-		push_error("%s: unpause without matching pause" % name)
+		push_error("%s: resume_sanity_drain without matching pause_sanity_drain" % name)
 		return
 	_pause_count -= 1
 
@@ -68,7 +68,7 @@ func unpause() -> void:
 ## Sets meter to [param new_value], clamped to 0 and [member max_sanity].
 ## Mirrors it into [member GameState.sanity] and emits [signal changed], plus
 ## [signal zone_changed] and [signal depleted] when they apply. Same value does nothing.
-func set_value(new_value: float) -> void:
+func set_current_sanity_value(new_value: float) -> void:
 	new_value = clampf(new_value, 0.0, max_sanity)
 	# Exact on purpose: is_equal_approx scales with value and swallows slow drain.
 	if new_value == value:
@@ -77,9 +77,9 @@ func set_value(new_value: float) -> void:
 	# Only mirrored here. Drain changes it every physics frame, file is written in _exit_tree.
 	if GameState.has_game_state():
 		GameState.get_or_create_state().sanity = value
-	changed.emit(value, get_ratio())
+	changed.emit(value, get_current_sanity_ratio())
 
-	var new_zone: int = _zone_for(get_ratio())
+	var new_zone: int = _get_sanity_zone_for_ratio(get_current_sanity_ratio())
 	if new_zone != zone:
 		zone = new_zone
 		zone_changed.emit(zone)
@@ -96,7 +96,7 @@ func _on_ready() -> void:
 		# refills. Loading 0 would restart into meter that can never deplete again.
 		if saved > 0.0:
 			value = minf(saved, max_sanity)
-	zone = _zone_for(get_ratio())
+	zone = _get_sanity_zone_for_ratio(get_current_sanity_ratio())
 
 
 func _on_setup() -> void:
@@ -115,5 +115,5 @@ func _exit_tree() -> void:
 
 
 # Index after last threshold at or below ratio, so thresholds must be ascending.
-func _zone_for(ratio: float) -> int:
+func _get_sanity_zone_for_ratio(ratio: float) -> int:
 	return thresholds.bsearch(ratio, false)

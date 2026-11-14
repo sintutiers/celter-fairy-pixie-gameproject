@@ -20,7 +20,7 @@ func add_levels_to_container() -> void:
 	level_paths.clear()
 	var game_state := GameState.get_or_create_state()
 	for file_path in game_state.level_states.keys():
-		# Keys are uids, see GameState._level_key.
+		# Keys are uids, see GameState._get_level_state_key.
 		var file_name : String = ResourceUID.ensure_path(file_path).get_file()  # e.g., "level_1.tscn"
 		file_name = file_name.trim_suffix(".tscn")  # Remove the ".tscn" extension
 		file_name = file_name.replace("_", " ")  # Replace underscores with spaces

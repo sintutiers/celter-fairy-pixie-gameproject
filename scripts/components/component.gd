@@ -20,7 +20,7 @@ extends Node
 ## Returns descendant of [param root] that is [param type], or null.
 ## Pushes error when there are several and returns first.
 ## Pushes warning when nothing is found and [param warn] is true.
-static func find_component(root: Node, type: Variant, warn: bool = false) -> Node:
+static func find_descendant_of_type(root: Node, type: Variant, warn: bool = false) -> Node:
 	var found: Node = null
 	for node: Node in root.find_children("*", "", true, false):
 		if not is_instance_of(node, type):
@@ -48,18 +48,18 @@ func _on_ready() -> void:
 
 
 ## Runs deferred, at idle time after [method Node._ready], so every sibling is ready.
-## Check dependencies here, see [method _require].
+## Check dependencies here, see [method _require_dependencies].
 func _on_setup() -> void:
 	pass
 
 
 ## Pushes one error naming every null dependency ([code]{ "label": value }[/code]).
 ## Returns true when all are set, so caller can bail out.
-func _require(deps: Dictionary) -> bool:
+func _require_dependencies(dependencies: Dictionary) -> bool:
 	var missing: PackedStringArray = PackedStringArray()
-	for dep_name: String in deps:
-		if not deps[dep_name]:
-			missing.append(dep_name)
+	for dependency_name: String in dependencies:
+		if not dependencies[dependency_name]:
+			missing.append(dependency_name)
 	if not missing.is_empty():
 		push_error("%s: missing required dependencies: %s" % [name, ", ".join(missing)])
 	return missing.is_empty()
