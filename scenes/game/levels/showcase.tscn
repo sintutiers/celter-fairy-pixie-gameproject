@@ -31,6 +31,10 @@ sky = SubResource("Sky_sc")
 [sub_resource type="StandardMaterial3D" id="Mat_floor"]
 albedo_color = Color(0.35, 0.37, 0.42, 1)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vbbwd"]
+transparency = 1
+albedo_color = Color(1, 0.35686275, 0.22745098, 0.35686275)
+
 [sub_resource type="StandardMaterial3D" id="Mat_block"]
 albedo_color = Color(0.55, 0.6, 0.75, 1)
 
@@ -150,28 +154,34 @@ use_collision = true
 size = Vector3(40, 1, 180)
 material = SubResource("Mat_floor")
 
+[node name="Ceiling" type="CSGBox3D" parent="World" unique_id=2118501173]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20.324995, -82)
+use_collision = true
+size = Vector3(40, 1, 180)
+material = SubResource("StandardMaterial3D_vbbwd")
+
 [node name="WallLeft" type="CSGBox3D" parent="World" unique_id=844781439]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.5, 10, -82)
 use_collision = true
-size = Vector3(1, 20, 180)
+size = Vector3(1, 25, 180)
 material = SubResource("Mat_floor")
 
 [node name="WallRight" type="CSGBox3D" parent="World" unique_id=1715325833]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.5, 10, -82)
 use_collision = true
-size = Vector3(1, 20, 180)
+size = Vector3(1, 25, 180)
 material = SubResource("Mat_floor")
 
 [node name="WallBack" type="CSGBox3D" parent="World" unique_id=1365635571]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 8.5)
 use_collision = true
-size = Vector3(42, 20, 1)
+size = Vector3(42, 25, 1)
 material = SubResource("Mat_floor")
 
 [node name="WallEnd" type="CSGBox3D" parent="World" unique_id=2084533474]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -172.5)
 use_collision = true
-size = Vector3(42, 20, 1)
+size = Vector3(42, 25, 1)
 material = SubResource("Mat_floor")
 
 [node name="PlayerSpawner" type="Marker3D" parent="World" unique_id=725638130 node_paths=PackedStringArray("camera")]
@@ -213,7 +223,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
 [node name="Block" type="CSGBox3D" parent="World/1_Jump" unique_id=1908975211]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 use_collision = true
-size = Vector3(12, 3, 4)
+size = Vector3(40, 3, 4)
 material = SubResource("Mat_block")
 
 [node name="Sign" type="Label3D" parent="World/1_Jump" unique_id=2113186962]
@@ -229,9 +239,9 @@ outline_size = 16
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -26)
 
 [node name="Block" type="CSGBox3D" parent="World/2_DoubleJump" unique_id=1639891153]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.054534912, 4, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.054534912, 4.2334747, 0)
 use_collision = true
-size = Vector3(40, 8, 4)
+size = Vector3(40, 8.466949, 4)
 material = SubResource("Mat_block")
 
 [node name="Sign" type="Label3D" parent="World/2_DoubleJump" unique_id=843813271]
@@ -247,15 +257,15 @@ outline_size = 16
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -40)
 
 [node name="WallA" type="CSGBox3D" parent="World/3_WallJump" unique_id=455105863]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 8, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 12.026611, 0)
 use_collision = true
-size = Vector3(1, 16, 6)
+size = Vector3(1, 24.053223, 6)
 material = SubResource("Mat_block")
 
 [node name="WallB" type="CSGBox3D" parent="World/3_WallJump" unique_id=1116907444]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 8, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 12.241272, 0)
 use_collision = true
-size = Vector3(1, 16, 6)
+size = Vector3(1, 24.482544, 6)
 material = SubResource("Mat_block")
 
 [node name="Sign" type="Label3D" parent="World/3_WallJump" unique_id=1491290814]
@@ -301,9 +311,9 @@ outline_size = 16
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -82)
 
 [node name="Ceiling" type="CSGBox3D" parent="World/5_Crouch" unique_id=1394656077]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.838683, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.686839, 0)
 use_collision = true
-size = Vector3(40, 12.877395, 8)
+size = Vector3(40, 18.5, 8)
 material = SubResource("Mat_block")
 
 [node name="Sign" type="Label3D" parent="World/5_Crouch" unique_id=1924072384]
