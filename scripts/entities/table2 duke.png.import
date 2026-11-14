@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://vs5x4ofyxkvv"
-path="res://.godot/imported/table2 duke.png-4a2d54769dc9f4e06882b585c481c8b9.ctex"
+path="res://.godot/imported/table2 duke.png-e7bf025bf96c4c91fe1e0883b08e9a15.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://The Amazing Art and Sound Folder/archive/table2 duke.png"
-dest_files=["res://.godot/imported/table2 duke.png-4a2d54769dc9f4e06882b585c481c8b9.ctex"]
+source_file="res://scripts/entities/table2 duke.png"
+dest_files=["res://.godot/imported/table2 duke.png-e7bf025bf96c4c91fe1e0883b08e9a15.ctex"]
 
 [params]
 
