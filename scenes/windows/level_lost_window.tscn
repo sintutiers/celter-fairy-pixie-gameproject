@@ -43,6 +43,7 @@ color = Color(0, 0, 0, 0.7529412)
 process_mode = 3
 custom_minimum_size = Vector2(432, 240)
 script = ExtResource("2_6m2xx")
+ui_cancel_closes = false
 pauses_game = true
 parent_scene = SubResource("PackedScene_jt3uh")
 update_content = true
