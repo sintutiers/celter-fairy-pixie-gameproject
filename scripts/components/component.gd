@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-@icon("res://scripts/components/component.svg")
+@icon("res://scripts/components/teto_kidnapp_miku.png")
 ## Base class for everything that lives on character as component.
 ## Extend it instead of [Node] to get [method _on_ready] and [method _on_setup] hooks.
 ##
@@ -26,10 +26,7 @@ static func find_descendant_of_type(root: Node, type: Variant, warn: bool = fals
 		if not is_instance_of(node, type):
 			continue
 		if found:
-			push_error(
-				"%s: more than one %s, using %s and not %s"
-				% [root.name, type, found.name, node.name]
-			)
+			push_error("%s: more than one %s, using %s and not %s" % [root.name, type, found.name, node.name])
 			break
 		found = node
 	if not found and warn:

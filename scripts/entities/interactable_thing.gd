@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-@icon("res://scripts/entities/interactable_thing.svg")
+@icon("res://scripts/entities/table2 duke.png")
 ## Anything player can interact with: tree, box, person.
 ## [method execute_interaction_for_actor] gives [member item] (if any), shows [member dialogue] (if any) and
 ## returns when it ends, so caller can hold interact lock for whole interaction.
@@ -64,6 +64,11 @@ const FULL: StringName = &"full"
 var _running: bool = false
 
 
+## Thing that owns [param zone], or null for any other area.
+static func get_interactable_from_zone(zone: Area3D) -> InteractableThing:
+	return zone.get_parent() as InteractableThing
+
+
 func _ready() -> void:
 	if auto and dialogue:
 		push_error("%s: auto things must not have a dialogue" % name)
@@ -111,11 +116,6 @@ func execute_interaction_for_actor(actor: PlayerApi) -> void:
 	finished.emit(actor)
 	if free_after:
 		queue_free()
-
-
-## Thing that owns [param zone], or null for any other area.
-static func get_interactable_from_zone(zone: Area3D) -> InteractableThing:
-	return zone.get_parent() as InteractableThing
 
 
 # Sphere sized to active radius. It does not monitor, player sensor does.

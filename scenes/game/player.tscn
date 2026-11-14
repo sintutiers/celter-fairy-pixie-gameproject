@@ -27,7 +27,7 @@
 [ext_resource type="Script" uid="uid://dmxnpj5ebi7nn" path="res://scripts/components/interaction_component.gd" id="18_0lqjd"]
 [ext_resource type="Script" uid="uid://c76xrhf8h0lp4" path="res://scripts/components/inventory_component.gd" id="23_7hl3x"]
 [ext_resource type="Script" uid="uid://dujfd7ts273sj" path="res://scripts/components/sanity_component.gd" id="26_0lqjd"]
-[ext_resource type="Script" path="res://scripts/components/sanity_visuals_component.gd" id="27_sanvis"]
+[ext_resource type="Script" uid="uid://b1xsodjyi4dqh" path="res://scripts/components/sanity_visuals_component.gd" id="27_sanvis"]
 [ext_resource type="Script" uid="uid://ejkwp3ydv186" path="res://scripts/components/net_sync_component.gd" id="28_ejpuu"]
 
 [sub_resource type="Resource" id="Resource_tqokf"]
@@ -206,38 +206,6 @@ region = Rect2(336, 0, 48, 48)
 atlas = ExtResource("5_ejpuu")
 region = Rect2(384, 0, 48, 48)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_74cnq"]
-atlas = ExtResource("6_hic0x")
-region = Rect2(0, 0, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_3vrwl"]
-atlas = ExtResource("6_hic0x")
-region = Rect2(48, 0, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_wgy36"]
-atlas = ExtResource("6_hic0x")
-region = Rect2(96, 0, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_cqjlk"]
-atlas = ExtResource("6_hic0x")
-region = Rect2(144, 0, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_judl8"]
-atlas = ExtResource("6_hic0x")
-region = Rect2(192, 0, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_51fhs"]
-atlas = ExtResource("6_hic0x")
-region = Rect2(240, 0, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_pft2h"]
-atlas = ExtResource("6_hic0x")
-region = Rect2(288, 0, 48, 48)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_rpvn3"]
-atlas = ExtResource("6_hic0x")
-region = Rect2(336, 0, 48, 48)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_18204"]
 atlas = ExtResource("7_kpb6k")
 region = Rect2(144, 0, 48, 48)
@@ -301,6 +269,38 @@ region = Rect2(48, 0, 48, 48)
 [sub_resource type="AtlasTexture" id="AtlasTexture_g8nad"]
 atlas = ExtResource("7_kpb6k")
 region = Rect2(96, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_74cnq"]
+atlas = ExtResource("6_hic0x")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3vrwl"]
+atlas = ExtResource("6_hic0x")
+region = Rect2(48, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wgy36"]
+atlas = ExtResource("6_hic0x")
+region = Rect2(96, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cqjlk"]
+atlas = ExtResource("6_hic0x")
+region = Rect2(144, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_judl8"]
+atlas = ExtResource("6_hic0x")
+region = Rect2(192, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_51fhs"]
+atlas = ExtResource("6_hic0x")
+region = Rect2(240, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pft2h"]
+atlas = ExtResource("6_hic0x")
+region = Rect2(288, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rpvn3"]
+atlas = ExtResource("6_hic0x")
+region = Rect2(336, 0, 48, 48)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_v7uls"]
 atlas = ExtResource("9_avgs1")
@@ -648,35 +648,6 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_74cnq")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_3vrwl")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_wgy36")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_cqjlk")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_judl8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_51fhs")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_pft2h")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_rpvn3")
-}],
-"loop": 0,
-"name": &"land",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_18204")
 }, {
 "duration": 1.0,
@@ -737,6 +708,35 @@ animations = [{
 "loop": 1,
 "name": &"jump",
 "speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_74cnq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3vrwl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wgy36")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cqjlk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_judl8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_51fhs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pft2h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rpvn3")
+}],
+"loop": 0,
+"name": &"land",
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -953,7 +953,7 @@ script = ExtResource("26_0lqjd")
 drain_per_second = 1.0
 metadata/_custom_type_script = "uid://dujfd7ts273sj"
 
-[node name="SanityVisualsComponent" type="Node" parent="."]
+[node name="SanityVisualsComponent" type="Node" parent="." unique_id=1420417890]
 script = ExtResource("27_sanvis")
 
 [node name="InventoryComponent" type="Node" parent="." unique_id=937944801]
