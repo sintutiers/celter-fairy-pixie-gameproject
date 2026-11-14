@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://1rwq6c5y0v7m"
-path="res://.godot/imported/player new jump 48x48.png-3e86834d3fe33be1b5e78198879cf54c.ctex"
+uid="uid://bxot3r8qgddga"
+path="res://.godot/imported/player shoot 2H 48x48.png-03a05ce9a1aff48f97a09027a4ad0f33.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://The Amazing Art and Sound Folder/archive/player new jump 48x48.png"
-dest_files=["res://.godot/imported/player new jump 48x48.png-3e86834d3fe33be1b5e78198879cf54c.ctex"]
+source_file="res://The Amazing Art and Sound Folder/player shoot 2H 48x48.png"
+dest_files=["res://.godot/imported/player shoot 2H 48x48.png-03a05ce9a1aff48f97a09027a4ad0f33.ctex"]
 
 [params]
 

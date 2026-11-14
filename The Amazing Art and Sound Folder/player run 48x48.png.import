@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://biwl0swru74qt"
-path="res://.godot/imported/player wall slide 48x48.png-19997e850b8863bec9c807bf1d644e1c.ctex"
+uid="uid://c244em85bo5tt"
+path="res://.godot/imported/player run 48x48.png-9bfc961e3344c8f971937ed9148fc798.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://The Amazing Art and Sound Folder/archive/player wall slide 48x48.png"
-dest_files=["res://.godot/imported/player wall slide 48x48.png-19997e850b8863bec9c807bf1d644e1c.ctex"]
+source_file="res://The Amazing Art and Sound Folder/player run 48x48.png"
+dest_files=["res://.godot/imported/player run 48x48.png-9bfc961e3344c8f971937ed9148fc798.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ba1a7t51pli8g"
-path="res://.godot/imported/player push 48x48.png-7b50fb8c1a8b75c72e6e9fcee8b2c034.ctex"
+uid="uid://b31iyhp0xmtvt"
+path="res://.godot/imported/erinplayablesprite.png-fe1bc6dc3f8b67927131b4f79830a304.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://The Amazing Art and Sound Folder/archive/player push 48x48.png"
-dest_files=["res://.godot/imported/player push 48x48.png-7b50fb8c1a8b75c72e6e9fcee8b2c034.ctex"]
+source_file="res://The Amazing Art and Sound Folder/erinplayablesprite.png"
+dest_files=["res://.godot/imported/erinplayablesprite.png-fe1bc6dc3f8b67927131b4f79830a304.ctex"]
 
 [params]
 

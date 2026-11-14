@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://dcfts64u1gjqa" path="res://scenes/game/scripts/tutorial_manager.gd" id="4_hw0gv"]
 [ext_resource type="PackedScene" uid="uid://donqi00tgqoon" path="res://scenes/game/tutorials/tutorial_3.tscn" id="5_fd5cg"]
 [ext_resource type="Script" uid="uid://bxv6un3sy7wjf" path="res://scenes/game/levels/character_body_3d.gd" id="6_1f0nd"]
-[ext_resource type="Texture2D" uid="uid://b31iyhp0xmtvt" path="res://The Amazing Art and Sound Folder/archive/erinplayablesprite.png" id="7_ul4y5"]
+[ext_resource type="Texture2D" uid="uid://b31iyhp0xmtvt" path="res://The Amazing Art and Sound Folder/erinplayablesprite.png" id="7_ul4y5"]
 [ext_resource type="Script" uid="uid://cl0higukcpcs1" path="res://scenes/game/levels/yaw_control_3d.gd" id="7_wahtw"]
 [ext_resource type="Script" uid="uid://c0q0rfmy8x2gh" path="res://scripts/components/player_input_component.gd" id="9_uncf6"]
 

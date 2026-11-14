@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ir82d107vogr"
-path="res://.godot/imported/Player Running Shooting 48x48.png-edb95dfe9d631e1cbd2294c9eda77d3e.ctex"
+uid="uid://muax2a0rttlp"
+path="res://.godot/imported/player air spin 48x48.png-a554e4b957696a4720d17027d2bd46b0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://The Amazing Art and Sound Folder/archive/Player Running Shooting 48x48.png"
-dest_files=["res://.godot/imported/Player Running Shooting 48x48.png-edb95dfe9d631e1cbd2294c9eda77d3e.ctex"]
+source_file="res://The Amazing Art and Sound Folder/player air spin 48x48.png"
+dest_files=["res://.godot/imported/player air spin 48x48.png-a554e4b957696a4720d17027d2bd46b0.ctex"]
 
 [params]
 
