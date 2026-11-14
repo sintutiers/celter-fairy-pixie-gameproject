@@ -109,3 +109,92 @@ Roots gone. The gate opens.
 ~ final_chest
 End of the showcase.
 => END
+
+~ fairy
+if is_quest_done("iron_nail")
+	if get_fact("choice.nail_kept")
+		Fairy: Iron. Stay back.
+	else
+		Fairy: Favor paid. We're even.
+	=> END
+if get_quest_stage("iron_nail") == 1
+	if has_item("iron_nail")
+		Fairy: That's the nail. Hand it over?
+		- Give the nail
+			do remove_item("iron_nail")
+			do advance_quest("iron_nail")
+			do add_opinion("fairy", 1)
+			do add_sanity(15)
+			Fairy: Favor paid. Nail gone. Sanity up.
+			Fairy: Info back: the shape by the gate is fake under sanity 50.
+		- Keep it
+			do set_fact("choice.nail_kept")
+			do advance_quest("iron_nail")
+			do add_opinion("fairy", -2)
+			Fairy: Then keep it away from me. I remember this.
+	else
+		Fairy: No nail on you.
+	=> END
+if get_quest_stage("iron_nail") == 0
+	Fairy: Nail. In the stump, left of the tree. It takes hate.
+	=> END
+if not get_level_flag("showcase.fairy_met")
+	do set_level_flag("showcase.fairy_met")
+	Fairy: Where did you come from?
+	- I don't remember. [if get_sanity_zone() >= 2]
+		do add_opinion("fairy", 1)
+		Fairy: Honest. That answer needs sanity 50 or more.
+	- You know where. You sent me here. [if get_sanity_zone() < 2]
+		do add_opinion("fairy", -1)
+		do add_sanity(-5)
+		Fairy: I did not. That answer needs sanity under 50.
+	- Not telling.
+		do set_fact("choice.fairy_secret")
+		Fairy: Fine. I remember that too.
+Fairy: Do me a favor? Iron nail in a stump. Pull it out.
+- Deal
+	do advance_quest("iron_nail")
+	do set_level_flag("showcase.nail_wanted")
+	do add_opinion("fairy", 1)
+	Fairy: Stump is left of the tree. It takes hate.
+- No
+	do add_opinion("fairy", -1)
+	Fairy: Then nothing back. Ask again if you change your mind.
+=> END
+
+~ nail
+do remove_item("aspect_of_hate")
+do give_item("iron_nail")
+do advance_quest("iron_nail")
+IRON NAIL. 1 ASPECT OF HATE used up.
+=> END
+
+~ nail_stuck
+if not get_level_flag("showcase.nail_wanted")
+	Iron nail in a stump. Nobody asked for it.
+else
+	Stuck. Pulling it takes hate. Red box has some.
+=> END
+
+~ shape
+Something stands here. It has your face.
+- Back away
+	do add_sanity(-10)
+	do set_fact("choice.shape", "ran")
+	You run. It keeps the face. Sanity down.
+- Touch it
+	do set_fact("choice.shape", "touched")
+	if get_sanity_zone() < 2
+		Fake. Hand goes through. Under sanity 50 it's fake.
+	else
+		do add_sanity(-15)
+		Real. It bites. Sanity down. Under sanity 50 it's fake.
+- Feed it bread [if has_item("bread")]
+	do remove_item("bread")
+	do set_fact("choice.shape", "fed")
+	It eats. It leaves. Bread gone.
+- Show it the nail [if has_item("iron_nail")]
+	do add_opinion("fairy", -1)
+	do set_fact("choice.shape", "iron")
+	Iron. It leaves. The fairy saw that.
+=> END

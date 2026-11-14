@@ -12,6 +12,8 @@ extends Component
 signal item_added(item: ItemData, count: int)
 ## Emitted when [method add_inventory_item] found no room.
 signal add_failed(item: ItemData)
+## Emitted after item was used. [param consumed] = one was removed by that use.
+signal item_used(item: ItemData, consumed: bool)
 
 ## Slots in total, see [method get_used_slot_count].
 @export var max_slots: int = 8
@@ -94,6 +96,7 @@ func use_inventory_item(item: ItemData) -> bool:
 		sanity_component.add_sanity(item.sanity_restore)
 	if item.consumed_on_use:
 		remove_inventory_item(item)
+	item_used.emit(item, item.consumed_on_use)
 	if item.use_dialogue and not _in_dialogue:
 		DialogueManager.show_dialogue_balloon(item.use_dialogue, item.use_dialogue_cue, [api])
 	return true

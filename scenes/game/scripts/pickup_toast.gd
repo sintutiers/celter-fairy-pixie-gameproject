@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Shows "+1 bread" or "no room for bread" briefly, then fades.
-## Listens to [signal InventoryComponent.item_added] and [signal InventoryComponent.add_failed].
+## Shows "you picked up Bread", "no room for Bread" or "you used Bread" briefly, then fades.
+## Listens to [signal InventoryComponent.item_added], [signal InventoryComponent.add_failed]
+## and [signal InventoryComponent.item_used].
 ## @experimental: Placeholder until there is inventory UI.
 class_name PickupToast
 extends Label
@@ -19,14 +20,28 @@ func _ready() -> void:
 	if not api or not api.inventory:
 		push_error("%s: no player with an InventoryComponent in the scene" % name)
 		return
-	api.inventory.item_added.connect(
-		func(item: ItemData, count: int) -> void:
-			_show_toast_message("+%d %s" % [count, item.get_item_id()]),
-	)
-	api.inventory.add_failed.connect(
-		func(item: ItemData) -> void:
-			_show_toast_message("no room for %s" % item.get_item_id()),
-	)
+	api.inventory.item_added.connect(_on_item_added)
+	api.inventory.add_failed.connect(_on_add_failed)
+	api.inventory.item_used.connect(_on_item_used)
+
+
+func _on_item_added(item: ItemData, count: int) -> void:
+	var amount: String = " x%d" % count if count > 1 else ""
+	_show_toast_message("you picked up %s%s" % [_get_item_label(item), amount])
+
+
+func _on_add_failed(item: ItemData) -> void:
+	_show_toast_message("no room for %s" % _get_item_label(item))
+
+
+func _on_item_used(item: ItemData, consumed: bool) -> void:
+	var label: String = _get_item_label(item)
+	var destroyed: String = "\n%s has been destroyed" % label if consumed else ""
+	_show_toast_message("you used %s%s" % [label, destroyed])
+
+
+func _get_item_label(item: ItemData) -> String:
+	return item.display_name if item.display_name != "" else item.get_item_id()
 
 
 func _show_toast_message(message: String) -> void:

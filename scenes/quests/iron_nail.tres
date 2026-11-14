@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="QuestData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/quest_data.gd" id="1_quest"]
+
+[resource]
+script = ExtResource("1_quest")
+title = "The Fairy's Favor"
+stages = PackedStringArray("Pull the iron nail out of the stump left of the tree. It takes hate.", "Bring the nail to the fairy in the sanctuary.")
