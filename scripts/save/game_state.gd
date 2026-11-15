@@ -7,7 +7,7 @@ class_name GameState
 extends Resource
 
 const STATE_NAME: String = "GameState"
-const FILE_PATH: String = "res://scripts/game_state.gd"
+const FILE_PATH: String = "res://scripts/save/game_state.gd"
 ## Version this game writes. Older saves are migrated on load.
 const SAVE_VERSION: int = 1
 
