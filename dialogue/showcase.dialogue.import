@@ -8,7 +8,7 @@ path="res://.godot/imported/showcase.dialogue-381b61c06aa7ffa48ad4e7c6f827480d.t
 
 [deps]
 
-source_file="res://The Amazing Art and Sound Folder/showcase.dialogue"
+source_file="res://dialogue/showcase.dialogue"
 dest_files=["res://.godot/imported/showcase.dialogue-381b61c06aa7ffa48ad4e7c6f827480d.tres"]
 
 [params]
