@@ -1,14 +1,18 @@
 ~ sign
-Sign: This doesn't freeze you. Walk away.
+Sign: This doesnt freeze you. Walk to test.
 Sign: Cassie does.
+=> END
+
+~ jar
+do advance_quest("jar")
+JAR. Something small inside. It wants out.[if DebugCommands.explain] Quest started. Fairy, tree and shape each take it.[/if]
 => END
 
 ~ npc
 if is_quest_done("help_cassie")
-	Cassie: You opened my door. Quests persist across levels.
-	=> END
+	=> cassie_ledger
 if has_item("showcase_key")
-	Cassie: You have my key. Door's behind me.
+	Cassie: You have my key. Doors behind me.
 	=> END
 if get_opinion("cassie") < 0
 	Cassie: You again. I remember being ignored.
@@ -17,19 +21,48 @@ elif get_level_flag("showcase.met")
 else
 	Cassie: Hi. Stay put while we talk.
 	do set_level_flag("showcase.met")
-Cassie: Help me? It affects your sanity.
+Cassie: Help me?
 - Help her
 	do add_sanity(10)
 	do give_item("showcase_key")
 	if get_quest_stage("help_cassie") == -1
 		do advance_quest("help_cassie")
 	do add_opinion("cassie", 1)
-	Cassie: Take my key. It opens the door.
-	Cassie: Sanity up. Key added.
+	Cassie: Take my key. It opens the door.[if DebugCommands.explain] Sanity +10. Key added. Quest started. Opinion +1.[/if]
 - Ignore her
 	do add_sanity(-20)
 	do add_opinion("cassie", -1)
-	Cassie: Fine. Sanity down. Ask again if you change your mind.
+	Cassie: Fine. Ask again if you change your mind.[if DebugCommands.explain] Sanity -20. Opinion -1.[/if]
+=> END
+
+~ cassie_ledger
+if get_opinion("cassie") < 0
+	Cassie: Doors open. I still remember being ignored.
+else
+	Cassie: You opened my door.
+Cassie: I owe you {{get_favor("cassie")}}.
+- Hate. One favor. [if get_favor("cassie") >= 1 /]
+	if give_item("aspect_of_hate")
+		do add_favor("cassie", -1)
+		Cassie: One hate. Favor spent.[if DebugCommands.explain] Reward: item.[/if]
+	else
+		Cassie: Your hands are full. Keep the favor.
+- What does the fairy want? One favor. [if get_favor("cassie") >= 1 /]
+	do add_favor("cassie", -1)
+	do set_fact("choice.cassie_told")
+	Cassie: She collects at the gate. More than she gave. Pay her first.[if DebugCommands.explain] Reward: info.[/if]
+- Talk to the fairy for me. One favor. [if get_favor("cassie") >= 1 and get_debt("fairy") >= 1 /]
+	do add_favor("cassie", -1)
+	do add_debt("fairy", -1)
+	do add_opinion("fairy", -1)
+	Cassie: Done. She did not like it.[if DebugCommands.explain] Cassie favor -1. Fairy debt -1. Fairy opinion -1.[/if]
+- Take this bread. [if has_item("bread") /]
+	do remove_item("bread")
+	do add_favor("cassie", 1)
+	do add_opinion("cassie", 1)
+	Cassie: Bread. I owe you 1 more.[if DebugCommands.explain] Repeatable. Bread never runs out.[/if]
+- Leave
+	Cassie: Door stays open.
 => END
 
 ~ door_locked
@@ -38,7 +71,8 @@ Locked. Cassie has a key.
 
 ~ door_open
 do advance_quest("help_cassie")
-Unlocked.
+do add_favor("cassie", 1)
+Unlocked. Cassie saw that.[if DebugCommands.explain] Quest done. Cassie owes you 1. Talk to her.[/if]
 => END
 
 ~ chest
@@ -46,37 +80,57 @@ ASPECT OF HATE.
 => END
 
 ~ tree
+if get_debt("tree") > 0
+	Tree: You owe me bread.
+	- Pay with bread [if has_item("bread") /]
+		do remove_item("bread")
+		do add_debt("tree", -1)
+		do add_opinion("tree", 1)
+		Tree: Paid. We are even.[if DebugCommands.explain] Tree debt -1. Opinion +1.[/if]
+	- Not yet
+		do add_opinion("tree", -1)
+		Tree: Roots are patient.[if DebugCommands.explain] Opinion -1. Unpaid: it collects at the last chest.[/if]
+	=> END
 if is_quest_done("feed_tree")
 	Tree: You went through.
 	=> END
 if get_sanity_zone() == 0
 	Tree: Y o u  a r e  f a d i n g.
 if get_quest_stage("feed_tree") == -1
-	Tree: I'm dying. Help me?
+	Tree: Im dying. Help me?
 	- Yes
 		do advance_quest("feed_tree")
 		do set_fact("choice.tree_helped")
 		do add_opinion("tree", 1)
-		Tree: Bread. On the table behind you.
+		Tree: Bread. On the table behind you.[if DebugCommands.explain] Quest started. Opinion +1.[/if]
 	- No
 		do set_fact("choice.tree_helped", false)
 		do add_opinion("tree", -1)
-		Tree: Then leave. Ask again if you change your mind.
+		Tree: Then leave. Ask again if you change your mind.[if DebugCommands.explain] Opinion -1.[/if]
 	=> END
 if get_quest_stage("feed_tree") == 0
-	if has_item("bread")
-		Tree: You have bread. Give it to me?
-		- Give the bread
-			do remove_item("bread")
-			do set_level_flag("showcase.gate_open")
-			do advance_quest("feed_tree")
-			do add_sanity(20)
-			Tree: The gate is open.
-		- Keep it
-			do add_opinion("tree", -1)
-			Tree: Hungry too.
-	else
-		Tree: Bread. On the table behind you.
+	Tree: Bread. On the table behind you.[if DebugCommands.explain] 3 ways to open the gate: bread, jar, debt.[/if]
+	- Give the bread [if has_item("bread") /]
+		do remove_item("bread")
+		do set_level_flag("showcase.gate_open")
+		do advance_quest("feed_tree")
+		do add_sanity(20)
+		Tree: The gate is open.[if DebugCommands.explain] Bread gone. Sanity +20.[/if]
+	- Give the jar [if has_item("jar") /]
+		do remove_item("jar")
+		do advance_quest("jar")
+		do set_fact("choice.jar", "tree")
+		do set_level_flag("showcase.gate_open")
+		do advance_quest("feed_tree")
+		Tree: Small. Loud. Enough. The gate is open.[if DebugCommands.explain] Jar gone. Jar quest done.[/if]
+	- Open it now. I will owe you.
+		do add_debt("tree", 1)
+		do set_level_flag("showcase.gate_open")
+		do advance_quest("feed_tree")
+		Tree: Open. You owe me bread.[if DebugCommands.explain] Tree debt +1. Pay here with bread.[/if]
+	- Nothing for you
+		do add_opinion("tree", -1)
+		Tree: Hungry too.[if DebugCommands.explain] Opinion -1.[/if]
 	=> END
 Tree: The gate is open. Go.
 => END
@@ -86,7 +140,7 @@ BREAD. Stacks to 5.
 => END
 
 ~ pile
-3 ASPECT OF HATE. They don't stack.
+3 ASPECT OF HATE. They dont stack.
 => END
 
 ~ full
@@ -104,34 +158,77 @@ Locked. Roots hold it shut. Ask the tree.
 ~ gate_open
 do advance_quest("feed_tree")
 Roots gone. The gate opens.
+if get_debt("fairy") > 0
+	do add_sanity(-25 * get_debt("fairy"))
+	do set_fact("debt.fairy", 0)
+	do add_opinion("fairy", -1)
+	Fairy: You owe me. I collect now.[if DebugCommands.explain] Sanity -25 per debt. Fairy debt 0. Opinion -1.[/if]
+=> END
+
+~ spring
+do add_sanity(10)
+Water. You feel calmer.[if DebugCommands.explain] Sanity +10. Once.[/if]
 => END
 
 ~ final_chest
 End of the showcase.
+if get_debt("tree") > 0
+	do add_sanity(-20 * get_debt("tree"))
+	do set_fact("debt.tree", 0)
+	do add_opinion("tree", -1)
+	Roots under the chest. The tree collects.[if DebugCommands.explain] Sanity -20 per debt. Tree debt 0. Opinion -1.[/if]
+if get_favor("fairy") + get_favor("cassie") > 0
+	Still owed to you. Fairy {{get_favor("fairy")}}. Cassie {{get_favor("cassie")}}. Go back and spend it.
 => END
 
 ~ fairy
-if is_quest_done("iron_nail")
-	if get_fact("choice.nail_kept")
-		Fairy: Iron. Stay back.
-	else
-		Fairy: Favor paid. We're even.
+if get_fact("choice.nail_kept")
+	Fairy: Iron. Stay back. Or hand it over.
+	- Hand it over
+		do remove_item("iron_nail")
+		do set_fact("choice.nail_kept", false)
+		do add_opinion("fairy", 1)
+		do add_favor("fairy", 1)
+		Fairy: Late. I owe you 1, not 2.[if DebugCommands.explain] Nail gone. Opinion +1.[/if]
+	- Keep it
+		do add_opinion("fairy", -1)
+		Fairy: Then stay back.[if DebugCommands.explain] Opinion -1. Ask again any time.[/if]
 	=> END
+if has_item("jar")
+	Fairy: That jar. Mine?
+	- Give her the jar
+		do remove_item("jar")
+		do advance_quest("jar")
+		do set_fact("choice.jar", "fairy")
+		do add_favor("fairy", 1)
+		do add_opinion("fairy", 1)
+		Fairy: Mine. I owe you 1.[if DebugCommands.explain] Jar gone. Jar quest done. Opinion +1.[/if]
+	- Open it here
+		do remove_item("jar")
+		do advance_quest("jar")
+		do set_fact("choice.jar", "freed")
+		do add_sanity(15)
+		do add_opinion("fairy", -1)
+		Fairy: It is gone. That was mine.[if DebugCommands.explain] Jar gone. Jar quest done. Sanity +15. Opinion -1.[/if]
+	- Not yet
+		do set_fact("choice.jar_kept")
+		Fairy: I can wait.[if DebugCommands.explain] She asks again while you carry it.[/if]
+if is_quest_done("iron_nail")
+	=> fairy_ledger
 if get_quest_stage("iron_nail") == 1
 	if has_item("iron_nail")
-		Fairy: That's the nail. Hand it over?
+		Fairy: Thats the nail. Hand it over?
 		- Give the nail
 			do remove_item("iron_nail")
 			do advance_quest("iron_nail")
 			do add_opinion("fairy", 1)
-			do add_sanity(15)
-			Fairy: Favor paid. Nail gone. Sanity up.
-			Fairy: Info back: the shape by the gate is fake under sanity 50.
+			do add_favor("fairy", 2)
+			Fairy: Nail gone. I owe you 2. Talk to me to spend it.[if DebugCommands.explain] Quest done. Opinion +1.[/if]
 		- Keep it
 			do set_fact("choice.nail_kept")
 			do advance_quest("iron_nail")
 			do add_opinion("fairy", -2)
-			Fairy: Then keep it away from me. I remember this.
+			Fairy: Then keep it away from me. I remember this.[if DebugCommands.explain] Quest done. Opinion -2. She still takes it later, for 1.[/if]
 	else
 		Fairy: No nail on you.
 	=> END
@@ -141,13 +238,13 @@ if get_quest_stage("iron_nail") == 0
 if not get_level_flag("showcase.fairy_met")
 	do set_level_flag("showcase.fairy_met")
 	Fairy: Where did you come from?
-	- I don't remember. [if get_sanity_zone() >= 2]
+	- I dont remember. [if get_sanity_zone() >= 2 /]
 		do add_opinion("fairy", 1)
-		Fairy: Honest. That answer needs sanity 50 or more.
-	- You know where. You sent me here. [if get_sanity_zone() < 2]
+		Fairy: Honest.[if DebugCommands.explain] Needs sanity 50 or more. Opinion +1.[/if]
+	- You know where. You sent me here. [if get_sanity_zone() < 2 /]
 		do add_opinion("fairy", -1)
 		do add_sanity(-5)
-		Fairy: I did not. That answer needs sanity under 50.
+		Fairy: I did not.[if DebugCommands.explain] Needs sanity under 50. Opinion -1. Sanity -5.[/if]
 	- Not telling.
 		do set_fact("choice.fairy_secret")
 		Fairy: Fine. I remember that too.
@@ -156,10 +253,60 @@ Fairy: Do me a favor? Iron nail in a stump. Pull it out.
 	do advance_quest("iron_nail")
 	do set_level_flag("showcase.nail_wanted")
 	do add_opinion("fairy", 1)
-	Fairy: Stump is left of the tree. It takes hate.
+	Fairy: Stump is left of the tree. It takes hate.[if DebugCommands.explain] Quest started. Opinion +1.[/if]
 - No
 	do add_opinion("fairy", -1)
-	Fairy: Then nothing back. Ask again if you change your mind.
+	Fairy: Then nothing back. Ask again if you change your mind.[if DebugCommands.explain] Opinion -1.[/if]
+=> END
+
+~ fairy_ledger
+if get_opinion("fairy") < 0
+	Fairy: You. I give less to people I dont like.
+Fairy: I owe you {{get_favor("fairy")}}. You owe me {{get_debt("fairy")}}.
+- A truth. One favor. [if get_favor("fairy") >= 1 /]
+	do add_favor("fairy", -1)
+	Fairy: The shape by the gate is not there when your head is going.[if DebugCommands.explain] Reward: info. Under sanity 50 touching it is safe.[/if]
+- Calm. One favor. [if get_favor("fairy") >= 1 /]
+	do add_favor("fairy", -1)
+	if get_opinion("fairy") < 0
+		do add_sanity(10)
+		Fairy: Smallest I had.[if DebugCommands.explain] Sanity +10. Opinion under 0 pays less.[/if]
+	else
+		do add_sanity(15)
+		Fairy: Calm.[if DebugCommands.explain] Sanity +15. Opinion under 0 pays 10.[/if]
+- Calm now. Pay later. [if get_debt("fairy") < 3 /]
+	do add_debt("fairy", 1)
+	do add_sanity(20)
+	Fairy: Calm. You owe me. I collect at the gate.[if DebugCommands.explain] Sanity +20. Debt +1, up to 3. She takes 25 per debt.[/if]
+- Call it even. One favor for one debt. [if get_favor("fairy") >= 1 and get_debt("fairy") >= 1 /]
+	do add_favor("fairy", -1)
+	do add_debt("fairy", -1)
+	do add_opinion("fairy", -1)
+	Fairy: One for one. Shame.[if DebugCommands.explain] Opinion -1.[/if]
+- Take this hate. [if has_item("aspect_of_hate") /]
+	do remove_item("aspect_of_hate")
+	if get_debt("fairy") > 0
+		do add_debt("fairy", -1)
+		Fairy: Hate. I eat it. One debt gone.[if DebugCommands.explain] Hate pays debt first.[/if]
+	else
+		do add_favor("fairy", 1)
+		Fairy: Hate. I eat it. I owe you 1 more.[if DebugCommands.explain] Repeatable. Red pile never runs out.[/if]
+- Ask me something. [if get_sanity_zone() < 2 and get_fact("choice.fairy_risk", "") != "right" /]
+	Fairy: What holds the gate shut?[if DebugCommands.explain] Needs sanity under 50. Right: favor +1, once. Wrong: sanity -15, ask again.[/if]
+	- Roots
+		do set_fact("choice.fairy_risk", "right")
+		do add_favor("fairy", 1)
+		Fairy: Right. I owe you 1 more.
+	- Iron
+		do set_fact("choice.fairy_risk", "wrong")
+		do add_sanity(-15)
+		Fairy: Wrong. Ask again.
+	- A key
+		do set_fact("choice.fairy_risk", "wrong")
+		do add_sanity(-15)
+		Fairy: Wrong. Ask again.
+- Leave
+	Fairy: I remember what is open.
 => END
 
 ~ nail
@@ -169,14 +316,14 @@ if has_item("iron_nail") or is_quest_done("iron_nail")
 do remove_item("aspect_of_hate")
 do give_item("iron_nail")
 do advance_quest("iron_nail")
-IRON NAIL. 1 ASPECT OF HATE used up.
+IRON NAIL.[if DebugCommands.explain] 1 ASPECT OF HATE used up. Quest moved on.[/if]
 => END
 
 ~ nail_stuck
 if not get_level_flag("showcase.nail_wanted")
 	Iron nail in a stump. Nobody asked for it.
 else
-	Stuck. Pulling it takes hate. Red box has some.
+	Stuck. Pulling it takes hate. Red pile has some.
 => END
 
 ~ shape
@@ -184,20 +331,31 @@ Something stands here. It has your face.
 - Back away
 	do add_sanity(-10)
 	do set_fact("choice.shape", "ran")
-	You run. It keeps the face. Sanity down.
+	You run. It keeps the face.[if DebugCommands.explain] Sanity -10.[/if]
 - Touch it
 	do set_fact("choice.shape", "touched")
 	if get_sanity_zone() < 2
-		Fake. Hand goes through. Under sanity 50 it's fake.
+		Hand goes through. Nothing there.[if DebugCommands.explain] Fake under sanity 50.[/if]
 	else
 		do add_sanity(-15)
-		Real. It bites. Sanity down. Under sanity 50 it's fake.
-- Feed it bread [if has_item("bread")]
+		It bites.[if DebugCommands.explain] Real at sanity 50 or more. Sanity -15.[/if]
+- Feed it bread [if has_item("bread") /]
 	do remove_item("bread")
 	do set_fact("choice.shape", "fed")
-	It eats. It leaves. Bread gone.
-- Show it the nail [if has_item("iron_nail")]
+	It eats. It leaves.[if DebugCommands.explain] Bread gone.[/if]
+- Open the jar at it [if has_item("jar") /]
+	do remove_item("jar")
+	do advance_quest("jar")
+	do set_fact("choice.jar", "shape")
+	do set_fact("choice.shape", "jar")
+	do add_opinion("fairy", -1)
+	It takes what was inside. It leaves. The fairy saw that.[if DebugCommands.explain] Jar gone. Jar quest done. Fairy opinion -1.[/if]
+- Call in the fairy. Two favors. [if get_favor("fairy") >= 2 /]
+	do add_favor("fairy", -2)
+	do set_fact("choice.shape", "favor")
+	Fairy: Mine now.[if DebugCommands.explain] Fairy favor -2.[/if]
+- Show it the nail [if has_item("iron_nail") /]
 	do add_opinion("fairy", -1)
 	do set_fact("choice.shape", "iron")
-	Iron. It leaves. The fairy saw that.
+	Iron. It leaves. The fairy saw that.[if DebugCommands.explain] Fairy opinion -1.[/if]
 => END

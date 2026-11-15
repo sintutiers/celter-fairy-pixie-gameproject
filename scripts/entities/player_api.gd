@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Narrow interface to local player, same for 2D and 3D.
 ## Dialogue files and [InteractableThing] only call its methods, so inventory and sanity
-## can change without touching them. Other code (HUD, [code]DebugCommands[/code], [Sanctuary])
+## can change without touching them. Other code (HUD, [code]DebugCommands[/code], [SanityArea])
 ## reads [member inventory] and [member sanity] directly.
 ## Made by [PlayerBody] and [PlayerBody2D], passed to dialogues as extra game state:
 ## [codeblock]
 ## if has_item("showcase_key")
 ##     do give_item("aspect_of_hate", 2)
 ##     do add_opinion("cassie", 1)
+##     do add_favor("fairy", 2)
 ##     do advance_quest("help_cassie")
 ## [/codeblock]
 ## Items are ids, see [method ItemData.load_item_by_id].
@@ -92,8 +93,8 @@ func get_fact(key: String, default: Variant = false) -> Variant:
 
 
 ## Sets global fact and saves, see [method GameState.set_fact].
-## Every dialogue choice should end up here, in [method add_opinion] or in
-## [method advance_quest]: no fake choices.
+## Every dialogue choice should end up here, in [method add_opinion], [method add_favor],
+## [method add_debt] or in [method advance_quest]: no fake choices.
 func set_fact(key: String, value: Variant = true) -> void:
 	GameState.set_fact(key, value)
 
@@ -106,6 +107,29 @@ func get_opinion(npc: String) -> int:
 ## Adds [param amount] to [method get_opinion], negative lowers.
 func add_opinion(npc: String, amount: int) -> void:
 	set_fact("opinion." + npc, get_opinion(npc) + amount)
+
+
+## Size of what [param npc] owes player, 0 when nothing. Other direction is [method get_debt],
+## both can be open with same npc at once.
+func get_favor(npc: String) -> int:
+	return get_fact("favor." + npc, 0)
+
+
+## Adds [param amount] to [method get_favor], negative spends.
+## Returns false and spends nothing when less is owed.
+func add_favor(npc: String, amount: int) -> bool:
+	return _add_to_ledger_fact("favor." + npc, amount)
+
+
+## Size of what player owes [param npc], 0 when nothing. Other direction is [method get_favor].
+func get_debt(npc: String) -> int:
+	return get_fact("debt." + npc, 0)
+
+
+## Adds [param amount] to [method get_debt], negative pays off.
+## Returns false and pays nothing when less is owed.
+func add_debt(npc: String, amount: int) -> bool:
+	return _add_to_ledger_fact("debt." + npc, amount)
 
 
 ## Stage of quest with [param id]: -1 = not started, see [member QuestData.stages].
@@ -132,6 +156,16 @@ func advance_quest(id: String) -> void:
 		push_error("quest '%s' is already done, advance_quest ignored" % id)
 		return
 	set_fact("quest." + id, stage)
+
+
+# Favors and debts never go below 0: owing other way is its own fact.
+func _add_to_ledger_fact(key: String, amount: int) -> bool:
+	var size: int = get_fact(key, 0) + amount
+	if size < 0:
+		push_error("'%s' is %d, cannot add %d" % [key, size - amount, amount])
+		return false
+	set_fact(key, size)
+	return true
 
 
 func _require_inventory() -> bool:

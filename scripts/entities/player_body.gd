@@ -10,7 +10,7 @@
 ## [MovementProfile] is [Resource] and cannot be found in tree, so it is exported.
 ## Without one, movement reports it and stays off.
 ## Dialogue and interactables only call [member api] methods. Other code (HUD, debug
-## commands, [Sanctuary]) reads components through it.
+## commands, [SanityArea]) reads components through it.
 class_name PlayerBody
 extends CharacterBody3D
 

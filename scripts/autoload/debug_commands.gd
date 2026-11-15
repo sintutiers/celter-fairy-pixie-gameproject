@@ -2,12 +2,17 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Debug commands for [LimboConsole]. Autoload.
 ## Commands go through [PlayerApi], so they work for 2D and 3D player.
-## Also checks every .dialogue file for unknown item and quest ids on startup,
-## see [method _check_dialogue_item_and_quest_ids].
+## Also checks every .dialogue file on startup for unknown item and quest ids and
+## for unclosed option conditions, see [method _check_dialogue_files].
 ##
 ## [LimboConsole] silently fails to register bare callable, command name
 ## must be passed as second argument even when function name matches.
 extends Node
+
+## On = dialogue shows what line did to sanity, facts, favors and debts.
+## Dialogue files wrap that text in [code][if DebugCommands.explain]...[/if][/code].
+## Not saved, off on every start.
+var explain: bool = false
 
 
 func _ready() -> void:
@@ -18,11 +23,12 @@ func _ready() -> void:
 		"Sets the player's sanity. Usage: sanity <value>",
 	)
 	LimboConsole.register_command(use_item, "use", "Uses a carried item. Usage: use <item_id>")
+	LimboConsole.register_command(toggle_explain, "explain", "Toggles dialogue explaining what it did.")
 	LimboConsole.add_argument_autocomplete_source("give", 0, _get_all_item_ids)
 	LimboConsole.add_argument_autocomplete_source("use", 0, _get_all_item_ids)
 	# Exported builds hold no .dialogue source, only compiled resources.
 	if OS.has_feature("editor"):
-		_check_dialogue_item_and_quest_ids()
+		_check_dialogue_files()
 
 
 #region Commands
@@ -60,6 +66,12 @@ func set_sanity(value: float) -> void:
 		return
 	api.sanity.set_current_sanity_value(value)
 	LimboConsole.info("sanity %.0f/%.0f" % [api.sanity.value, api.sanity.max_sanity])
+
+
+## Flips [member explain].
+func toggle_explain() -> void:
+	explain = not explain
+	LimboConsole.info("explain %s" % ("on" if explain else "off"))
 #endregion
 
 
@@ -85,12 +97,17 @@ func _get_all_item_ids() -> Array[String]:
 # Typo in .dialogue id only fails when that line is reached in play, which for
 # rare branch is never during testing. This reports them all on every run from editor.
 # Only literal ids are seen. Flags and facts have no list to check against.
-func _check_dialogue_item_and_quest_ids() -> void:
+func _check_dialogue_files() -> void:
 	var calls: RegEx = RegEx.create_from_string(
 		"\\b(give_item|remove_item|has_item|use_item|get_quest_stage|is_quest_done|advance_quest)\\(\\s*\"([^\"]*)\"",
 	)
+	# Option condition must end in " /]". With plain "]" it compiles, is shown
+	# as option text and is never checked.
+	var unclosed_conditions: RegEx = RegEx.create_from_string("(?m)^\\s*- .*\\[if [^\\]]*[^/]\\]$")
 	for path: String in _find_dialogue_files("res://"):
 		var text: String = FileAccess.get_file_as_string(path)
+		for found: RegExMatch in unclosed_conditions.search_all(text):
+			push_error("%s:%d: option condition must end in \" /]\"" % [path, text.count("\n", 0, found.get_start()) + 1])
 		for found: RegExMatch in calls.search_all(text):
 			var id: String = found.get_string(2)
 			var directory: String = QuestData.DIR if "quest" in found.get_string(1) else ItemData.DIR

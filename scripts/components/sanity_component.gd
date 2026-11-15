@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Sanity meter. Changes through [method add_sanity] or flat [member drain_per_second].
 ## Drain stops through [method pause_sanity_drain]: body pauses it during locking interactions,
-## [Sanctuary] while player is inside.
+## [SanityArea] while player is inside.
 ## Value is kept in [member GameState.sanity], so it survives level changes and restarts.
 ## Without game state it starts at [member max_sanity] every time.
 class_name SanityComponent

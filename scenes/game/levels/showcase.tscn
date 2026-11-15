@@ -14,11 +14,11 @@
 [ext_resource type="Script" uid="uid://c6flroaekdoi" path="res://scenes/game/scripts/showcase_hud.gd" id="11_hud"]
 [ext_resource type="Script" uid="uid://dcfts64u1gjqa" path="res://scenes/game/scripts/tutorial_manager.gd" id="13_l6ydm"]
 [ext_resource type="PackedScene" uid="uid://donqi00tgqoon" path="res://scenes/game/tutorials/tutorial_3.tscn" id="14_lv36y"]
-[ext_resource type="Script" uid="uid://cetrmxtdyhdgt" path="res://scripts/entities/sanctuary.gd" id="15_sanctuary"]
-[ext_resource type="Texture2D" uid="uid://bt6r87nvcxoig" path="res://The Amazing Art and Sound Folder/pc duke.png" id="15_vbbwd"]
+[ext_resource type="Script" uid="uid://cetrmxtdyhdgt" path="res://scripts/entities/sanity_area.gd" id="15_sanctuary"]
 [ext_resource type="Script" uid="uid://cvqrjloh2fmv2" path="res://scenes/game/scripts/pickup_toast.gd" id="16_toast"]
 [ext_resource type="Resource" path="res://content/items/bread.tres" id="17_bread"]
 [ext_resource type="Script" uid="uid://6lbbgvb3al3y" path="res://scripts/entities/camera_mouse_lean.gd" id="18_lean"]
+[ext_resource type="Resource" path="res://content/items/jar.tres" id="19_jar"]
 [ext_resource type="Script" uid="uid://b8hhnqsugykly" path="res://addons/phantom_camera/scripts/resources/camera_3d_resource.gd" id="20_kk0hi"]
 [ext_resource type="PackedScene" uid="uid://bpqkpemvpjrgm" path="res://scenes/game/interactable_thing_prefab.tscn" id="99_thing_prefab"]
 
@@ -37,6 +37,14 @@ albedo_color = Color(0.35, 0.37, 0.42, 1)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vbbwd"]
 transparency = 1
 albedo_color = Color(1, 0.22352941, 0.22745098, 0.2901961)
+
+[sub_resource type="StandardMaterial3D" id="Mat_fairy"]
+albedo_color = Color(0.75, 1, 0.85, 1)
+emission_enabled = true
+emission = Color(0.5, 1, 0.7, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_door"]
+albedo_color = Color(0.45, 0.25, 0.1, 1)
 
 [sub_resource type="StandardMaterial3D" id="Mat_block"]
 albedo_color = Color(0.55, 0.6, 0.75, 1)
@@ -66,9 +74,6 @@ animations = [{
 "speed": 2.0
 }]
 
-[sub_resource type="StandardMaterial3D" id="Mat_door"]
-albedo_color = Color(0.45, 0.25, 0.1, 1)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_d7as6"]
 size = Vector3(35, 3, 1)
 
@@ -85,28 +90,16 @@ albedo_color = Color(0.3, 0.8, 0.4, 1)
 height = 6.0
 radius = 3.0
 
-[sub_resource type="StandardMaterial3D" id="Mat_fairy"]
-albedo_color = Color(0.75, 1, 0.85, 1)
-emission_enabled = true
-emission = Color(0.5, 1, 0.7, 1)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_56pq6"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("15_vbbwd")
-}],
-"loop": 1,
-"name": &"default",
-"speed": 5.0
-}]
-
 [sub_resource type="StandardMaterial3D" id="Mat_iron"]
 albedo_color = Color(0.45, 0.45, 0.5, 1)
 metallic = 0.8
 
 [sub_resource type="StandardMaterial3D" id="Mat_shape"]
 albedo_color = Color(0.03, 0.03, 0.05, 1)
+
+[sub_resource type="CylinderShape3D" id="Shape_proximity"]
+height = 6.0
+radius = 4.0
 
 [sub_resource type="Resource" id="Tween_sc"]
 script = ExtResource("4_tween")
@@ -154,7 +147,8 @@ Space jump  Ctrl crouch
 Tab dash  E / click interact
 ` console  F3 debug menu
 console: give bread 5
-use bread   sanity 20"
+use bread   sanity 20
+explain"
 horizontal_alignment = 1
 
 [node name="PickupToast" type="Label" parent="HUD/Margin" unique_id=59222313]
@@ -239,10 +233,31 @@ pixel_size = 0.01
 text = "CONSOLE: 
 press `
 give <item> <count>, use <item>, sanity <value>
+explain: dialogue says what it did
 F3: debug menu"
 font_size = 40
 outline_size = 16
 horizontal_alignment = 0
+
+[node name="Jar" parent="World/0_Start" unique_id=1493057216 instance=ExtResource("99_thing_prefab")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0.3, 6)
+free_after = true
+persistent_id = "showcase_jar"
+item = ExtResource("19_jar")
+dialogue = ExtResource("8_dialogue")
+dialogue_cue = "jar"
+blocked_cue = "full"
+
+[node name="Glass" type="CSGCylinder3D" parent="World/0_Start/Jar" unique_id=1387420655]
+radius = 0.15
+height = 0.4
+material = SubResource("Mat_fairy")
+
+[node name="Lid" type="CSGCylinder3D" parent="World/0_Start/Jar" unique_id=1387420656]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.23, 0)
+radius = 0.17
+height = 0.06
+material = SubResource("Mat_door")
 
 [node name="1_Jump" type="Node3D" parent="World" unique_id=491122758]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
@@ -371,7 +386,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -96)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 3)
 pixel_size = 0.01
 text = "INTERACT: E or left click
-Talk to ENTITY, read sign, open the door."
+Talk to ENTITY, read sign, open the door.
+Open it: she owes you 1. Bread: 1 more each."
 font_size = 48
 outline_size = 16
 
@@ -434,10 +450,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.5)
 shape = SubResource("BoxShape3D_d7as6")
 
 [node name="Label" type="Label3D" parent="World/7_Room/Door" unique_id=572916327]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.26000214)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 0.26000214)
 pixel_size = 0.01
 text = "LOCKED THINGs"
 font_size = 48
+
+[node name="Leaf" type="CSGBox3D" parent="World/7_Room/Door" unique_id=572916400]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0.26)
+size = Vector3(2.2, 3.6, 0.06)
+material = SubResource("Mat_block")
+
+[node name="Knob" type="CSGSphere3D" parent="World/7_Room/Door" unique_id=572916401]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0.7, 0.34)
+radius = 0.12
+material = SubResource("Mat_prize")
 
 [node name="PanelBack" type="CSGBox3D" parent="World/7_Room/Door" unique_id=1340707187]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -7.540474)
@@ -460,8 +486,21 @@ dialogue = ExtResource("8_dialogue")
 dialogue_cue = "chest"
 
 [node name="Box" type="CSGBox3D" parent="World/7_Room/Chest" unique_id=1425207655]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
 use_collision = true
-size = Vector3(1.2, 1, 0.8)
+size = Vector3(1.2, 0.7, 0.8)
+material = SubResource("Mat_door")
+
+[node name="Lid" type="CSGCylinder3D" parent="World/7_Room/Chest" unique_id=1425207700]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.2, 0)
+use_collision = true
+radius = 0.4
+height = 1.2
+material = SubResource("Mat_door")
+
+[node name="Lock" type="CSGBox3D" parent="World/7_Room/Chest" unique_id=1425207701]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0.41)
+size = Vector3(0.15, 0.2, 0.05)
 material = SubResource("Mat_prize")
 
 [node name="8_Sanctuary" type="Node3D" parent="World" unique_id=2030283865]
@@ -496,7 +535,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, -3.5)
 pixel_size = 0.01
 text = "SANCTUARY
 Sanity does not drain in green circle.
-First time: +15 sanity. Once.
+First time: +10 sanity. Once.
+Spring: +10 more. Once.
 Fairy trades favors. Answers depend on sanity."
 font_size = 48
 outline_size = 16
@@ -528,10 +568,39 @@ radius = 0.3
 smooth_faces = false
 material = SubResource("Mat_fairy")
 
+[node name="WingLeft" type="CSGBox3D" parent="World/8_Sanctuary/Fairy" unique_id=2045525400]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, 0.15, -0.05)
+size = Vector3(0.35, 0.5, 0.02)
+material = SubResource("Mat_fairy")
+
+[node name="WingRight" type="CSGBox3D" parent="World/8_Sanctuary/Fairy" unique_id=2045525401]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 0.15, -0.05)
+size = Vector3(0.35, 0.5, 0.02)
+material = SubResource("Mat_fairy")
+
 [node name="Label" type="Label3D" parent="World/8_Sanctuary/Fairy" unique_id=333946139]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 pixel_size = 0.01
 text = "FAIRY"
+
+[node name="Spring" parent="World/8_Sanctuary" unique_id=1348821907 instance=ExtResource("99_thing_prefab")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0.4, -1)
+free_after = true
+persistent_id = "showcase_spring"
+dialogue = ExtResource("8_dialogue")
+dialogue_cue = "spring"
+
+[node name="Basin" type="CSGCylinder3D" parent="World/8_Sanctuary/Spring" unique_id=1582290346]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
+height = 0.4
+sides = 16
+material = SubResource("Mat_block")
+
+[node name="Water" type="CSGCylinder3D" parent="World/8_Sanctuary/Spring" unique_id=1582290400]
+radius = 0.42
+height = 0.04
+sides = 16
+material = SubResource("Mat_dash")
 
 [node name="9_Items" type="Node3D" parent="World" unique_id=1185361455]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -138)
@@ -571,8 +640,28 @@ dialogue = ExtResource("8_dialogue")
 dialogue_cue = "pile"
 blocked_cue = "full"
 
-[node name="Box" type="CSGBox3D" parent="World/9_Items/Pile" unique_id=1980171135]
+[node name="Orb1" type="CSGSphere3D" parent="World/9_Items/Pile" unique_id=1980171135]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, -0.2, 0.17)
 use_collision = true
+radius = 0.3
+material = SubResource("Mat_hate")
+
+[node name="Orb2" type="CSGSphere3D" parent="World/9_Items/Pile" unique_id=1980171136]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, -0.2, 0.17)
+use_collision = true
+radius = 0.3
+material = SubResource("Mat_hate")
+
+[node name="Orb3" type="CSGSphere3D" parent="World/9_Items/Pile" unique_id=1980171137]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -0.35)
+use_collision = true
+radius = 0.3
+material = SubResource("Mat_hate")
+
+[node name="Orb4" type="CSGSphere3D" parent="World/9_Items/Pile" unique_id=1980171138]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+use_collision = true
+radius = 0.3
 material = SubResource("Mat_hate")
 
 [node name="10_Tree" type="Node3D" parent="World" unique_id=61631951]
@@ -582,21 +671,29 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -148)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, -2)
 pixel_size = 0.01
 text = "NPC, QUEST AND TRADE
-Talk to pc. takes bread and opens gate.
-dtalks differently at low sanity."
+Talk to tree. takes bread and opens gate.
+dtalks differently at low sanity.
+Or opens it on debt. Pay with bread, or it collects at the last chest."
 font_size = 40
 outline_size = 16
 
-[node name="Tree" parent="World/10_Tree" unique_id=1977004175 node_paths=PackedStringArray("sprite") instance=ExtResource("99_thing_prefab")]
+[node name="Tree" parent="World/10_Tree" unique_id=1977004175 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
-animate_on_interact = true
-sprite = NodePath("Sprite")
 dialogue = ExtResource("8_dialogue")
 dialogue_cue = "tree"
 
-[node name="Sprite" type="AnimatedSprite3D" parent="World/10_Tree/Tree" unique_id=362285545]
-pixel_size = 0.1
-sprite_frames = SubResource("SpriteFrames_56pq6")
+[node name="Trunk" type="CSGCylinder3D" parent="World/10_Tree/Tree" unique_id=362285545]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.4, 0)
+use_collision = true
+radius = 0.3
+height = 2.4
+material = SubResource("Mat_door")
+
+[node name="Crown" type="CSGSphere3D" parent="World/10_Tree/Tree" unique_id=362285600]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+radius = 1.3
+smooth_faces = false
+material = SubResource("Mat_safe")
 
 [node name="11_Gate" type="Node3D" parent="World" unique_id=481410533]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -162)
@@ -638,7 +735,7 @@ blocked_cue = "gate_locked"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 use_collision = true
 size = Vector3(6, 4, 0.5)
-material = SubResource("Mat_door")
+material = SubResource("Mat_iron")
 
 [node name="Label" type="Label3D" parent="World/11_Gate/Gate/Panel" unique_id=522361625]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.26)
@@ -646,15 +743,40 @@ pixel_size = 0.01
 text = "GATE: needs flag"
 font_size = 48
 
+[node name="RootLeft" type="CSGCylinder3D" parent="World/11_Gate/Gate/Panel" unique_id=522361700]
+transform = Transform3D(0.94, -0.342, 0, 0.342, 0.94, 0, 0, 0, 1, -1.9, 0, 0.3)
+radius = 0.15
+height = 4.2
+material = SubResource("Mat_door")
+
+[node name="RootRight" type="CSGCylinder3D" parent="World/11_Gate/Gate/Panel" unique_id=522361701]
+transform = Transform3D(0.94, 0.342, 0, -0.342, 0.94, 0, 0, 0, 1, 1.9, 0, 0.3)
+radius = 0.15
+height = 4.2
+material = SubResource("Mat_door")
+
 [node name="Chest" parent="World/11_Gate" unique_id=1627387475 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -2)
 dialogue = ExtResource("8_dialogue")
 dialogue_cue = "final_chest"
 
 [node name="Box" type="CSGBox3D" parent="World/11_Gate/Chest" unique_id=887643307]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.15, 0)
 use_collision = true
-size = Vector3(1.2, 1, 0.8)
+size = Vector3(1.2, 0.7, 0.8)
 material = SubResource("Mat_prize")
+
+[node name="Lid" type="CSGCylinder3D" parent="World/11_Gate/Chest" unique_id=887643400]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0.2, 0)
+use_collision = true
+radius = 0.4
+height = 1.2
+material = SubResource("Mat_prize")
+
+[node name="Lock" type="CSGBox3D" parent="World/11_Gate/Chest" unique_id=887643401]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0.41)
+size = Vector3(0.15, 0.2, 0.05)
+material = SubResource("Mat_iron")
 
 [node name="12_Favor" type="Node3D" parent="World" unique_id=857876999]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -148)
@@ -665,7 +787,11 @@ pixel_size = 0.01
 text = "FAVOR
 Fairy in sanctuary wants this nail.
 Stuck until she asks and you carry hate.
-Pulling it uses up 1 hate."
+Pulling it uses up 1 hate.
+Give it: she owes you 2. Spend it at her or at the shape.
+Keep it: she still takes it later, for 1.
+She eats hate: 1 favor each, or 1 debt gone.
+Credit: up to 3 debts. She collects at the gate."
 font_size = 40
 outline_size = 16
 
@@ -690,6 +816,12 @@ blocked_cue = "nail_stuck"
 size = Vector3(0.12, 0.5, 0.12)
 material = SubResource("Mat_iron")
 
+[node name="Head" type="CSGCylinder3D" parent="World/12_Favor/Nail" unique_id=1773673200]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.27, 0)
+radius = 0.14
+height = 0.05
+material = SubResource("Mat_iron")
+
 [node name="13_Encounter" type="Node3D" parent="World" unique_id=1160797845]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -150)
 
@@ -698,7 +830,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, -2)
 pixel_size = 0.01
 text = "ENCOUNTER
 No combat. Run, touch it or get rid of it.
-Options depend on items. Touching depends on sanity."
+Options depend on items and favors. Touching depends on sanity."
 font_size = 40
 outline_size = 16
 
@@ -710,8 +842,51 @@ dialogue = ExtResource("8_dialogue")
 dialogue_cue = "shape"
 
 [node name="Body" type="CSGBox3D" parent="World/13_Encounter/Shape" unique_id=1261527726]
-size = Vector3(0.8, 2.4, 0.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35, 0)
+size = Vector3(0.7, 1.7, 0.35)
 material = SubResource("Mat_shape")
+
+[node name="Head" type="CSGSphere3D" parent="World/13_Encounter/Shape" unique_id=1261527800]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+radius = 0.35
+material = SubResource("Mat_shape")
+
+[node name="14_Proximity" type="Node3D" parent="World" unique_id=1903317764]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -162)
+
+[node name="Sign" type="Label3D" parent="World/14_Proximity" unique_id=1476093358]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -2)
+pixel_size = 0.01
+text = "PROXIMITY
+Sanity drains faster in red circle.
+5 per second extra. Walk away."
+font_size = 40
+outline_size = 16
+
+[node name="Disc" type="CSGCylinder3D" parent="World/14_Proximity" unique_id=1220458131]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
+radius = 4.0
+height = 0.02
+sides = 32
+material = SubResource("Mat_hate")
+
+[node name="Idol" type="CSGBox3D" parent="World/14_Proximity" unique_id=1697742215]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+use_collision = true
+size = Vector3(0.6, 1.5, 0.6)
+material = SubResource("Mat_shape")
+
+[node name="DrainArea" type="Area3D" parent="World/14_Proximity" unique_id=1835520941]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("15_sanctuary")
+pauses_drain = false
+extra_drain_per_second = 5.0
+first_entry_sanity = 0.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="World/14_Proximity/DrainArea" unique_id=1059264478]
+shape = SubResource("Shape_proximity")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=62485440]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5004057, 0)
