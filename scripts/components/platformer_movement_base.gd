@@ -318,7 +318,7 @@ func _on_ground_state_physics_processing(delta: float) -> void:
 	_coyote_timer = profile.coyote_time
 	_update_jump_buffer(delta)
 
-	if _should_start_dash():
+	if profile.can_dash_on_ground and _should_start_dash():
 		_send_state_chart_event(StateEvents.DASH)
 		return
 

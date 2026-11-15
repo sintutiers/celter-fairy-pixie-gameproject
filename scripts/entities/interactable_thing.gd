@@ -6,8 +6,9 @@
 ## returns when it ends, so caller can hold interact lock for whole interaction.
 ## When blocked (missing [member requires_item], missing [member requires_flag] or
 ## no room) nothing is given and thing stays.
-## It builds sphere [Area3D] child on [constant ZONE_LAYER] in [method Node._ready],
-## player [InteractionComponent] detects it through that zone.
+## Reach is [member interaction_zone], [Area3D] you shape in editor. Without one it builds
+## sphere zone in [method Node._ready]. Zone sits on [constant ZONE_LAYER],
+## player [InteractionComponent] detects thing through it.
 class_name InteractableThing
 extends Node3D
 
@@ -22,6 +23,7 @@ signal finished(by: PlayerApi)
 
 ## Physics layer 5 ("interaction"). Only zones are on it, and only player sensor scans it.
 const ZONE_LAYER: int = 1 << 4
+const _ZONE_OWNER_META: StringName = &"interactable_thing"
 const REQUIRES_ITEM: StringName = &"requires_item"
 const REQUIRES_FLAG: StringName = &"requires_flag"
 const FULL: StringName = &"full"
@@ -39,7 +41,14 @@ const FULL: StringName = &"full"
 @export var persistent_id: String = ""
 ## Defaults to single [AnimatedSprite3D] below this node when [member animate_on_interact] is set.
 @export var sprite: AnimatedSprite3D
-## Reach for interact press, measured from this node origin. Ignored for [member auto].
+## Reach: player inside this area can interact (or triggers it, for [member auto]).
+## Found automatically when it is a direct [Area3D] child, assign here only to use another.
+## Scene [code]scenes/game/interactable_thing_prefab.tscn[/code] already has one.
+## Layer, mask and monitoring are set from code, only shape matters.
+## None found = sphere built from [member interact_radius] ([member auto_radius] for [member auto]).
+@export var interaction_zone: Area3D
+## Reach for interact press, measured from this node origin. Only used when
+## [member interaction_zone] is empty. Ignored for [member auto].
 @export var interact_radius: float = 2.0
 @export_group("Pickup")
 ## Given on interaction, all or nothing: with no room it blocks with [constant FULL].
@@ -50,10 +59,11 @@ const FULL: StringName = &"full"
 ## Nothing runs until this flag is set, see [method PlayerApi.set_level_flag].
 ## Checked before [member requires_item].
 @export var requires_flag: String = ""
-## Runs when player walks into [member auto_radius] instead of on interact press,
+## Runs when player walks into zone instead of on interact press,
 ## again after leaving and re-entering. Never locks, so give it no dialogue.
 ## Entering while disabled or during locking interaction does not count, walk out and back in.
 @export var auto: bool = false
+## Radius of built zone for [member auto]. Only used when [member interaction_zone] is empty.
 @export var auto_radius: float = 1.0
 @export_group("Dialogue")
 @export var dialogue: DialogueResource
@@ -66,7 +76,7 @@ var _running: bool = false
 
 ## Thing that owns [param zone], or null for any other area.
 static func get_interactable_from_zone(zone: Area3D) -> InteractableThing:
-	return zone.get_parent() as InteractableThing
+	return zone.get_meta(_ZONE_OWNER_META, null) as InteractableThing
 
 
 func _ready() -> void:
@@ -78,7 +88,7 @@ func _ready() -> void:
 	if free_after and persistent_id != "" and GameState.get_level_flag(_get_placed_level_path(), _get_finished_flag_key()):
 		queue_free()
 		return
-	_add_interaction_zone()
+	_setup_interaction_zone()
 	if not animate_on_interact:
 		return
 	if not sprite:
@@ -118,19 +128,37 @@ func execute_interaction_for_actor(actor: PlayerApi) -> void:
 		queue_free()
 
 
-# Sphere sized to active radius. It does not monitor, player sensor does.
-func _add_interaction_zone() -> void:
+# Uses authored zone, or builds sphere one. It does not monitor, player sensor does.
+func _setup_interaction_zone() -> void:
+	if not interaction_zone:
+		interaction_zone = _find_child_zone()
+	if not interaction_zone:
+		interaction_zone = _build_default_zone()
+	interaction_zone.collision_layer = ZONE_LAYER
+	interaction_zone.collision_mask = 0
+	interaction_zone.monitoring = false
+	interaction_zone.monitorable = true
+	interaction_zone.set_meta(_ZONE_OWNER_META, self)
+
+
+# First direct [Area3D] child, so zone needs no assigning when added below thing.
+func _find_child_zone() -> Area3D:
+	for child: Node in get_children():
+		if child is Area3D:
+			return child
+	return null
+
+
+func _build_default_zone() -> Area3D:
 	var shape := SphereShape3D.new()
 	shape.radius = auto_radius if auto else interact_radius
 	var collision := CollisionShape3D.new()
 	collision.shape = shape
 	var zone := Area3D.new()
 	zone.name = "InteractionZone"
-	zone.collision_layer = ZONE_LAYER
-	zone.collision_mask = 0
-	zone.monitoring = false
 	zone.add_child(collision)
 	add_child(zone)
+	return zone
 
 
 func _block_interaction_for_actor(actor: PlayerApi, reason: StringName) -> void:

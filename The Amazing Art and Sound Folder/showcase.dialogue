@@ -163,6 +163,9 @@ Fairy: Do me a favor? Iron nail in a stump. Pull it out.
 => END
 
 ~ nail
+if has_item("iron_nail") or is_quest_done("iron_nail")
+	You already took the iron nail.
+	=> END
 do remove_item("aspect_of_hate")
 do give_item("iron_nail")
 do advance_quest("iron_nail")

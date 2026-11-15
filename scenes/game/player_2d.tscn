@@ -1006,6 +1006,13 @@ event = &"crouch"
 delay_in_seconds = "0.0"
 metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
 
+[node name="Transition4" type="Node" parent="StateChart/CompoundState/Ground" unique_id=1900000002]
+script = ExtResource("8_upqmt")
+to = NodePath("../../Dash")
+event = &"dash"
+delay_in_seconds = "0.0"
+metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
+
 [node name="Air" type="Node" parent="StateChart/CompoundState" unique_id=1910707672]
 unique_name_in_owner = true
 script = ExtResource("7_uyr7x")

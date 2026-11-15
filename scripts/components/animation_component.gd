@@ -90,9 +90,15 @@ func _on_dashed() -> void:
 
 func _on_landed(motion: StringName) -> void:
 	_is_airborne = false
-	_is_landing = true
 	_is_tumbling = false
 	_pending_ground_motion = motion
+	# Already moving on touchdown (direction held through jump): motion never
+	# changes while landing plays, so nothing would cut it short. Skip it.
+	if motion == Animations.WALK or motion == Animations.RUN:
+		_is_landing = false
+		sprite.play(motion)
+		return
+	_is_landing = true
 	sprite.play(Animations.LAND)
 
 

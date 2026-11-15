@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bpqkpemvpjrgm"]
+
+[ext_resource type="Script" uid="uid://dq5r7n4mxqqoa" path="res://scripts/entities/interactable_thing.gd" id="1_thing"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_zone"]
+radius = 2.0
+
+[node name="InteractableThing" type="Node3D" unique_id=1239049316]
+script = ExtResource("1_thing")
+interaction_zone = NodePath("InteractionZone")
+metadata/_custom_type_script = "uid://dq5r7n4mxqqoa"
+
+[node name="InteractionZone" type="Area3D" parent="." unique_id=1219954598]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionZone" unique_id=972610560]
+shape = SubResource("SphereShape3D_zone")

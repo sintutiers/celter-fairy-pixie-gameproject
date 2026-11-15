@@ -19,6 +19,8 @@
 [ext_resource type="Script" uid="uid://cvqrjloh2fmv2" path="res://scenes/game/scripts/pickup_toast.gd" id="16_toast"]
 [ext_resource type="Resource" path="res://scenes/items/bread.tres" id="17_bread"]
 [ext_resource type="Script" uid="uid://6lbbgvb3al3y" path="res://scripts/entities/camera_mouse_lean.gd" id="18_lean"]
+[ext_resource type="Script" uid="uid://b8hhnqsugykly" path="res://addons/phantom_camera/scripts/resources/camera_3d_resource.gd" id="20_kk0hi"]
+[ext_resource type="PackedScene" uid="uid://bpqkpemvpjrgm" path="res://scenes/game/interactable_thing_prefab.tscn" id="99_thing_prefab"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial_sc"]
 
@@ -46,6 +48,9 @@ emission = Color(1, 0.7, 0, 1)
 
 [sub_resource type="StandardMaterial3D" id="Mat_dash"]
 albedo_color = Color(0.2, 0.75, 0.9, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_5m4lm"]
+radius = 2.0
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_cassie"]
 animations = [{
@@ -102,6 +107,10 @@ albedo_color = Color(0.03, 0.03, 0.05, 1)
 
 [sub_resource type="Resource" id="Tween_sc"]
 script = ExtResource("4_tween")
+
+[sub_resource type="Resource" id="Resource_5m4lm"]
+script = ExtResource("20_kk0hi")
+metadata/_custom_type_script = "uid://b8hhnqsugykly"
 
 [node name="Showcase" type="Node3D" unique_id=1731593752]
 script = ExtResource("1_heuvt")
@@ -363,21 +372,22 @@ Talk to ENTITY, read sign, open the door."
 font_size = 48
 outline_size = 16
 
-[node name="Cassie" type="Node3D" parent="World/6_Interact" unique_id=584531233 node_paths=PackedStringArray("sprite")]
+[node name="Cassie" parent="World/6_Interact" unique_id=584531233 node_paths=PackedStringArray("sprite") instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.6, 0)
-script = ExtResource("5_thing")
 sprite = NodePath("Sprite")
 dialogue = ExtResource("8_dialogue")
 dialogue_cue = "npc"
+
+[node name="CollisionShape3D" parent="World/6_Interact/Cassie/InteractionZone" parent_id_path=PackedInt32Array(584531233, 1219954598) index="0" unique_id=972610560]
+shape = SubResource("SphereShape3D_5m4lm")
 
 [node name="Sprite" type="AnimatedSprite3D" parent="World/6_Interact/Cassie" unique_id=1598477697]
 pixel_size = 0.1
 sprite_frames = SubResource("SpriteFrames_cassie")
 autoplay = "default"
 
-[node name="SignPost" type="Node3D" parent="World/6_Interact" unique_id=597730152]
+[node name="SignPost" parent="World/6_Interact" unique_id=597730152 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, 0)
-script = ExtResource("5_thing")
 locks_player = false
 dialogue = ExtResource("8_dialogue")
 dialogue_cue = "sign"
@@ -407,9 +417,8 @@ use_collision = true
 size = Vector3(40, 8.783691, 9)
 material = SubResource("Mat_block")
 
-[node name="Door" type="Node3D" parent="World/7_Room" unique_id=1715134074]
+[node name="Door" parent="World/7_Room" unique_id=1715134074 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 3.75)
-script = ExtResource("5_thing")
 free_after = true
 persistent_id = "showcase_door"
 requires_item = ExtResource("7_key")
@@ -435,9 +444,8 @@ use_collision = true
 size = Vector3(40, 4, 0.5)
 material = SubResource("Mat_door")
 
-[node name="Chest" type="Node3D" parent="World/7_Room" unique_id=139055638]
+[node name="Chest" parent="World/7_Room" unique_id=139055638 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -2)
-script = ExtResource("5_thing")
 free_after = true
 persistent_id = "showcase_chest"
 item = ExtResource("6_hate")
@@ -481,7 +489,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, -3.5)
 pixel_size = 0.01
 text = "SANCTUARY
 Sanity does not drain in green circle.
-First time in: +15 sanity. Once.
+First time: +15 sanity. Once.
 Fairy trades favors. Answers depend on sanity."
 font_size = 48
 outline_size = 16
@@ -503,14 +511,14 @@ persistent_id = "showcase_sanctuary"
 [node name="CollisionShape3D" type="CollisionShape3D" parent="World/8_Sanctuary/Sanctuary" unique_id=1104738253]
 shape = SubResource("Shape_sanctuary")
 
-[node name="Fairy" type="Node3D" parent="World/8_Sanctuary" unique_id=705425564]
+[node name="Fairy" parent="World/8_Sanctuary" unique_id=705425564 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8, 1.3, -1)
-script = ExtResource("5_thing")
 dialogue = ExtResource("8_dialogue")
 dialogue_cue = "fairy"
 
 [node name="Orb" type="CSGSphere3D" parent="World/8_Sanctuary/Fairy" unique_id=2045525362]
 radius = 0.3
+smooth_faces = false
 material = SubResource("Mat_fairy")
 
 [node name="Label" type="Label3D" parent="World/8_Sanctuary/Fairy" unique_id=333946139]
@@ -531,9 +539,8 @@ Right: take pile until the inventory is full."
 font_size = 40
 outline_size = 16
 
-[node name="Loaf" type="Node3D" parent="World/9_Items" unique_id=444969804]
+[node name="Loaf" parent="World/9_Items" unique_id=444969804 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.99976, 0.5, 0)
-script = ExtResource("5_thing")
 item = ExtResource("17_bread")
 dialogue = ExtResource("8_dialogue")
 dialogue_cue = "loaf"
@@ -549,9 +556,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 0)
 size = Vector3(0.6, 0.3, 0.3)
 material = SubResource("Mat_prize")
 
-[node name="Pile" type="Node3D" parent="World/9_Items" unique_id=1810041142]
+[node name="Pile" parent="World/9_Items" unique_id=1810041142 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.295258, 0.5, 0)
-script = ExtResource("5_thing")
 item = ExtResource("6_hate")
 item_count = 3
 dialogue = ExtResource("8_dialogue")
@@ -574,9 +580,8 @@ dtalks differently at low sanity."
 font_size = 40
 outline_size = 16
 
-[node name="Tree" type="Node3D" parent="World/10_Tree" unique_id=1977004175 node_paths=PackedStringArray("sprite")]
+[node name="Tree" parent="World/10_Tree" unique_id=1977004175 node_paths=PackedStringArray("sprite") instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
-script = ExtResource("5_thing")
 animate_on_interact = true
 sprite = NodePath("Sprite")
 dialogue = ExtResource("8_dialogue")
@@ -613,9 +618,8 @@ use_collision = true
 size = Vector3(8, 1, 9)
 material = SubResource("Mat_block")
 
-[node name="Gate" type="Node3D" parent="World/11_Gate" unique_id=848343310]
+[node name="Gate" parent="World/11_Gate" unique_id=848343310 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 3.75)
-script = ExtResource("5_thing")
 free_after = true
 persistent_id = "showcase_gate"
 requires_flag = "showcase.gate_open"
@@ -635,9 +639,8 @@ pixel_size = 0.01
 text = "GATE: needs flag"
 font_size = 48
 
-[node name="Chest" type="Node3D" parent="World/11_Gate" unique_id=1627387475]
+[node name="Chest" parent="World/11_Gate" unique_id=1627387475 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -2)
-script = ExtResource("5_thing")
 dialogue = ExtResource("8_dialogue")
 dialogue_cue = "final_chest"
 
@@ -666,9 +669,8 @@ radius = 0.6
 height = 0.8
 material = SubResource("Mat_door")
 
-[node name="Nail" type="Node3D" parent="World/12_Favor" unique_id=165555737]
+[node name="Nail" parent="World/12_Favor" unique_id=165555737 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-script = ExtResource("5_thing")
 free_after = true
 persistent_id = "showcase_nail"
 requires_item = ExtResource("6_hate")
@@ -693,9 +695,8 @@ Options depend on items. Touching depends on sanity."
 font_size = 40
 outline_size = 16
 
-[node name="Shape" type="Node3D" parent="World/13_Encounter" unique_id=795310972]
+[node name="Shape" parent="World/13_Encounter" unique_id=795310972 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
-script = ExtResource("5_thing")
 free_after = true
 persistent_id = "showcase_shape"
 dialogue = ExtResource("8_dialogue")
@@ -706,7 +707,7 @@ size = Vector3(0.8, 2.4, 0.4)
 material = SubResource("Mat_shape")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=62485440]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 3)
+transform = Transform3D(0.90429103, 0.20555043, -0.3741747, 0, 0.87645876, 0.48147693, 0.42691648, -0.43539527, 0.79257387, 0, 1.5004057, 0)
 top_level = true
 
 [node name="PhantomCameraHost" type="Node" parent="Camera3D" unique_id=1437681289]
@@ -715,16 +716,21 @@ process_physics_priority = 300
 script = ExtResource("2_pcam_host")
 
 [node name="PhantomCamera3D" type="Node3D" parent="." unique_id=1288266566]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5004057, 0)
 script = ExtResource("3_pcam")
 follow_mode = 6
 tween_resource = SubResource("Tween_sc")
+camera_3d_resource = SubResource("Resource_5m4lm")
 follow_damping = true
 follow_damping_value = Vector3(0.05, 0.05, 0.05)
-follow_distance = 3.0
-spring_length = 3.0
+follow_distance = 4.5
+spring_length = 4.5
 
 [node name="CameraMouseLean" type="Node" parent="PhantomCamera3D" unique_id=1418823305]
 script = ExtResource("18_lean")
 
 [connection signal="finished" from="World/11_Gate/Chest" to="." method="win"]
+
+[editable path="World/6_Interact/Cassie"]
+[editable path="World/6_Interact/SignPost"]
+[editable path="World/7_Room/Door"]
