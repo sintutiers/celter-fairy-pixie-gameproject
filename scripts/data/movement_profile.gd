@@ -57,6 +57,12 @@ extends Resource
 
 @export_group("Crouch")
 ## Collision shape height multiplier while crouched. Bottom stays at feet.
-## Capsule never gets shorter than its two caps (2 × radius).
+## Capsule never gets shorter than its two caps (2 × crouched radius, see [member crouch_radius_scale]).
 @export_range(0.0, 1.0, 0.01) var crouch_collision_scale: float = 0.5
+## Capsule radius multiplier while crouched. Lets crouched capsule get shorter than
+## standing radius allows. 1 = same width as standing.
+@export_range(0.1, 1.0, 0.01) var crouch_radius_scale: float = 0.5
 @export_range(0.0, 1.0, 0.05) var crouch_speed_multiplier: float = 0.5
+## Stay crouched after releasing crouch while ceiling is too low to stand,
+## stand up as soon as there is room. Off = stand up at once, even inside ceiling.
+@export var crouch_until_room_to_stand: bool = true

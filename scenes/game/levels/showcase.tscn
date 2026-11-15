@@ -69,6 +69,9 @@ animations = [{
 [sub_resource type="StandardMaterial3D" id="Mat_door"]
 albedo_color = Color(0.45, 0.25, 0.1, 1)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_d7as6"]
+size = Vector3(35, 3, 1)
+
 [sub_resource type="BoxShape3D" id="Shape_safe_start"]
 size = Vector3(40, 20, 126)
 
@@ -335,9 +338,9 @@ outline_size = 16
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -82)
 
 [node name="Ceiling" type="CSGBox3D" parent="World/5_Crouch" unique_id=1394656077]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.331055, 0)
 use_collision = true
-size = Vector3(40, 18.5, 8)
+size = Vector3(40, 19, 8)
 material = SubResource("Mat_block")
 
 [node name="Sign" type="Label3D" parent="World/5_Crouch" unique_id=1924072384]
@@ -425,6 +428,10 @@ requires_item = ExtResource("7_key")
 dialogue = ExtResource("8_dialogue")
 dialogue_cue = "door_open"
 blocked_cue = "door_locked"
+
+[node name="CollisionShape3D" parent="World/7_Room/Door/InteractionZone" parent_id_path=PackedInt32Array(1715134074, 1219954598) index="0" unique_id=972610560]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.5)
+shape = SubResource("BoxShape3D_d7as6")
 
 [node name="Label" type="Label3D" parent="World/7_Room/Door" unique_id=572916327]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.26000214)

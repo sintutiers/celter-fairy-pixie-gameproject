@@ -12,6 +12,7 @@ var collision_shape: CollisionShape3D
 var _standing_shape_position: Vector3
 var _capsule: CapsuleShape3D
 var _standing_height: float
+var _standing_radius: float
 
 
 func _on_setup() -> void:
@@ -31,6 +32,7 @@ func _on_setup() -> void:
 	_capsule = _capsule.duplicate()
 	collision_shape.shape = _capsule
 	_standing_height = _capsule.height
+	_standing_radius = _capsule.radius
 
 
 func _get_gravity_magnitude() -> float:
@@ -100,9 +102,29 @@ func _set_collision_shape_crouched(crouched: bool) -> void:
 	if not _capsule:
 		return
 	var height: float = _standing_height
+	var radius: float = _standing_radius
 	if crouched:
+		radius = _standing_radius * profile.crouch_radius_scale
 		# Capsule cannot be shorter than its two caps.
-		height = maxf(_standing_height * profile.crouch_collision_scale, _capsule.radius * 2.0)
+		height = maxf(_standing_height * profile.crouch_collision_scale, radius * 2.0)
+	_capsule.radius = radius
 	_capsule.height = height
 	# Lowered by half lost height, so bottom stays at feet.
 	collision_shape.position.y = _standing_shape_position.y - (_standing_height - height) * 0.5
+
+
+# Standing capsule query. Shrunk by SKIN so floor and walls touching crouched capsule do not count as blocking.
+func _has_room_to_stand() -> bool:
+	if not _capsule:
+		return true
+	# Meters. Raise if standing up is refused next to walls, lower if low ceilings let you stand.
+	const SKIN: float = 0.02
+	var standing := CapsuleShape3D.new()
+	standing.radius = _standing_radius - SKIN
+	standing.height = _standing_height - SKIN * 2.0
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = standing
+	query.transform = body.global_transform * Transform3D(Basis.IDENTITY, _standing_shape_position)
+	query.collision_mask = body.collision_mask
+	query.exclude = [body.get_rid()]
+	return body.get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty()

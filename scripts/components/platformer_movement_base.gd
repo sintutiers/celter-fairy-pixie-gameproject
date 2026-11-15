@@ -122,6 +122,10 @@ func _physics_process(delta: float) -> void:
 
 
 @abstract func _set_collision_shape_crouched(crouched: bool) -> void
+
+
+# Standing shape fits at current position. Gates leaving crouch under low ceiling.
+@abstract func _has_room_to_stand() -> bool
 #endregion
 
 
@@ -482,8 +486,11 @@ func _run_crouch_post_move_check() -> void:
 	if not _is_on_floor():
 		_send_state_chart_event(StateEvents.FALL)
 		return
-	if not _get_input_frame().crouch:
-		_send_state_chart_event(StateEvents.CROUCH_END)
+	if _get_input_frame().crouch:
+		return
+	if profile.crouch_until_room_to_stand and not _has_room_to_stand():
+		return
+	_send_state_chart_event(StateEvents.CROUCH_END)
 
 
 func _on_crouch_state_exited() -> void:

@@ -15,6 +15,7 @@ var collision_shape: CollisionShape2D
 var _standing_shape_position: Vector2
 var _shape: Shape2D
 var _standing_height: float
+var _standing_width: float
 
 
 func _on_setup() -> void:
@@ -38,6 +39,7 @@ func _on_setup() -> void:
 	_shape = _shape.duplicate()
 	collision_shape.shape = _shape
 	_standing_height = _get_collision_shape_height()
+	_standing_width = _get_collision_shape_width()
 
 
 func _get_gravity_magnitude() -> float:
@@ -102,8 +104,14 @@ func _set_collision_shape_crouched(crouched: bool) -> void:
 	if not _shape:
 		return
 	var height: float = _standing_height
+	var width: float = _standing_width
 	if crouched:
-		height = maxf(_standing_height * profile.crouch_collision_scale, _get_minimum_collision_shape_height())
+		width = _standing_width * profile.crouch_radius_scale
+		height = maxf(
+			_standing_height * profile.crouch_collision_scale,
+			_get_minimum_collision_shape_height(width),
+		)
+	_set_collision_shape_width(width)
 	_set_collision_shape_height(height)
 	# 2D y points down, so shape moves down by half lost height to keep bottom at feet.
 	collision_shape.position.y = _standing_shape_position.y + (_standing_height - height) * 0.5
@@ -122,8 +130,43 @@ func _set_collision_shape_height(height: float) -> void:
 		(_shape as RectangleShape2D).size.y = height
 
 
-# Capsule cannot be shorter than its two caps.
-func _get_minimum_collision_shape_height() -> float:
+func _get_collision_shape_width() -> float:
 	if _shape is CapsuleShape2D:
 		return (_shape as CapsuleShape2D).radius * 2.0
+	return (_shape as RectangleShape2D).size.x
+
+
+func _set_collision_shape_width(width: float) -> void:
+	if _shape is CapsuleShape2D:
+		(_shape as CapsuleShape2D).radius = width * 0.5
+	else:
+		(_shape as RectangleShape2D).size.x = width
+
+
+# Capsule cannot be shorter than its two caps.
+func _get_minimum_collision_shape_height(width: float) -> float:
+	if _shape is CapsuleShape2D:
+		return width
 	return 0.0
+
+
+# Standing shape query. Shrunk by SKIN so floor and walls touching crouched shape do not count as blocking.
+func _has_room_to_stand() -> bool:
+	if not _shape:
+		return true
+	# Pixels. Raise if standing up is refused next to walls, lower if low ceilings let you stand.
+	const SKIN: float = 0.5
+	var standing: Shape2D = _shape.duplicate()
+	var height: float = _standing_height - SKIN * 2.0
+	var width: float = _standing_width - SKIN * 2.0
+	if standing is CapsuleShape2D:
+		(standing as CapsuleShape2D).radius = width * 0.5
+		(standing as CapsuleShape2D).height = height
+	else:
+		(standing as RectangleShape2D).size = Vector2(width, height)
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = standing
+	query.transform = body.global_transform * Transform2D(0.0, _standing_shape_position)
+	query.collision_mask = body.collision_mask
+	query.exclude = [body.get_rid()]
+	return body.get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
