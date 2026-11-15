@@ -7,7 +7,7 @@ class_name GameState
 extends Resource
 
 const STATE_NAME: String = "GameState"
-const FILE_PATH = "res://scripts/game_state.gd"
+const FILE_PATH: String = "res://scripts/game_state.gd"
 ## Version this game writes. Older saves are migrated on load.
 const SAVE_VERSION: int = 1
 
@@ -34,13 +34,13 @@ static func get_level_state(level_state_key: String) -> LevelState:
 	level_state_key = _get_level_state_key(level_state_key)
 	if not has_game_state():
 		return
-	var game_state := get_or_create_state()
+	var game_state: GameState = get_or_create_state()
 	if level_state_key.is_empty():
 		return
 	if level_state_key in game_state.level_states:
 		return game_state.level_states[level_state_key]
 	else:
-		var new_level_state := LevelState.new()
+		var new_level_state: LevelState = LevelState.new()
 		game_state.level_states[level_state_key] = new_level_state
 		GlobalState.save()
 		return new_level_state
@@ -64,7 +64,7 @@ static func get_or_create_state() -> GameState:
 static func get_current_level_path() -> String:
 	if not has_game_state():
 		return ""
-	var game_state := get_or_create_state()
+	var game_state: GameState = get_or_create_state()
 	return game_state.current_level_path
 
 
@@ -72,7 +72,7 @@ static func get_current_level_path() -> String:
 static func get_checkpoint_level_path() -> String:
 	if not has_game_state():
 		return ""
-	var game_state := get_or_create_state()
+	var game_state: GameState = get_or_create_state()
 	return game_state.checkpoint_level_path
 
 
@@ -80,13 +80,13 @@ static func get_checkpoint_level_path() -> String:
 static func get_levels_reached() -> int:
 	if not has_game_state():
 		return 0
-	var game_state := get_or_create_state()
+	var game_state: GameState = get_or_create_state()
 	return game_state.level_states.size()
 
 
 ## Saves immediately. Also creates [LevelState] of that level when new.
 static func set_checkpoint_level_path(level_path: String) -> void:
-	var game_state := get_or_create_state()
+	var game_state: GameState = get_or_create_state()
 	game_state.checkpoint_level_path = level_path
 	get_level_state(level_path)
 	GlobalState.save()
@@ -94,21 +94,21 @@ static func set_checkpoint_level_path(level_path: String) -> void:
 
 ## Saves immediately.
 static func set_current_level_path(level_path: String) -> void:
-	var game_state := get_or_create_state()
+	var game_state: GameState = get_or_create_state()
 	game_state.current_level_path = level_path
 	GlobalState.save()
 
 
 ## Counts one more game in [member total_games_played]. Progress is kept, see [method reset].
 static func start_game() -> void:
-	var game_state := get_or_create_state()
+	var game_state: GameState = get_or_create_state()
 	game_state.total_games_played += 1
 	GlobalState.save()
 
 
 ## Makes checkpoint level current one and saves.
 static func continue_game() -> void:
-	var game_state := get_or_create_state()
+	var game_state: GameState = get_or_create_state()
 	game_state.current_level_path = game_state.checkpoint_level_path
 	GlobalState.save()
 
@@ -116,7 +116,7 @@ static func continue_game() -> void:
 ## Wipes level progress, facts, inventory, sanity and play time.
 ## [member total_games_played] is kept.
 static func reset() -> void:
-	var game_state := get_or_create_state()
+	var game_state: GameState = get_or_create_state()
 	game_state.level_states.clear()
 	game_state.facts.clear()
 	game_state.inventory.clear()
@@ -131,13 +131,13 @@ static func reset() -> void:
 ## True if [param flag] was set in that level. Unknown level or flag = false.
 ## Used for "this pickup is already taken" persistence, see [member InteractableThing.persistent_id].
 static func get_level_flag(level_path: String, flag: String) -> bool:
-	var level_state := get_level_state(level_path)
+	var level_state: LevelState = get_level_state(level_path)
 	return level_state != null and level_state.flags.get(flag, false)
 
 
 ## Saves immediately. Warns and saves nothing if level has no state.
 static func set_level_flag(level_path: String, flag: String, value: bool = true) -> void:
-	var level_state := get_level_state(level_path)
+	var level_state: LevelState = get_level_state(level_path)
 	if not level_state:
 		push_warning("no level state for '%s', flag '%s' not saved" % [level_path, flag])
 		return

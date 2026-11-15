@@ -150,11 +150,11 @@ func _find_child_zone() -> Area3D:
 
 
 func _build_default_zone() -> Area3D:
-	var shape := SphereShape3D.new()
+	var shape: SphereShape3D = SphereShape3D.new()
 	shape.radius = auto_radius if auto else interact_radius
-	var collision := CollisionShape3D.new()
+	var collision: CollisionShape3D = CollisionShape3D.new()
 	collision.shape = shape
-	var zone := Area3D.new()
+	var zone: Area3D = Area3D.new()
 	zone.name = "InteractionZone"
 	zone.add_child(collision)
 	add_child(zone)

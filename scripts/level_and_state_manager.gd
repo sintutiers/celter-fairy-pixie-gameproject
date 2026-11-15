@@ -16,7 +16,7 @@ func set_checkpoint_level_path(value: String) -> void:
 
 
 func get_checkpoint_level_path() -> String:
-	var state_level_path := GameState.get_checkpoint_level_path()
+	var state_level_path: String = GameState.get_checkpoint_level_path()
 	if not state_level_path.is_empty():
 		return state_level_path
 	return super.get_checkpoint_level_path()

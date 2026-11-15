@@ -714,7 +714,7 @@ size = Vector3(0.8, 2.4, 0.4)
 material = SubResource("Mat_shape")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=62485440]
-transform = Transform3D(0.90429103, 0.20555043, -0.3741747, 0, 0.87645876, 0.48147693, 0.42691648, -0.43539527, 0.79257387, 0, 1.5004057, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5004057, 0)
 top_level = true
 
 [node name="PhantomCameraHost" type="Node" parent="Camera3D" unique_id=1437681289]

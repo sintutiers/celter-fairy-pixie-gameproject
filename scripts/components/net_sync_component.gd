@@ -16,7 +16,7 @@ var sprite: Node
 func _on_setup() -> void:
 	if not _require_dependencies({ "body": body, "sprite": sprite }):
 		return
-	var timer := Timer.new()
+	var timer: Timer = Timer.new()
 	timer.wait_time = send_interval
 	# Sampled in physics step, where body has moved.
 	timer.process_callback = Timer.TIMER_PROCESS_PHYSICS

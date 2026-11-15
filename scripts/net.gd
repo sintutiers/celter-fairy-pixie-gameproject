@@ -29,7 +29,7 @@ func _ready() -> void:
 	_module.connected.connect(_on_connected)
 	_module.disconnected.connect(_on_disconnected)
 	_module.connection_error.connect(_on_connection_error)
-	var options := SpacetimeDBConnectionOptions.new()
+	var options: SpacetimeDBConnectionOptions = SpacetimeDBConnectionOptions.new()
 	# Fresh identity per run, so two clients on one machine do not share row.
 	options.one_time_token = true
 	_module.connect_db(HOST, MODULE_NAME, options)
@@ -48,11 +48,11 @@ func send_local_player_state(position: Vector3, flip: bool, animation: StringNam
 	_local_2d = is_2d
 	if not _module.is_connected_db():
 		return
-	var call: SpacetimeDBReducerCall = _module.reducers.update_net_player(position.x, position.y, position.z, flip, String(animation), GameState.get_current_level_path())
-	if call.error != OK:
-		push_error("net: update_net_player was not sent (%s)" % error_string(call.error))
+	var reducer_call: SpacetimeDBReducerCall = _module.reducers.update_net_player(position.x, position.y, position.z, flip, String(animation), GameState.get_current_level_path())
+	if reducer_call.error != OK:
+		push_error("net: update_net_player was not sent (%s)" % error_string(reducer_call.error))
 		return
-	call.on_error.connect(_on_reducer_error)
+	reducer_call.on_error.connect(_on_reducer_error)
 
 
 func _on_connected(_identity: PackedByteArray, _token: String) -> void:

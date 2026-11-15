@@ -119,10 +119,10 @@ func _has_room_to_stand() -> bool:
 		return true
 	# Meters. Raise if standing up is refused next to walls, lower if low ceilings let you stand.
 	const SKIN: float = 0.02
-	var standing := CapsuleShape3D.new()
+	var standing: CapsuleShape3D = CapsuleShape3D.new()
 	standing.radius = _standing_radius - SKIN
 	standing.height = _standing_height - SKIN * 2.0
-	var query := PhysicsShapeQueryParameters3D.new()
+	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
 	query.shape = standing
 	query.transform = body.global_transform * Transform3D(Basis.IDENTITY, _standing_shape_position)
 	query.collision_mask = body.collision_mask

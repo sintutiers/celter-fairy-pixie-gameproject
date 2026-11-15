@@ -164,7 +164,7 @@ func _has_room_to_stand() -> bool:
 		(standing as CapsuleShape2D).height = height
 	else:
 		(standing as RectangleShape2D).size = Vector2(width, height)
-	var query := PhysicsShapeQueryParameters2D.new()
+	var query: PhysicsShapeQueryParameters2D = PhysicsShapeQueryParameters2D.new()
 	query.shape = standing
 	query.transform = body.global_transform * Transform2D(0.0, _standing_shape_position)
 	query.collision_mask = body.collision_mask

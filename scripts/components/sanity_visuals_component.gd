@@ -23,11 +23,11 @@ var _tween: Tween
 
 func _on_ready() -> void:
 	_material.shader = SHADER
-	var rect := ColorRect.new()
+	var rect: ColorRect = ColorRect.new()
 	rect.material = _material
 	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
-	var layer := CanvasLayer.new()
+	var layer: CanvasLayer = CanvasLayer.new()
 	# Over world, under HUD (layer 1) and dialogue balloon (layer 100).
 	layer.layer = 0
 	layer.add_child(rect)

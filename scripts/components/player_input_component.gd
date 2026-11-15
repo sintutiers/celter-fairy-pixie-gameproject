@@ -37,7 +37,7 @@ func _on_ready() -> void:
 
 
 func _build_frame() -> InputFrame:
-	var frame := InputFrame.new()
+	var frame: InputFrame = InputFrame.new()
 	# Held state stays polled. Tracking it from events desyncs when UI consumes release.
 	frame.move = Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
 	frame.run = Input.is_action_pressed(&"run")

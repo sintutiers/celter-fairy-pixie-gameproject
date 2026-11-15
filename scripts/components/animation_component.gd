@@ -26,15 +26,11 @@ var _base_scale_x: float = 1.0
 
 
 func _on_setup() -> void:
-	var dependencies := {
-		"sprite": sprite,
-		"movement_component": movement_component,
-		"facing_component": facing_component,
-	}
+	var dependencies: Dictionary = { "sprite": sprite, "movement_component": movement_component, "facing_component": facing_component }
 	if not _require_dependencies(dependencies):
 		return
-	_base_scale_x = sprite.scale.x
-	sprite.animation_finished.connect(_on_sprite_animation_finished)
+	_base_scale_x = _get_sprite_scale_x()
+	sprite.connect(&"animation_finished", _on_sprite_animation_finished)
 	movement_component.ground_motion_changed.connect(_on_ground_motion_changed)
 	movement_component.jumped.connect(_on_jumped)
 	movement_component.wall_jumped.connect(_on_wall_jumped)
@@ -44,14 +40,14 @@ func _on_setup() -> void:
 	movement_component.dashed.connect(_on_dashed)
 	movement_component.started_falling.connect(_on_started_falling)
 	facing_component.flipped.connect(_on_facing_flipped)
-	sprite.flip_h = not facing_component.default_facing_right
+	_set_sprite_flip_h(not facing_component.default_facing_right)
 
 
 # Every airborne animation sets same two flags.
 func _play_airborne_animation(animation: StringName, tumbling: bool = false) -> void:
 	_is_airborne = true
 	_is_tumbling = tumbling
-	sprite.play(animation)
+	_play_sprite_animation(animation)
 
 
 func _on_ground_motion_changed(motion: StringName) -> void:
@@ -59,13 +55,13 @@ func _on_ground_motion_changed(motion: StringName) -> void:
 		# Moving cuts landing short, anything else waits for it to finish.
 		if motion == Animations.WALK or motion == Animations.RUN:
 			_is_landing = false
-			sprite.play(motion)
+			_play_sprite_animation(motion)
 			return
 		_pending_ground_motion = motion
 		return
 	if _is_airborne:
 		return
-	sprite.play(motion)
+	_play_sprite_animation(motion)
 
 
 func _on_jumped(jump_number: int) -> void:
@@ -96,24 +92,24 @@ func _on_landed(motion: StringName) -> void:
 	# changes while landing plays, so nothing would cut it short. Skip it.
 	if motion == Animations.WALK or motion == Animations.RUN:
 		_is_landing = false
-		sprite.play(motion)
+		_play_sprite_animation(motion)
 		return
 	_is_landing = true
-	sprite.play(Animations.LAND)
+	_play_sprite_animation(Animations.LAND)
 
 
 func _on_started_falling() -> void:
 	if _is_tumbling:
 		return
 	_is_airborne = true
-	sprite.play(Animations.FALLING)
+	_play_sprite_animation(Animations.FALLING)
 
 
 func _on_sprite_animation_finished() -> void:
-	if sprite.animation != Animations.LAND:
+	if _get_sprite_animation() != Animations.LAND:
 		return
 	_is_landing = false
-	sprite.play(_pending_ground_motion)
+	_play_sprite_animation(_pending_ground_motion)
 
 
 func _on_facing_flipped(new_facing_x: float) -> void:
@@ -123,8 +119,23 @@ func _on_facing_flipped(new_facing_x: float) -> void:
 	# Squash x to 0, swap flip at midpoint, expand back.
 	_flip_tween = create_tween()
 	_flip_tween.tween_property(sprite, "scale:x", 0.0, flip_duration * 0.5)
-	_flip_tween.tween_callback(
-		func() -> void:
-			sprite.flip_h = flip,
-	)
+	_flip_tween.tween_callback(_set_sprite_flip_h.bind(flip))
 	_flip_tween.tween_property(sprite, "scale:x", _base_scale_x, flip_duration * 0.5)
+
+
+# AnimatedSprite2D and AnimatedSprite3D share no base class, so sprite is a Node and
+# these four accessors are the only unsafe access. Both types have all of these members.
+func _play_sprite_animation(animation: StringName) -> void:
+	sprite.play(animation)
+
+
+func _get_sprite_animation() -> StringName:
+	return sprite.animation
+
+
+func _set_sprite_flip_h(flipped: bool) -> void:
+	sprite.flip_h = flipped
+
+
+func _get_sprite_scale_x() -> float:
+	return sprite.scale.x

@@ -38,7 +38,7 @@ func _physics_process(_delta: float) -> void:
 	if is_locked or _busy or not _sensor:
 		return
 	if input_component.get_frame().interact_pressed:
-		_interact_with_nearest_interactable()
+		await _interact_with_nearest_interactable()
 
 
 func _on_setup() -> void:
@@ -50,9 +50,9 @@ func _on_setup() -> void:
 
 # Child of body, not of this component: plain Node has no transform to follow.
 func _add_interaction_sensor() -> void:
-	var shape := SphereShape3D.new()
+	var shape: SphereShape3D = SphereShape3D.new()
 	shape.radius = SENSOR_RADIUS
-	var collision := CollisionShape3D.new()
+	var collision: CollisionShape3D = CollisionShape3D.new()
 	collision.shape = shape
 	_sensor = Area3D.new()
 	_sensor.name = "InteractionSensor"
@@ -104,8 +104,8 @@ func _on_interaction_zone_entered(zone: Area3D) -> void:
 		return
 	var thing: InteractableThing = InteractableThing.get_interactable_from_zone(zone)
 	if thing and thing.enabled and thing.auto:
-		# Not awaited, auto things never lock.
-		thing.execute_interaction_for_actor(api)
+		# Auto things never lock, so waiting here blocks nothing.
+		await thing.execute_interaction_for_actor(api)
 #endregion
 
 
