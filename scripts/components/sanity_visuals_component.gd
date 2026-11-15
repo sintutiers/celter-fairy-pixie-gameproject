@@ -38,7 +38,7 @@ func _on_setup() -> void:
 	if not _require_dependencies({ "sanity_component": sanity_component }):
 		return
 	if strength_per_zone.size() != sanity_component.thresholds.size() + 1:
-		push_error(
+		Log.error(
 			"%s: strength_per_zone needs %d entries, has %d"
 			% [name, sanity_component.thresholds.size() + 1, strength_per_zone.size()],
 		)

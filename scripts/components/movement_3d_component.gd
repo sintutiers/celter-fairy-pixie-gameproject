@@ -21,12 +21,12 @@ func _on_setup() -> void:
 		_disable_movement()
 		return
 	if not collision_shape:
-		push_error("%s: no collision_shape, crouch keeps the standing size" % name)
+		Log.error("%s: no collision_shape, crouch keeps the standing size" % name)
 		return
 	_standing_shape_position = collision_shape.position
 	_capsule = collision_shape.shape as CapsuleShape3D
 	if not _capsule:
-		push_error("%s: crouch needs a CapsuleShape3D, the shape stays standing size" % name)
+		Log.error("%s: crouch needs a CapsuleShape3D, the shape stays standing size" % name)
 		return
 	# Own copy: height changes at runtime and scene shape resource is shared by every instance.
 	_capsule = _capsule.duplicate()

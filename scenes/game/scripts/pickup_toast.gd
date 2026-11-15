@@ -18,7 +18,7 @@ func _ready() -> void:
 	# Player made its api in _enter_tree, which runs before any _ready, see PlayerSpawner.
 	var api: PlayerApi = PlayerApi.find_local_player_api(get_tree())
 	if not api or not api.inventory:
-		push_error("%s: no player with an InventoryComponent in the scene" % name)
+		Log.error("%s: no player with an InventoryComponent in the scene" % name)
 		return
 	api.inventory.item_added.connect(_on_item_added)
 	api.inventory.add_failed.connect(_on_add_failed)

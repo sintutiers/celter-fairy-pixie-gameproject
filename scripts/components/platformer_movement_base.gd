@@ -53,6 +53,8 @@ var _dashes_used: int = 0
 var _dash_direction: Vector2 = Vector2.RIGHT
 var _wall_jump_lock_timer: float = 0.0
 var _was_falling: bool = false
+# Only for GameLog, so held direction is logged once.
+var _logged_input_direction: Vector2i = Vector2i.ZERO
 
 @onready var _ground_state: StateChartState = %Ground
 @onready var _air_state: StateChartState = %Air
@@ -217,6 +219,10 @@ func _apply_horizontal_movement(
 	is_running: bool,
 	speed_multiplier: float = 1.0,
 ) -> void:
+	var input_sign: Vector2i = Vector2i(input_dir.sign())
+	if input_sign != _logged_input_direction:
+		_logged_input_direction = input_sign
+		GameLog.write(&"movement", "input", input_sign)
 	# Wall jump lock ignores input, facing included.
 	if _wall_jump_lock_timer > 0.0:
 		return
@@ -252,6 +258,7 @@ func _update_current_motion(on_ground: bool, input_dir: Vector2, is_running: boo
 	_current_motion = motion
 	# Tracked in air too, so landing reports right motion. Only emitted on ground.
 	if on_ground:
+		GameLog.write(&"movement", str(motion))
 		ground_motion_changed.emit(motion)
 
 
@@ -290,8 +297,10 @@ func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
 	_was_falling = false
 
 	if is_wall_jump:
+		GameLog.write(&"movement", "wall jump")
 		wall_jumped.emit()
 	else:
+		GameLog.write(&"movement", "jump", _jumps_used)
 		jumped.emit(_jumps_used)
 	return true
 
@@ -310,6 +319,7 @@ func _handle_landing() -> void:
 	# landed already carries motion. Emitting ground_motion_changed here
 	# would replace landing animation on same frame, see
 	# AnimationComponent._on_ground_motion_changed.
+	GameLog.write(&"movement", "landed", str(_current_motion))
 	landed.emit(_current_motion)
 	_send_state_chart_event(StateEvents.LAND)
 #endregion
@@ -366,6 +376,7 @@ func _on_air_state_physics_processing(delta: float) -> void:
 
 	if vertical < 0.0 and not _was_falling:
 		_was_falling = true
+		GameLog.write(&"movement", "falling")
 		started_falling.emit()
 	elif vertical >= 0.0:
 		_was_falling = false
@@ -402,6 +413,7 @@ func _run_air_post_move_check() -> void:
 func _on_wall_slide_state_entered() -> void:
 	_jump_buffer_timer = 0.0
 	_was_falling = false
+	GameLog.write(&"movement", "wall slide")
 	wall_slid.emit()
 	# Wall contact refills jumps so wall jumps can chain.
 	if profile.wall_jump_enabled:
@@ -430,6 +442,7 @@ func _run_wall_slide_post_move_check() -> void:
 
 	if not _is_on_wall():
 		_send_state_chart_event(StateEvents.FALL)
+		GameLog.write(&"movement", "fell from wall")
 		fell_from_wall.emit()
 #endregion
 
@@ -443,6 +456,7 @@ func _on_dash_state_entered() -> void:
 
 	var direction: Vector2 = _convert_input_direction_to_world(_get_current_movement_input())
 	_dash_direction = direction.normalized() if not direction.is_zero_approx() else _get_default_dash_direction()
+	GameLog.write(&"movement", "dash", _dash_direction)
 	dashed.emit()
 
 
@@ -481,6 +495,7 @@ func _run_crouch_post_move_check() -> void:
 	var motion: StringName = Animations.CROUCH_WALK if not input_dir.is_zero_approx() else Animations.CROUCH_IDLE
 	if motion != _current_motion:
 		_current_motion = motion
+		GameLog.write(&"movement", str(motion))
 		ground_motion_changed.emit(motion)
 
 	if not _is_on_floor():

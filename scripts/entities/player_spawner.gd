@@ -23,11 +23,11 @@ func _enter_tree() -> void:
 	if _player:
 		return
 	if not player_scene:
-		push_error("%s: no player_scene, level has no player" % name)
+		Log.error("%s: no player_scene, level has no player" % name)
 		return
 	_player = player_scene.instantiate() as Node3D
 	if not _player:
-		push_error("%s: player_scene root is not a Node3D, level has no player" % name)
+		Log.error("%s: player_scene root is not a Node3D, level has no player" % name)
 		return
 	add_child(_player)
 	if camera:

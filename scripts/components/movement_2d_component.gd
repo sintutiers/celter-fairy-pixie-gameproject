@@ -24,12 +24,12 @@ func _on_setup() -> void:
 		_disable_movement()
 		return
 	if not collision_shape:
-		push_error("%s: no collision_shape, crouch keeps the standing size" % name)
+		Log.error("%s: no collision_shape, crouch keeps the standing size" % name)
 		return
 	_standing_shape_position = collision_shape.position
 	_shape = collision_shape.shape
 	if not (_shape is CapsuleShape2D or _shape is RectangleShape2D):
-		push_error(
+		Log.error(
 			"%s: crouch needs a CapsuleShape2D or RectangleShape2D, the shape stays standing size"
 			% name
 		)

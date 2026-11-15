@@ -24,7 +24,7 @@ const DIR: String = "res://content/items/"
 static func load_item_by_id(id: String) -> ItemData:
 	var path: String = "%s%s.tres" % [DIR, id]
 	if not ResourceLoader.exists(path):
-		push_error("no item '%s', expected %s" % [id, path])
+		Log.error("no item '%s', expected %s" % [id, path])
 		return null
 	return load(path) as ItemData
 

@@ -20,7 +20,7 @@ var _missing_animation: String = ""
 func _ready() -> void:
 	_sprite = Component.find_descendant_of_type(self, AnimatedSprite2D) as AnimatedSprite2D
 	if not _sprite:
-		push_error("%s: no AnimatedSprite2D child, position only" % name)
+		Log.error("%s: no AnimatedSprite2D child, position only" % name)
 
 
 func _process(delta: float) -> void:
@@ -42,6 +42,6 @@ func apply_net_player_row(row: FaerieNetPlayer) -> void:
 	if not _sprite.sprite_frames.has_animation(row.animation):
 		if row.animation != _missing_animation:
 			_missing_animation = row.animation
-			push_error("%s: no animation '%s'" % [name, row.animation])
+			Log.error("%s: no animation '%s'" % [name, row.animation])
 		return
 	_sprite.play(row.animation)

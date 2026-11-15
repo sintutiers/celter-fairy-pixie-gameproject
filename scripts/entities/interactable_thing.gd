@@ -76,14 +76,14 @@ var _running: bool = false
 
 ## Thing that owns [param zone], or null for any other area.
 static func get_interactable_from_zone(zone: Area3D) -> InteractableThing:
-	return zone.get_meta(_ZONE_OWNER_META, null) as InteractableThing
+	return zone.get_meta(_ZONE_OWNER_META, null)
 
 
 func _ready() -> void:
 	if auto and dialogue:
-		push_error("%s: auto things must not have a dialogue" % name)
+		Log.error("%s: auto things must not have a dialogue" % name)
 	if persistent_id != "" and not free_after:
-		push_warning("%s: persistent_id does nothing without free_after" % name)
+		Log.warn("%s: persistent_id does nothing without free_after" % name)
 	# Already taken in earlier visit. Gone before its zone exists.
 	if free_after and persistent_id != "" and GameState.get_level_flag(_get_placed_level_path(), _get_finished_flag_key()):
 		queue_free()
@@ -116,6 +116,7 @@ func execute_interaction_for_actor(actor: PlayerApi) -> void:
 	if free_after and persistent_id != "":
 		GameState.set_level_flag(_get_placed_level_path(), _get_finished_flag_key())
 	_running = true
+	GameLog.write(&"interact", "started", str(name))
 	started.emit(actor)
 	if animate_on_interact and sprite:
 		sprite.play()
@@ -123,6 +124,7 @@ func execute_interaction_for_actor(actor: PlayerApi) -> void:
 		DialogueManager.show_dialogue_balloon(dialogue, dialogue_cue, [actor])
 		await DialogueManager.dialogue_ended
 	_running = false
+	GameLog.write(&"interact", "finished", str(name))
 	finished.emit(actor)
 	if free_after:
 		queue_free()
@@ -162,6 +164,7 @@ func _build_default_zone() -> Area3D:
 
 
 func _block_interaction_for_actor(actor: PlayerApi, reason: StringName) -> void:
+	GameLog.write(&"interact", "blocked", str(name), str(reason))
 	blocked.emit(actor, reason)
 	if auto or not dialogue or blocked_cue == "":
 		return

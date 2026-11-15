@@ -107,14 +107,14 @@ func _check_dialogue_files() -> void:
 	for path: String in _find_dialogue_files("res://"):
 		var text: String = FileAccess.get_file_as_string(path)
 		for found: RegExMatch in unclosed_conditions.search_all(text):
-			push_error("%s:%d: option condition must end in \" /]\"" % [path, text.count("\n", 0, found.get_start()) + 1])
+			Log.error("%s:%d: option condition must end in \" /]\"" % [path, text.count("\n", 0, found.get_start()) + 1])
 		for found: RegExMatch in calls.search_all(text):
 			var id: String = found.get_string(2)
 			var directory: String = QuestData.DIR if "quest" in found.get_string(1) else ItemData.DIR
 			if ResourceLoader.exists("%s%s.tres" % [directory, id]):
 				continue
 			var line: int = text.count("\n", 0, found.get_start()) + 1
-			push_error("%s:%d: %s(\"%s\") but %s%s.tres does not exist" % [path, line, found.get_string(1), id, directory, id])
+			Log.error("%s:%d: %s(\"%s\") but %s%s.tres does not exist" % [path, line, found.get_string(1), id, directory, id])
 
 
 # Hidden folders are skipped by DirAccess, addons hold only example dialogue.

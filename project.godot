@@ -31,6 +31,7 @@ ProjectMusicController="*uid://r5t485lr3p7t"
 PhantomCameraManager="*uid://duq6jhf6unyis"
 SoundManager="*res://addons/sound_manager/sound_manager.gd"
 LimboConsole="*uid://dyxornv8vwibg"
+GameLog="*res://scripts/autoload/game_log.gd"
 DebugCommands="*uid://cyxhsqyyc2rs4"
 Net="*uid://cb5j7nu8sqpnd"
 SpacetimeDB="*res://spacetime_bindings/schema/spacetime_autoload.gd"
@@ -69,7 +70,7 @@ script/templates_search_path="res://scripts/templates"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/GDQuest_GDScript_formatter/plugin.cfg", "res://addons/SpacetimeDB/plugin.cfg", "res://addons/debug_menu/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/godot_state_charts/plugin.cfg", "res://addons/limbo_console/plugin.cfg", "res://addons/maaacks_game_template/plugin.cfg", "res://addons/maaacks_music_controller/plugin.cfg", "res://addons/maaacks_scene_loader/plugin.cfg", "res://addons/maaacks_ui_sound_controller/plugin.cfg", "res://addons/phantom_camera/plugin.cfg", "res://addons/plugin_updater/plugin.cfg", "res://addons/script-ide/plugin.cfg", "res://addons/sound_manager/plugin.cfg")
+enabled=PackedStringArray("res://addons/GDQuest_GDScript_formatter/plugin.cfg", "res://addons/SpacetimeDB/plugin.cfg", "res://addons/debug_menu/plugin.cfg", "res://addons/dialogue_manager/plugin.cfg", "res://addons/godot_state_charts/plugin.cfg", "res://addons/limbo_console/plugin.cfg", "res://addons/log/plugin.cfg", "res://addons/maaacks_game_template/plugin.cfg", "res://addons/maaacks_music_controller/plugin.cfg", "res://addons/maaacks_scene_loader/plugin.cfg", "res://addons/maaacks_ui_sound_controller/plugin.cfg", "res://addons/phantom_camera/plugin.cfg", "res://addons/plugin_updater/plugin.cfg", "res://addons/reload_current_scene/plugin.cfg", "res://addons/script-ide/plugin.cfg", "res://addons/sound_manager/plugin.cfg")
 
 [file_customization]
 

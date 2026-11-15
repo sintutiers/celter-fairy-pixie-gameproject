@@ -60,7 +60,7 @@ func pause_sanity_drain() -> void:
 ## Pushes error when called more often than [method pause_sanity_drain].
 func resume_sanity_drain() -> void:
 	if _pause_count == 0:
-		push_error("%s: resume_sanity_drain without matching pause_sanity_drain" % name)
+		Log.error("%s: resume_sanity_drain without matching pause_sanity_drain" % name)
 		return
 	_pause_count -= 1
 
@@ -82,9 +82,11 @@ func set_current_sanity_value(new_value: float) -> void:
 	var new_zone: int = _get_sanity_zone_for_ratio(get_current_sanity_ratio())
 	if new_zone != zone:
 		zone = new_zone
+		GameLog.write(&"sanity", "zone", zone, "at", value)
 		zone_changed.emit(zone)
 
 	if value <= 0.0:
+		GameLog.write(&"sanity", "depleted")
 		depleted.emit()
 
 
@@ -101,11 +103,11 @@ func _on_ready() -> void:
 
 func _on_setup() -> void:
 	if max_sanity <= 0.0:
-		push_error("%s: max_sanity must be above 0, is %s" % [name, max_sanity])
+		Log.error("%s: max_sanity must be above 0, is %s" % [name, max_sanity])
 	var ascending: PackedFloat32Array = thresholds.duplicate()
 	ascending.sort()
 	if ascending != thresholds:
-		push_error("%s: thresholds must be ascending, zones are wrong" % name)
+		Log.error("%s: thresholds must be ascending, zones are wrong" % name)
 
 
 # Level change, restart and quit all free player, so this covers them.

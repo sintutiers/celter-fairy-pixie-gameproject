@@ -139,7 +139,7 @@ static func get_level_flag(level_path: String, flag: String) -> bool:
 static func set_level_flag(level_path: String, flag: String, value: bool = true) -> void:
 	var level_state: LevelState = get_level_state(level_path)
 	if not level_state:
-		push_warning("no level state for '%s', flag '%s' not saved" % [level_path, flag])
+		Log.warn("no level state for '%s', flag '%s' not saved" % [level_path, flag])
 		return
 	level_state.flags[flag] = value
 	GlobalState.save()
@@ -159,7 +159,7 @@ static func get_fact(key: String, default: Variant = false) -> Variant:
 ## [b]Warning:[/b] Renaming key breaks saves that already hold it.
 static func set_fact(key: String, value: Variant = true) -> void:
 	if not has_game_state():
-		push_warning("no game state, fact '%s' not saved" % key)
+		Log.warn("no game state, fact '%s' not saved" % key)
 		return
 	get_or_create_state().facts[key] = value
 	GlobalState.save()
@@ -177,7 +177,7 @@ static func _get_level_state_key(level_path: String) -> String:
 # Never edit old step: saves already out there were written by it.
 static func _migrate_save_to_current_version(game_state: GameState) -> void:
 	if game_state.save_version > SAVE_VERSION:
-		push_error(
+		Log.error(
 			"save is version %d, this game only knows %d. Loaded as is, expect missing progress."
 			% [game_state.save_version, SAVE_VERSION],
 		)

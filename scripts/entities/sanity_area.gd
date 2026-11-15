@@ -35,6 +35,7 @@ func _on_body_entered(body: Node3D) -> void:
 	if pauses_drain:
 		sanity.pause_sanity_drain()
 	sanity.drain_per_second += extra_drain_per_second
+	GameLog.write(&"sanity", "entered", str(name), "drain per second", sanity.drain_per_second)
 	_restore_sanity_on_first_entry(sanity)
 
 
@@ -45,6 +46,7 @@ func _on_body_exited(body: Node3D) -> void:
 	if pauses_drain:
 		sanity.resume_sanity_drain()
 	sanity.drain_per_second -= extra_drain_per_second
+	GameLog.write(&"sanity", "left", str(name), "drain per second", sanity.drain_per_second)
 
 
 func _restore_sanity_on_first_entry(sanity: SanityComponent) -> void:
@@ -56,9 +58,11 @@ func _restore_sanity_on_first_entry(sanity: SanityComponent) -> void:
 		if GameState.get_level_flag(level_path, _get_entered_flag_key()):
 			return
 		GameState.set_level_flag(level_path, _get_entered_flag_key())
+	GameLog.write(&"sanity", "first entry of", str(name), first_entry_sanity)
 	sanity.add_sanity(first_entry_sanity)
 
 
+# Old class name stays in key: changing it breaks saves.
 func _get_entered_flag_key() -> String:
 	return "sanctuary." + persistent_id
 
@@ -76,8 +80,8 @@ func _get_placed_level_path() -> String:
 
 # Through api, same as PlayerApi.find_local_player_api, so body can be any player body.
 func _get_sanity_component_of_body(body: Node3D) -> SanityComponent:
-	var api: PlayerApi = body.get(&"api") as PlayerApi
+	var api: PlayerApi = body.get(&"api")
 	if not api or not api.sanity:
-		push_error("%s: %s has no SanityComponent, area does nothing" % [name, body.name])
+		Log.error("%s: %s has no SanityComponent, area does nothing" % [name, body.name])
 		return null
 	return api.sanity

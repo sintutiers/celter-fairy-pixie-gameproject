@@ -148,7 +148,7 @@ Tab dash  E / click interact
 ` console  F3 debug menu
 console: give bread 5
 use bread   sanity 20
-explain"
+explain   log"
 horizontal_alignment = 1
 
 [node name="PickupToast" type="Label" parent="HUD/Margin" unique_id=59222313]
@@ -234,6 +234,7 @@ text = "CONSOLE:
 press `
 give <item> <count>, use <item>, sanity <value>
 explain: dialogue says what it did
+log <channel>: mutes or unmutes a log channel
 F3: debug menu"
 font_size = 40
 outline_size = 16

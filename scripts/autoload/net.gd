@@ -50,7 +50,7 @@ func send_local_player_state(position: Vector3, flip: bool, animation: StringNam
 		return
 	var reducer_call: SpacetimeDBReducerCall = _module.reducers.update_net_player(position.x, position.y, position.z, flip, String(animation), GameState.get_current_level_path())
 	if reducer_call.error != OK:
-		push_error("net: update_net_player was not sent (%s)" % error_string(reducer_call.error))
+		Log.error("net: update_net_player was not sent (%s)" % error_string(reducer_call.error))
 		return
 	reducer_call.on_error.connect(_on_reducer_error)
 
@@ -58,23 +58,23 @@ func send_local_player_state(position: Vector3, flip: bool, animation: StringNam
 func _on_connected(_identity: PackedByteArray, _token: String) -> void:
 	var subscription: SpacetimeDBSubscription = _module.subscribe(["SELECT * FROM net_player"])
 	if subscription.error != OK:
-		push_error("net: subscribe failed (%s)" % error_string(subscription.error))
+		Log.error("net: subscribe failed (%s)" % error_string(subscription.error))
 		return
 	subscription.applied.connect(_on_subscription_applied)
 
 
 func _on_disconnected() -> void:
-	push_warning("net: disconnected.")
+	Log.warn("net: disconnected.")
 	for id: String in _remotes.keys():
 		_release_remote_player(id)
 
 
 func _on_connection_error(code: int, reason: String) -> void:
-	push_error("net: connection failed (%d): %s" % [code, reason])
+	Log.error("net: connection failed (%d): %s" % [code, reason])
 
 
 func _on_reducer_error(message: String) -> void:
-	push_error("net: reducer failed: %s" % message)
+	Log.error("net: reducer failed: %s" % message)
 
 
 # Local database is only guaranteed to exist once subscription is applied.
@@ -122,7 +122,7 @@ func _apply_net_player_row(row: FaerieNetPlayer) -> void:
 func _spawn_remote_player(scene: PackedScene) -> Node:
 	var remote: Node = scene.instantiate()
 	if not remote.has_method(&"apply_net_player_row"):
-		push_error("net: %s root has no apply_net_player_row(), it is not a remote player" % scene.resource_path)
+		Log.error("net: %s root has no apply_net_player_row(), it is not a remote player" % scene.resource_path)
 		remote.free()
 		return null
 	add_child(remote)

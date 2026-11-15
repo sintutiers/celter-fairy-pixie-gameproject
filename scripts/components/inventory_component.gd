@@ -17,8 +17,6 @@ signal item_used(item: ItemData, consumed: bool)
 
 ## Slots in total, see [method get_used_slot_count].
 @export var max_slots: int = 8
-## Prints inventory changes. Testing only.
-@export var debug: bool = true
 
 var sanity_component: SanityComponent
 ## Passed to item use dialogues as extra game state.
@@ -56,15 +54,15 @@ func add_inventory_item(item: ItemData, count: int = 1) -> bool:
 	if not item:
 		return false
 	if count < 1:
-		push_error("%s: add count must be at least 1, got %d" % [name, count])
+		Log.error("%s: add count must be at least 1, got %d" % [name, count])
 		return false
 	if not can_carry_item(item, count):
-		_log_inventory_message("no room for %s" % item.get_item_id())
+		GameLog.write(&"inventory", "no room for %s" % item.get_item_id())
 		add_failed.emit(item)
 		return false
 	items[item] = items.get(item, 0) + count
 	_save_inventory()
-	_log_inventory_message("+%d %s" % [count, item.get_item_id()])
+	GameLog.write(&"inventory", "+%d %s" % [count, item.get_item_id()])
 	item_added.emit(item, count)
 	return true
 
@@ -73,7 +71,7 @@ func add_inventory_item(item: ItemData, count: int = 1) -> bool:
 ## Pushes error when [param count] is below 1.
 func remove_inventory_item(item: ItemData, count: int = 1) -> bool:
 	if count < 1:
-		push_error("%s: remove count must be at least 1, got %d" % [name, count])
+		Log.error("%s: remove count must be at least 1, got %d" % [name, count])
 		return false
 	if not has_inventory_item(item, count):
 		return false
@@ -81,7 +79,7 @@ func remove_inventory_item(item: ItemData, count: int = 1) -> bool:
 	if items[item] <= 0:
 		items.erase(item)
 	_save_inventory()
-	_log_inventory_message("-%d %s" % [count, item.get_item_id()])
+	GameLog.write(&"inventory", "-%d %s" % [count, item.get_item_id()])
 	return true
 
 
@@ -91,8 +89,9 @@ func remove_inventory_item(item: ItemData, count: int = 1) -> bool:
 func use_inventory_item(item: ItemData) -> bool:
 	if not has_inventory_item(item):
 		return false
-	_log_inventory_message("used %s" % item.get_item_id())
+	GameLog.write(&"inventory", "used %s" % item.get_item_id())
 	if sanity_component and item.sanity_restore != 0.0:
+		GameLog.write(&"sanity", "add", item.sanity_restore, "from", item.get_item_id())
 		sanity_component.add_sanity(item.sanity_restore)
 	if item.consumed_on_use:
 		remove_inventory_item(item)
@@ -139,11 +138,6 @@ func _save_inventory() -> void:
 		saved[item.get_item_id()] = items[item]
 	GameState.get_or_create_state().inventory = saved
 	GlobalState.save()
-
-
-func _log_inventory_message(message: String) -> void:
-	if debug:
-		print("[inv] %s (slots %d/%d)" % [message, get_used_slot_count(), max_slots])
 
 
 func _get_slots_needed(item: ItemData, count: int) -> int:

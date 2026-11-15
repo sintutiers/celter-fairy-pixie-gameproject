@@ -33,7 +33,7 @@ func _init(inventory_: InventoryComponent, sanity_: SanityComponent) -> void:
 ## Local player interface, or null when no player is in [param tree].
 static func find_local_player_api(tree: SceneTree) -> PlayerApi:
 	var player: Node = tree.get_first_node_in_group(GROUP)
-	return player.get(&"api") as PlayerApi if player else null
+	return player.get(&"api") if player else null
 
 
 ## Gives [param count] of item with [param id]. Returns false if there is no room.
@@ -59,8 +59,9 @@ func use_item(id: String) -> bool:
 ## Adds [param amount] to sanity, negative drains. See [method SanityComponent.add_sanity].
 func add_sanity(amount: float) -> void:
 	if not sanity:
-		push_error("player has no SanityComponent, add_sanity(%s) ignored" % amount)
+		Log.error("player has no SanityComponent, add_sanity(%s) ignored" % amount)
 		return
+	GameLog.write(&"sanity", "add", amount, "to", sanity.value)
 	sanity.add_sanity(amount)
 
 
@@ -68,7 +69,7 @@ func add_sanity(amount: float) -> void:
 ## See [member SanityComponent.zone].
 func get_sanity_zone() -> int:
 	if not sanity:
-		push_error("player has no SanityComponent, get_sanity_zone() returns 0")
+		Log.error("player has no SanityComponent, get_sanity_zone() returns 0")
 		return 0
 	return sanity.zone
 
@@ -84,6 +85,7 @@ func get_level_flag(flag: String) -> bool:
 ## Sets flag in current level and saves, see [method GameState.set_level_flag].
 ## Without game state it warns and saves nothing.
 func set_level_flag(flag: String, value: bool = true) -> void:
+	GameLog.write(&"ledger", "level flag", flag, "=", value)
 	GameState.set_level_flag(GameState.get_current_level_path(), flag, value)
 
 
@@ -96,6 +98,7 @@ func get_fact(key: String, default: Variant = false) -> Variant:
 ## Every dialogue choice should end up here, in [method add_opinion], [method add_favor],
 ## [method add_debt] or in [method advance_quest]: no fake choices.
 func set_fact(key: String, value: Variant = true) -> void:
+	GameLog.write(&"ledger", key, "=", value)
 	GameState.set_fact(key, value)
 
 
@@ -153,7 +156,7 @@ func advance_quest(id: String) -> void:
 		return
 	var stage: int = get_quest_stage(id) + 1
 	if stage > quest.stages.size():
-		push_error("quest '%s' is already done, advance_quest ignored" % id)
+		Log.error("quest '%s' is already done, advance_quest ignored" % id)
 		return
 	set_fact("quest." + id, stage)
 
@@ -162,7 +165,7 @@ func advance_quest(id: String) -> void:
 func _add_to_ledger_fact(key: String, amount: int) -> bool:
 	var size: int = get_fact(key, 0) + amount
 	if size < 0:
-		push_error("'%s' is %d, cannot add %d" % [key, size - amount, amount])
+		Log.error("'%s' is %d, cannot add %d" % [key, size - amount, amount])
 		return false
 	set_fact(key, size)
 	return true
@@ -170,5 +173,5 @@ func _add_to_ledger_fact(key: String, amount: int) -> bool:
 
 func _require_inventory() -> bool:
 	if not inventory:
-		push_error("player has no InventoryComponent")
+		Log.error("player has no InventoryComponent")
 	return inventory != null

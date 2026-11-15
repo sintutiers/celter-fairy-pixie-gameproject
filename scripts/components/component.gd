@@ -26,11 +26,11 @@ static func find_descendant_of_type(root: Node, type: Variant, warn: bool = fals
 		if not is_instance_of(node, type):
 			continue
 		if found:
-			push_error("%s: more than one %s, using %s and not %s" % [root.name, type, found.name, node.name])
+			Log.error("%s: more than one %s, using %s and not %s" % [root.name, type, found.name, node.name])
 			break
 		found = node
 	if not found and warn:
-		push_warning("%s: no %s found." % [root.name, type])
+		Log.warn("%s: no %s found." % [root.name, type])
 	return found
 
 
@@ -58,5 +58,5 @@ func _require_dependencies(dependencies: Dictionary) -> bool:
 		if not dependencies[dependency_name]:
 			missing.append(dependency_name)
 	if not missing.is_empty():
-		push_error("%s: missing required dependencies: %s" % [name, ", ".join(missing)])
+		Log.error("%s: missing required dependencies: %s" % [name, ", ".join(missing)])
 	return missing.is_empty()

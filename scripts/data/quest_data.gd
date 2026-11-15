@@ -19,6 +19,6 @@ const DIR: String = "res://content/quests/"
 static func load_quest_by_id(id: String) -> QuestData:
 	var path: String = "%s%s.tres" % [DIR, id]
 	if not ResourceLoader.exists(path):
-		push_error("no quest '%s', expected %s" % [id, path])
+		Log.error("no quest '%s', expected %s" % [id, path])
 		return null
 	return load(path) as QuestData

@@ -22,7 +22,7 @@ var _lean: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	if not _camera or _camera.get_follow_mode() != PhantomCamera3D.FollowMode.THIRD_PERSON:
-		push_error("%s: parent must be PhantomCamera3D in third person follow mode" % name)
+		Log.error("%s: parent must be PhantomCamera3D in third person follow mode" % name)
 		set_process(false)
 
 
