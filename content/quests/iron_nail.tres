@@ -5,4 +5,4 @@
 [resource]
 script = ExtResource("1_quest")
 title = "The Fairy's Favor"
-stages = PackedStringArray("Pull the iron nail out of the stump left of the tree. It takes hate.", "Bring the nail to the fairy in the sanctuary.")
+stages = PackedStringArray("Pull the iron nail out of the stump left of the tree. It takes hate.", "Bring the nail back to the fairy in the dash hall.")

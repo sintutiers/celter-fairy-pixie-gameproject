@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="QuestData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/quest_data.gd" id="1_quest"]
+
+[resource]
+script = ExtResource("1_quest")
+title = "The Hungry Idol"
+stages = PackedStringArray("Feed the idol 3 ASPECT OF HATE. It eats your sanity while you stand near.", "Push the cracked idol over.")
