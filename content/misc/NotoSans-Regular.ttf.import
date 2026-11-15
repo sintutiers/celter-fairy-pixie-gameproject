@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://bqeoffprqpb61"
-path="res://.godot/imported/Nunito-Black.ttf-9a84834286423429ef56b769bc679b80.fontdata"
+uid="uid://cxe45hu0q8f1b"
+path="res://.godot/imported/NotoSans-Regular.ttf-c186422e803e16e76e7b5e972579b2fe.fontdata"
 
 [deps]
 
-source_file="res://misc/Nunito-Black.ttf"
-dest_files=["res://.godot/imported/Nunito-Black.ttf-9a84834286423429ef56b769bc679b80.fontdata"]
+source_file="res://content/misc/NotoSans-Regular.ttf"
+dest_files=["res://.godot/imported/NotoSans-Regular.ttf-c186422e803e16e76e7b5e972579b2fe.fontdata"]
 
 [params]
 
@@ -23,7 +23,7 @@ allow_system_fallback=true
 force_autohinter=false
 modulate_color_glyphs=false
 hinting=1
-subpixel_positioning=1
+subpixel_positioning=4
 keep_rounding_remainders=true
 oversampling=0.0
 Fallbacks=null

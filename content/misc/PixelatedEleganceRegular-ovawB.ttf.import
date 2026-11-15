@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://c6tpmtajr504j"
-path="res://.godot/imported/Nunito-Regular.ttf-8b98feacd5d6ad72962ca322aba32e59.fontdata"
+uid="uid://coisyh8l6rcuc"
+path="res://.godot/imported/PixelatedEleganceRegular-ovawB.ttf-f2750a11ee90ca01f9b8b3418aa0cfac.fontdata"
 
 [deps]
 
-source_file="res://misc/Nunito-Regular.ttf"
-dest_files=["res://.godot/imported/Nunito-Regular.ttf-8b98feacd5d6ad72962ca322aba32e59.fontdata"]
+source_file="res://content/misc/PixelatedEleganceRegular-ovawB.ttf"
+dest_files=["res://.godot/imported/PixelatedEleganceRegular-ovawB.ttf-f2750a11ee90ca01f9b8b3418aa0cfac.fontdata"]
 
 [params]
 
@@ -22,8 +22,8 @@ msdf_size=48
 allow_system_fallback=true
 force_autohinter=false
 modulate_color_glyphs=false
-hinting=1
-subpixel_positioning=1
+hinting=3
+subpixel_positioning=4
 keep_rounding_remainders=true
 oversampling=0.0
 Fallbacks=null

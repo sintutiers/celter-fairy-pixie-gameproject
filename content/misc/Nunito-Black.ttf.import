@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://coisyh8l6rcuc"
-path="res://.godot/imported/PixelatedEleganceRegular-ovawB.ttf-0168ffcb19f2320a68e88a104f6ad574.fontdata"
+uid="uid://bqeoffprqpb61"
+path="res://.godot/imported/Nunito-Black.ttf-d1ec7f7e66d8063a884c21fee7ad3382.fontdata"
 
 [deps]
 
-source_file="res://misc/PixelatedEleganceRegular-ovawB.ttf"
-dest_files=["res://.godot/imported/PixelatedEleganceRegular-ovawB.ttf-0168ffcb19f2320a68e88a104f6ad574.fontdata"]
+source_file="res://content/misc/Nunito-Black.ttf"
+dest_files=["res://.godot/imported/Nunito-Black.ttf-d1ec7f7e66d8063a884c21fee7ad3382.fontdata"]
 
 [params]
 
@@ -22,8 +22,8 @@ msdf_size=48
 allow_system_fallback=true
 force_autohinter=false
 modulate_color_glyphs=false
-hinting=3
-subpixel_positioning=4
+hinting=1
+subpixel_positioning=1
 keep_rounding_remainders=true
 oversampling=0.0
 Fallbacks=null
