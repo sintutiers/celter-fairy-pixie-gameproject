@@ -7,7 +7,7 @@
 class_name QuestData
 extends Resource
 
-const DIR: String = "res://scenes/quests/"
+const DIR: String = "res://content/quests/"
 
 @export var title: String = ""
 ## Journal text per stage, index = stage. Stage equal to size means done.

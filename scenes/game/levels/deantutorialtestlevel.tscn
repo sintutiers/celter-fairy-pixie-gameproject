@@ -10,8 +10,8 @@
 [ext_resource type="Script" uid="uid://csjccrhj5wnx7" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_3d.gd" id="8_ofoqe"]
 [ext_resource type="Script" uid="uid://8umksf8e80fw" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="9_owpk6"]
 [ext_resource type="Script" uid="uid://dq5r7n4mxqqoa" path="res://scripts/entities/interactable_thing.gd" id="10_0cpib"]
-[ext_resource type="Resource" uid="uid://ds0jpb0tn23s0" path="res://scenes/items/aspect_of_hate.tres" id="11_wn7qk"]
-[ext_resource type="Resource" uid="uid://cetgg5fl75fb4" path="res://dialogue/test1.dialogue" id="12_rexl1"]
+[ext_resource type="Resource" uid="uid://ds0jpb0tn23s0" path="res://content/items/aspect_of_hate.tres" id="11_wn7qk"]
+[ext_resource type="Resource" uid="uid://cetgg5fl75fb4" path="res://content/dialogue/test1.dialogue" id="12_rexl1"]
 [ext_resource type="Texture2D" uid="uid://cgdoexuttam65" path="res://The Amazing Art and Sound Folder/cassie_red1.png" id="13_emytf"]
 [ext_resource type="Texture2D" uid="uid://6yeroqsmvbna" path="res://The Amazing Art and Sound Folder/cassie_red2.png" id="14_k2bq4"]
 

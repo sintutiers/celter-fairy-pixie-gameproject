@@ -8,7 +8,7 @@ path="res://.godot/imported/test1.dialogue-bf2ec1a87230b0c478928de1be33e915.tres
 
 [deps]
 
-source_file="res://dialogue/test1.dialogue"
+source_file="res://content/dialogue/test1.dialogue"
 dest_files=["res://.godot/imported/test1.dialogue-bf2ec1a87230b0c478928de1be33e915.tres"]
 
 [params]

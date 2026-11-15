@@ -5,7 +5,7 @@
 class_name ItemData
 extends Resource
 
-const DIR: String = "res://scenes/items/"
+const DIR: String = "res://content/items/"
 
 @export var display_name: String = ""
 @export_multiline var description: String = ""
