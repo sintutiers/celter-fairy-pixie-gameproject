@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Debug commands for [LimboConsole]. Autoload.
-## Commands go through [PlayerApi], so they work for 2D and 3D player.
+## Player commands go through [PlayerApi], so they work for 2D and 3D player.
 ## Also checks every .dialogue file on startup for unknown item and quest ids and
 ## for unclosed option conditions, see [method _check_dialogue_files].
 ##
@@ -14,6 +14,9 @@ extends Node
 ## Not saved, off on every start.
 var explain: bool = false
 
+# Component that toggle_sanity_drain paused, so same one is resumed.
+var _drain_paused_sanity: SanityComponent
+
 
 func _ready() -> void:
 	LimboConsole.register_command(give_item, "give", "Gives an item. Usage: give <item_id> <count>")
@@ -24,6 +27,11 @@ func _ready() -> void:
 	)
 	LimboConsole.register_command(use_item, "use", "Uses a carried item. Usage: use <item_id>")
 	LimboConsole.register_command(toggle_explain, "explain", "Toggles dialogue explaining what it did.")
+	LimboConsole.register_command(toggle_sanity_drain, "drain", "Toggles sanity drain of the current player.")
+	LimboConsole.register_command(set_fact, "fact", "Sets a fact, lists all without one. Usage: fact <key> <value>")
+	LimboConsole.register_command(load_level, "level", "Loads a level, lists all without one. Usage: level <number>")
+	LimboConsole.register_command(set_time_scale, "timescale", "Sets game speed, 1 is normal. Usage: timescale <value>")
+	LimboConsole.register_command(show_save_file, "savefile", "Shows the save file in the file manager.")
 	LimboConsole.add_argument_autocomplete_source("give", 0, _get_all_item_ids)
 	LimboConsole.add_argument_autocomplete_source("use", 0, _get_all_item_ids)
 	# Exported builds hold no .dialogue source, only compiled resources.
@@ -72,6 +80,79 @@ func set_sanity(value: float) -> void:
 func toggle_explain() -> void:
 	explain = not explain
 	LimboConsole.info("explain %s" % ("on" if explain else "off"))
+
+
+## Pauses sanity drain of current player, or resumes it when paused by this.
+## New player after respawn or level change drains again.
+func toggle_sanity_drain() -> void:
+	if is_instance_valid(_drain_paused_sanity):
+		_drain_paused_sanity.resume_sanity_drain()
+		_drain_paused_sanity = null
+		LimboConsole.info("sanity drain on")
+		return
+	var api: PlayerApi = _get_player_api()
+	if not api:
+		return
+	if not api.sanity:
+		LimboConsole.error("player has no SanityComponent")
+		return
+	api.sanity.pause_sanity_drain()
+	_drain_paused_sanity = api.sanity
+	LimboConsole.info("sanity drain off")
+
+
+## Sets fact [param key], see [method GameState.set_fact]. Lists every fact without key.
+## [param value] true, false or whole number is saved as that, anything else as text.
+func set_fact(key: String = "", value: String = "true") -> void:
+	if not GameState.has_game_state():
+		LimboConsole.error("no save data, start from the main menu once")
+		return
+	if key == "":
+		var facts: Dictionary[String, Variant] = GameState.get_or_create_state().facts
+		for listed: String in facts:
+			LimboConsole.info("%s = %s" % [listed, facts[listed]])
+		return
+	var parsed: Variant = value
+	if value == "true" or value == "false":
+		parsed = value == "true"
+	elif value.is_valid_int():
+		parsed = value.to_int()
+	GameState.set_fact(key, parsed)
+	LimboConsole.info("%s = %s" % [key, parsed])
+
+
+## Loads level [param number] from list of [LevelManager], 1 = first. Lists them without valid number.
+## Number and not name, level file names hold spaces.
+func load_level(number: int = 0) -> void:
+	var scene: Node = get_tree().current_scene
+	var manager: LevelManager = Component.find_descendant_of_type(scene, LevelManager) if scene else null
+	if not manager or not manager.scene_lister:
+		LimboConsole.error("no LevelManager in this scene, start from the main menu")
+		return
+	var levels: Array[String] = manager.scene_lister.files
+	if number < 1 or number > levels.size():
+		for index: int in levels.size():
+			LimboConsole.info("%d %s" % [index + 1, levels[index].get_file().get_basename()])
+		return
+	manager.load_level(levels[number - 1])
+
+
+## Sets [member Engine.time_scale], below 1 is slow motion.
+func set_time_scale(value: float = 1.0) -> void:
+	if value <= 0.0:
+		LimboConsole.error("timescale must be above 0")
+		return
+	Engine.time_scale = value
+	LimboConsole.info("timescale %s" % value)
+
+
+## Opens folder of [member GameState.save_path] with file selected.
+func show_save_file() -> void:
+	var path: String = ProjectSettings.globalize_path(GameState.save_path)
+	if OS.shell_show_in_file_manager(path) == OK:
+		LimboConsole.info(path)
+	else:
+		LimboConsole.error("could not show %s" % path)
 #endregion
 
 

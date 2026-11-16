@@ -24,4 +24,4 @@ func _exit_tree() -> void:
 	var game_state := GameState.get_or_create_state()
 	game_state.play_time += play_time
 	game_state.total_time += total_time
-	GlobalState.save()
+	GameState.save()

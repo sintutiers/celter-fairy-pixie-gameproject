@@ -22,7 +22,7 @@ func open_tutorials() -> void:
 	%TutorialManager.open_tutorials()
 	if level_state:
 		level_state.tutorial_read = true
-		GlobalState.save()
+		GameState.save()
 
 func _ready() -> void:
 	# Null without a game state, e.g. when the level is run straight from the editor.

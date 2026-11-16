@@ -112,8 +112,7 @@ func _on_setup() -> void:
 
 # Level change, restart and quit all free player, so this covers them.
 func _exit_tree() -> void:
-	if GameState.has_game_state():
-		GlobalState.save()
+	GameState.save()
 
 
 # Index after last threshold at or below ratio, so thresholds must be ascending.

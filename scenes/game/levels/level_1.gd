@@ -14,4 +14,4 @@ func _ready() -> void:
 func _on_color_picker_button_color_changed(color : Color) -> void:
 	%BackgroundColor.color = color
 	level_state.color = color
-	GlobalState.save()
+	GameState.save()

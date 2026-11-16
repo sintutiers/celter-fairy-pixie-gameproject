@@ -23,4 +23,37 @@ search_depth = 2
 [node name="ResetGameControl" parent="VBoxContainer" unique_id=208719318 instance=ExtResource("3_pfgxr")]
 layout_mode = 2
 
+[node name="SaveDataControl" type="HBoxContainer" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+
+[node name="SaveDataLabel" type="Label" parent="VBoxContainer/SaveDataControl"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Save Data :"
+
+[node name="ExportSaveButton" type="Button" parent="VBoxContainer/SaveDataControl"]
+custom_minimum_size = Vector2(72, 32)
+layout_mode = 2
+text = "Export"
+
+[node name="ImportSaveButton" type="Button" parent="VBoxContainer/SaveDataControl"]
+custom_minimum_size = Vector2(72, 32)
+layout_mode = 2
+text = "Import"
+
+[node name="SaveDataStatusLabel" type="Label" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="SaveFileDialog" type="FileDialog" parent="."]
+unique_name_in_owner = true
+access = 2
+filters = PackedStringArray("*.json;Save file")
+use_native_dialog = true
+
+[connection signal="pressed" from="VBoxContainer/SaveDataControl/ExportSaveButton" to="." method="_on_export_save_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/SaveDataControl/ImportSaveButton" to="." method="_on_import_save_button_pressed"]
+[connection signal="file_selected" from="SaveFileDialog" to="." method="_on_save_file_dialog_file_selected"]
 [connection signal="reset_confirmed" from="VBoxContainer/ResetGameControl" to="." method="_on_ResetGameControl_reset_confirmed"]

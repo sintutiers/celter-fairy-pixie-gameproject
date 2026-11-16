@@ -137,7 +137,7 @@ func _save_inventory() -> void:
 	for item: ItemData in items:
 		saved[item.get_item_id()] = items[item]
 	GameState.get_or_create_state().inventory = saved
-	GlobalState.save()
+	GameState.save()
 
 
 func _get_slots_needed(item: ItemData, count: int) -> int:
