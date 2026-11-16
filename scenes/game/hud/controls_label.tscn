@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/game/hud/controls_label.gd" id="1_controls"]
+
+[node name="ControlsLabel" type="Label"]
+modulate = Color(1, 1, 1, 0.6)
+script = ExtResource("1_controls")

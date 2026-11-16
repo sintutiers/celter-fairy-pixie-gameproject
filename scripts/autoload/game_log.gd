@@ -35,7 +35,7 @@ func _ready() -> void:
 ## Writes [param values] as one line when [param channel] is on.
 ## Channel missing from [member channels] is error.
 ## [codeblock]
-## GameLog.write(&"sanity", "zone", zone, "at", value)
+## GameLog.write(&"sanity", "zone", zone, "at", "%.1f" % value)
 ## [/codeblock]
 func write(channel: StringName, ...values: Array) -> void:
 	if not channels[channel]:

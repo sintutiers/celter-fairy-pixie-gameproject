@@ -8,6 +8,8 @@
 class_name InventoryComponent
 extends Component
 
+## Emitted after [member items] changed for any reason, also after saved inventory loaded.
+signal changed
 ## Emitted after item was added.
 signal item_added(item: ItemData, count: int)
 ## Emitted when [method add_inventory_item] found no room.
@@ -62,6 +64,7 @@ func add_inventory_item(item: ItemData, count: int = 1) -> bool:
 		return false
 	items[item] = items.get(item, 0) + count
 	_save_inventory()
+	changed.emit()
 	GameLog.write(&"inventory", "+%d %s" % [count, item.get_item_id()])
 	item_added.emit(item, count)
 	return true
@@ -79,6 +82,7 @@ func remove_inventory_item(item: ItemData, count: int = 1) -> bool:
 	if items[item] <= 0:
 		items.erase(item)
 	_save_inventory()
+	changed.emit()
 	GameLog.write(&"inventory", "-%d %s" % [count, item.get_item_id()])
 	return true
 
@@ -117,7 +121,7 @@ func _on_setup() -> void:
 	_require_dependencies({ "api": api })
 
 
-# No signals: nothing was picked up, pickup toast must stay quiet.
+# Only changed: nothing was picked up, pickup toast must stay quiet.
 # Item whose .tres is gone is reported by load_item_by_id and dropped on next save.
 func _load_saved_inventory() -> void:
 	if not GameState.has_game_state():
@@ -127,6 +131,7 @@ func _load_saved_inventory() -> void:
 		var item: ItemData = ItemData.load_item_by_id(id)
 		if item:
 			items[item] = saved[id]
+	changed.emit()
 
 
 # Saved by id, not by resource. Renaming item file breaks saves that hold it.

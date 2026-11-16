@@ -29,6 +29,11 @@ static func load_item_by_id(id: String) -> ItemData:
 	return load(path) as ItemData
 
 
+## Name shown to player, [member display_name] or id when that is empty.
+func get_display_label() -> String:
+	return display_name if display_name != "" else get_item_id()
+
+
 ## Id .dialogue files and [method PlayerApi.give_item] use: file name without extension.
 func get_item_id() -> String:
 	return resource_path.get_file().get_basename()

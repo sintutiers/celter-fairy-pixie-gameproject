@@ -8,7 +8,7 @@
 class_name SanityComponent
 extends Component
 
-## Emitted on every change.
+## Emitted on every change, also after saved value loaded.
 signal changed(value: float, ratio: float)
 ## Emitted when ratio crosses one of [member thresholds], up or down.
 signal zone_changed(zone: int)
@@ -82,7 +82,7 @@ func set_current_sanity_value(new_value: float) -> void:
 	var new_zone: int = _get_sanity_zone_for_ratio(get_current_sanity_ratio())
 	if new_zone != zone:
 		zone = new_zone
-		GameLog.write(&"sanity", "zone", zone, "at", value)
+		GameLog.write(&"sanity", "zone", zone, "at", "%.1f" % value)
 		zone_changed.emit(zone)
 
 	if value <= 0.0:
@@ -99,6 +99,7 @@ func _on_ready() -> void:
 		if saved > 0.0:
 			value = minf(saved, max_sanity)
 	zone = _get_sanity_zone_for_ratio(get_current_sanity_ratio())
+	changed.emit(value, get_current_sanity_ratio())
 
 
 func _on_setup() -> void:

@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/game/hud/debug_state_label.gd" id="1_debug"]
+
+[node name="DebugStateLabel" type="Label"]
+script = ExtResource("1_debug")

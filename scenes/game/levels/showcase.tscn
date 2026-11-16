@@ -11,11 +11,10 @@
 [ext_resource type="Resource" uid="uid://xyndj6m2nwcq" path="res://content/dialogue/showcase.dialogue" id="8_dialogue"]
 [ext_resource type="Texture2D" uid="uid://cgdoexuttam65" path="res://The Amazing Art and Sound Folder/cassie_red1.png" id="9_cassie1"]
 [ext_resource type="Texture2D" uid="uid://6yeroqsmvbna" path="res://The Amazing Art and Sound Folder/cassie_red2.png" id="10_cassie2"]
-[ext_resource type="Script" uid="uid://c6flroaekdoi" path="res://scenes/game/scripts/showcase_hud.gd" id="11_hud"]
+[ext_resource type="PackedScene" path="res://scenes/game/hud/hud.tscn" id="11_hud"]
 [ext_resource type="Script" uid="uid://dcfts64u1gjqa" path="res://scenes/game/scripts/tutorial_manager.gd" id="13_l6ydm"]
 [ext_resource type="PackedScene" uid="uid://donqi00tgqoon" path="res://scenes/game/tutorials/tutorial_3.tscn" id="14_lv36y"]
 [ext_resource type="Script" uid="uid://cetrmxtdyhdgt" path="res://scripts/entities/sanity_area.gd" id="15_sanctuary"]
-[ext_resource type="Script" uid="uid://cvqrjloh2fmv2" path="res://scenes/game/scripts/pickup_toast.gd" id="16_toast"]
 [ext_resource type="Resource" path="res://content/items/bread.tres" id="17_bread"]
 [ext_resource type="Script" uid="uid://6lbbgvb3al3y" path="res://scripts/entities/camera_mouse_lean.gd" id="18_lean"]
 [ext_resource type="Resource" path="res://content/items/jar.tres" id="19_jar"]
@@ -116,48 +115,7 @@ unique_name_in_owner = true
 script = ExtResource("13_l6ydm")
 tutorial_scenes = Array[PackedScene]([ExtResource("14_lv36y")])
 
-[node name="HUD" type="CanvasLayer" parent="." unique_id=1752342019]
-
-[node name="Margin" type="MarginContainer" parent="HUD" unique_id=483456973]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
-
-[node name="Status" type="Label" parent="HUD/Margin" unique_id=1765484797]
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
-theme_override_font_sizes/font_size = 20
-script = ExtResource("11_hud")
-
-[node name="Controls" type="Label" parent="HUD/Margin" unique_id=1127602138]
-layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 0
-theme_override_font_sizes/font_size = 20
-text = "WASD move  Shift run
-Space jump  Ctrl crouch
-Tab dash  E / click interact
-` console  F3 debug menu
-console: give bread 5
-use bread   sanity 20
-explain   log"
-horizontal_alignment = 1
-
-[node name="PickupToast" type="Label" parent="HUD/Margin" unique_id=59222313]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 8
-theme_override_font_sizes/font_size = 28
-horizontal_alignment = 1
-script = ExtResource("16_toast")
+[node name="HUD" parent="." unique_id=1752342019 instance=ExtResource("11_hud")]
 
 [node name="World" type="Node3D" parent="." unique_id=424648695]
 
@@ -458,7 +416,7 @@ font_size = 48
 
 [node name="Leaf" type="CSGBox3D" parent="World/7_Room/Door" unique_id=572916400]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0.26)
-size = Vector3(2.2, 3.6, 0.06)
+size = Vector3(35, 3.6, 0.06)
 material = SubResource("Mat_block")
 
 [node name="Knob" type="CSGSphere3D" parent="World/7_Room/Door" unique_id=572916401]

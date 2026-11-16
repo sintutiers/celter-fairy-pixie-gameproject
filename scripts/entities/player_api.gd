@@ -61,7 +61,7 @@ func add_sanity(amount: float) -> void:
 	if not sanity:
 		Log.error("player has no SanityComponent, add_sanity(%s) ignored" % amount)
 		return
-	GameLog.write(&"sanity", "add", amount, "to", sanity.value)
+	GameLog.write(&"sanity", "add", amount, "to", "%.1f" % sanity.value)
 	sanity.add_sanity(amount)
 
 

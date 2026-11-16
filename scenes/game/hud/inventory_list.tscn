@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/game/hud/inventory_list.gd" id="1_list"]
+
+[node name="InventoryList" type="Label"]
+visible = false
+script = ExtResource("1_list")

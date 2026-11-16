@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/game/hud/pickup_toast.gd" id="1_toast"]
+
+[node name="PickupToast" type="Label"]
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+script = ExtResource("1_toast")
