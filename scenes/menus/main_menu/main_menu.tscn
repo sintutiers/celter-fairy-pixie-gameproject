@@ -1,12 +1,17 @@
 [gd_scene format=3 uid="uid://b5eynpvw6wpoq"]
 
-[ext_resource type="PackedScene" uid="uid://c6k5nnpbypshi" path="res://addons/maaacks_game_template/base/nodes/menus/main_menu/main_menu.tscn" id="1_ub2bi"]
 [ext_resource type="Script" uid="uid://c414x3eaykev5" path="res://scenes/menus/main_menu/main_menu.gd" id="2_x31ro"]
 [ext_resource type="PackedScene" uid="uid://crndfbb22ri4s" path="res://addons/maaacks_game_template/base/nodes/windows/popup_window_scene_container.tscn" id="3_0jpat"]
+[ext_resource type="Script" uid="uid://1nf36h0gms3q" path="res://addons/maaacks_game_template/base/nodes/utilities/capture_focus.gd" id="4_l1ebe"]
 [ext_resource type="PackedScene" uid="uid://cmvwo4jx33yll" path="res://scenes/menus/options_menu/master_options_menu_with_tabs.tscn" id="4_m0ubd"]
 [ext_resource type="Script" uid="uid://cpy2ns3n3fmcs" path="res://scenes/windows/main_menu_credits_window.gd" id="5_7j6ce"]
 [ext_resource type="PackedScene" uid="uid://cwt4p3bufkke5" path="res://addons/maaacks_game_template/base/nodes/windows/confirmation_popup_window_panel.tscn" id="5_627ab"]
+[ext_resource type="Script" uid="uid://dmkubt2nsnsbn" path="res://addons/maaacks_game_template/base/nodes/labels/config_version_label.gd" id="6_pdiij"]
 [ext_resource type="PackedScene" uid="uid://b6x84713q6k4l" path="res://scenes/credits/scrollable_credits.tscn" id="6_qwqm5"]
+[ext_resource type="PackedScene" path="res://scenes/menus/main_menu/menu_background.tscn" id="8_bg"]
+[ext_resource type="PackedScene" path="res://scenes/menus/main_menu/pixie_dust.tscn" id="9_dust"]
+[ext_resource type="PackedScene" path="res://scenes/menus/main_menu/flicker_title.tscn" id="10_title"]
+[ext_resource type="FontFile" uid="uid://bqeoffprqpb61" path="res://content/misc/Nunito-Black.ttf" id="12_nreg"]
 
 [sub_resource type="PackedScene" id="PackedScene_q0yg5"]
 [node name="MainMenuOptionsWindow" unique_id=1787637973 instance=ExtResource("3_0jpat")]
@@ -60,26 +65,165 @@ color = Color(0, 0, 0, 0.7529412)
 
 [resource]
 
-[node name="MainMenu" unique_id=869232425 instance=ExtResource("1_ub2bi")]
+[node name="MainMenu" type="Control" unique_id=869232425]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("2_x31ro")
-level_select_packed_scene = null
-confirm_new_game = true
 options_packed_scene = SubResource("PackedScene_q0yg5")
 credits_packed_scene = SubResource("PackedScene_88r3n")
 
-[node name="ContinueGameButton" type="Button" parent="MenuContainer/MenuButtonsMargin/MenuButtonsContainer/MenuButtonsBoxContainer" parent_id_path=PackedInt32Array(2017477786) index="1" unique_id=1495566523]
+[node name="BackgroundMusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1141822549]
+process_mode = 3
+autoplay = true
+bus = &"Music"
+
+[node name="MenuBackground" parent="." unique_id=1940176448 instance=ExtResource("8_bg")]
+layout_mode = 1
+
+[node name="PixieDust" parent="." unique_id=1203948571 instance=ExtResource("9_dust")]
+
+[node name="MenuContainer" type="MarginContainer" parent="." unique_id=396616752]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 32
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 48
+
+[node name="Layout" type="VBoxContainer" parent="MenuContainer" unique_id=1624097351]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="FlickerTitle" parent="MenuContainer/Layout" unique_id=556427956 instance=ExtResource("10_title")]
+layout_mode = 2
+
+[node name="SubTitleLabel" type="Label" parent="MenuContainer/Layout" unique_id=1037003361]
+modulate = Color(0.839216, 0.933333, 1, 0.65)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("12_nreg")
+theme_override_font_sizes/font_size = 20
+text = "I LOVE PIXIE AND TRICKSTERS AND SUCH"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ButtonsSpacer" type="Control" parent="MenuContainer/Layout" unique_id=1475820963]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MenuButtonsBoxContainer" type="BoxContainer" parent="MenuContainer/Layout" unique_id=2017477786]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 12
+alignment = 1
+vertical = true
+script = ExtResource("4_l1ebe")
+
+[node name="NewGameButton" type="Button" parent="MenuContainer/Layout/MenuButtonsBoxContainer" unique_id=2044537792]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "new game"
+
+[node name="ContinueGameButton" type="Button" parent="MenuContainer/Layout/MenuButtonsBoxContainer" unique_id=1495566523]
 unique_name_in_owner = true
 visible = false
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "Continue"
+theme_override_font_sizes/font_size = 22
+text = "continue"
 
-[node name="LevelSelectButton" type="Button" parent="MenuContainer/MenuButtonsMargin/MenuButtonsContainer/MenuButtonsBoxContainer" parent_id_path=PackedInt32Array(2017477786) index="2" unique_id=1348895676]
+[node name="LevelSelectButton" type="Button" parent="MenuContainer/Layout/MenuButtonsBoxContainer" unique_id=1348895676]
 unique_name_in_owner = true
 visible = false
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "Level Select"
+theme_override_font_sizes/font_size = 22
+text = "level select"
 
-[node name="NewGameConfirmation" parent="." index="5" unique_id=487332143 instance=ExtResource("5_627ab")]
+[node name="OptionsButton" type="Button" parent="MenuContainer/Layout/MenuButtonsBoxContainer" unique_id=1486236076]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "options"
+
+[node name="CreditsButton" type="Button" parent="MenuContainer/Layout/MenuButtonsBoxContainer" unique_id=301223169]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "credits"
+
+[node name="ExitButton" type="Button" parent="MenuContainer/Layout/MenuButtonsBoxContainer" unique_id=1750454379]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "quit"
+
+[node name="FooterMargin" type="MarginContainer" parent="." unique_id=1732528471]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="Footer" type="HBoxContainer" parent="FooterMargin" unique_id=1603969262]
+modulate = Color(1, 1, 1, 0.45)
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+
+[node name="TeamLabel" type="Label" parent="FooterMargin/Footer" unique_id=1290573641]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("12_nreg")
+theme_override_font_sizes/font_size = 14
+text = "dean, erin + mink"
+
+[node name="VersionLabel" type="Label" parent="FooterMargin/Footer" unique_id=793266470]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("12_nreg")
+theme_override_font_sizes/font_size = 14
+text = "v1.0.0"
+horizontal_alignment = 2
+script = ExtResource("6_pdiij")
+
+[node name="ExitConfirmation" parent="." unique_id=912502155 instance=ExtResource("5_627ab")]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(300, 160)
+layout_mode = 1
+offset_left = -150.0
+offset_top = -80.0
+offset_right = 150.0
+offset_bottom = 80.0
+parent_scene = SubResource("PackedScene_dc6ug")
+ui_cancel_closes = false
+title = "quit?"
+text = "you sure?"
+
+[node name="NewGameConfirmation" parent="." unique_id=487332143 instance=ExtResource("5_627ab")]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(420, 200)
@@ -89,11 +233,15 @@ offset_top = -100.0
 offset_right = 210.0
 offset_bottom = 100.0
 parent_scene = SubResource("PackedScene_dc6ug")
-title = "New Game"
-text = "Are you sure you want to start a new game?
+title = "start over?"
+text = "your current game will be gone.
+no going back."
 
-All progress in the current game will be lost."
-
-[connection signal="pressed" from="MenuContainer/MenuButtonsMargin/MenuButtonsContainer/MenuButtonsBoxContainer/ContinueGameButton" to="." method="_on_continue_game_button_pressed"]
-[connection signal="pressed" from="MenuContainer/MenuButtonsMargin/MenuButtonsContainer/MenuButtonsBoxContainer/LevelSelectButton" to="." method="_on_level_select_button_pressed"]
+[connection signal="pressed" from="MenuContainer/Layout/MenuButtonsBoxContainer/NewGameButton" to="." method="_on_new_game_button_pressed"]
+[connection signal="pressed" from="MenuContainer/Layout/MenuButtonsBoxContainer/ContinueGameButton" to="." method="_on_continue_game_button_pressed"]
+[connection signal="pressed" from="MenuContainer/Layout/MenuButtonsBoxContainer/LevelSelectButton" to="." method="_on_level_select_button_pressed"]
+[connection signal="pressed" from="MenuContainer/Layout/MenuButtonsBoxContainer/OptionsButton" to="." method="_on_options_button_pressed"]
+[connection signal="pressed" from="MenuContainer/Layout/MenuButtonsBoxContainer/CreditsButton" to="." method="_on_credits_button_pressed"]
+[connection signal="pressed" from="MenuContainer/Layout/MenuButtonsBoxContainer/ExitButton" to="." method="_on_exit_button_pressed"]
+[connection signal="confirmed" from="ExitConfirmation" to="." method="_on_exit_confirmation_confirmed"]
 [connection signal="confirmed" from="NewGameConfirmation" to="." method="_on_new_game_confirmation_confirmed"]

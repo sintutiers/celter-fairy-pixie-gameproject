@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" uid="uid://gwh0k7r5t2x8" path="res://scenes/menus/main_menu/menu_background.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" uid="uid://bp7t2exveuhmj" path="res://scripts/components/teto_kidnapp_miku.png" id="2_teto"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bg"]
+shader = ExtResource("1_shader")
+
+[node name="MenuBackground" type="ColorRect"]
+material = SubResource("ShaderMaterial_bg")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="FadedPicture" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0.12)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_teto")
+expand_mode = 1
+stretch_mode = 6

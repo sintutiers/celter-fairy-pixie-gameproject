@@ -1,0 +1,28 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://dkqcdgxn14d1r" path="res://scenes/menus/main_menu/flicker_title.gd" id="1_flick"]
+[ext_resource type="Script" uid="uid://bkwlopi4qn32o" path="res://addons/maaacks_game_template/base/nodes/labels/config_name_label.gd" id="2_name"]
+[ext_resource type="FontFile" uid="uid://c6tpmtajr504j" path="res://content/misc/Nunito-Black.ttf" id="3_font"]
+
+[node name="FlickerTitle" type="Control"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 3
+mouse_filter = 2
+script = ExtResource("1_flick")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0.105882, 0.0705882, 0.160784, 1)
+theme_override_constants/outline_size = 16
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 56
+text = "fairy pixie horror psychological game"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+script = ExtResource("2_name")
