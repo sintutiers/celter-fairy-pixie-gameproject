@@ -84,6 +84,7 @@ func _ready() -> void:
 		Log.error("%s: auto things must not have a dialogue" % name)
 	if persistent_id != "" and not free_after:
 		Log.warn("%s: persistent_id does nothing without free_after" % name)
+	_check_dialogue_cues()
 	# Already taken in earlier visit. Gone before its zone exists.
 	if free_after and persistent_id != "" and GameState.get_level_flag(_get_placed_level_path(), _get_finished_flag_key()):
 		queue_free()
@@ -128,6 +129,17 @@ func execute_interaction_for_actor(actor: PlayerApi) -> void:
 	finished.emit(actor)
 	if free_after:
 		queue_free()
+
+
+# Wrong cue only fails when interacted with. Checked on load, so every thing in level
+# is checked even after cues move between .dialogue files.
+func _check_dialogue_cues() -> void:
+	if not dialogue:
+		return
+	var cues: PackedStringArray = dialogue.get_cues()
+	for cue: String in [dialogue_cue, blocked_cue]:
+		if cue != "" and cue not in cues:
+			Log.error("%s: cue \"%s\" not in %s" % [name, cue, dialogue.resource_path])
 
 
 # Uses authored zone, or builds sphere one. It does not monitor, player sensor does.

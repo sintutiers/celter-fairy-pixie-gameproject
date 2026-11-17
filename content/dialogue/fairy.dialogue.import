@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://c3r7el8kj7cjw"
+path="res://.godot/imported/fairy.dialogue-29c0cc98220db5ca4421cda2843e2c92.tres"
+
+[deps]
+
+source_file="res://content/dialogue/fairy.dialogue"
+dest_files=["res://.godot/imported/fairy.dialogue-29c0cc98220db5ca4421cda2843e2c92.tres"]
+
+[params]
+
+defaults=true

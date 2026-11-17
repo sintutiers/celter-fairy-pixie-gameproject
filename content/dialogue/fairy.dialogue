@@ -1,0 +1,140 @@
+~ fairy
+if get_fact("choice.nail_kept")
+	Fairy: Iron. Stay there. Not one step closer, unless you mean to give it up.
+	- Hand it over
+		do remove_item("iron_nail")
+		do set_fact("choice.nail_kept", false)
+		do add_opinion("fairy", 1)
+		do add_favor("fairy", 1)
+		Fairy: Late. Late has a price, and you pay it. I owe you 1, not 2.
+	- Keep it
+		do add_opinion("fairy", -1)
+		## Ask again any time.
+		Fairy: Then stay where you are. I do not need to be close to you. I am already in your head.
+	=> END
+if has_item("jar")
+	Fairy: That jar. It is mine. Whatever is inside remembers me.
+	- Give her the jar
+		do remove_item("jar")
+		do advance_quest("jar")
+		do set_fact("choice.jar", "fairy")
+		do add_favor("fairy", 1)
+		do add_opinion("fairy", 1)
+		Fairy: Mine, as I said. It will stop screaming soon. I owe you 1.
+	- Open it here
+		do remove_item("jar")
+		do advance_quest("jar")
+		do set_fact("choice.jar", "freed")
+		do add_sanity(15)
+		do add_opinion("fairy", -1)
+		Fairy: You let it out. That was mine. I will remember the hands that did it, and I will find them again.
+	- Not yet
+		do set_fact("choice.jar_kept")
+		## She asks again while you carry the jar.
+		Fairy: I can wait. I have waited longer than your kind has had names.
+if is_quest_done("iron_nail")
+	=> fairy_ledger
+if get_quest_stage("iron_nail") == 1
+	if has_item("iron_nail")
+		Fairy: That is the nail. Hold it away from me. Will you hand it over?
+		- Give the nail
+			do remove_item("iron_nail")
+			do advance_quest("iron_nail")
+			do add_opinion("fairy", 1)
+			do add_favor("fairy", 2)
+			Fairy: The nail is gone. I owe you 2. Not one more. Come to me when you want to spend them.
+		- Keep it
+			do set_fact("choice.nail_kept")
+			do advance_quest("iron_nail")
+			do add_opinion("fairy", -2)
+			## She still takes the nail later, for 1 favor.
+			Fairy: Then keep it close. You will need it. I will remember this.
+	else
+		Fairy: You carry no nail. Do not waste my time. You do not have much of yours left.
+	=> END
+if get_quest_stage("iron_nail") == 0
+	Fairy: The nail is in a stump, left of the tree, far ahead. It will not come out without hate. You have plenty.
+	=> END
+if not get_level_flag("showcase.fairy_met")
+	do set_level_flag("showcase.fairy_met")
+	Fairy: A human. Lost, by the look of you. Where did you come from?
+	- I do not remember. [if get_sanity_zone() >= 2 /]
+		do add_opinion("fairy", 1)
+		Fairy: An honest answer. Rare. You will not remember much else, soon.
+	- You know where. You sent me here. [if get_sanity_zone() < 2 /]
+		do add_opinion("fairy", -1)
+		do add_sanity(-5)
+		Fairy: I did not. Careful. Accusations here are binding.
+	- Not telling.
+		do set_fact("choice.fairy_secret")
+		Fairy: As you wish. Secrets are heavy. I will wait for you to drop it.
+Fairy: I would ask a favor. A small one. There is an iron nail in a stump. Pull it out for me.
+- Deal
+	do advance_quest("iron_nail")
+	do set_level_flag("showcase.nail_wanted")
+	do add_opinion("fairy", 1)
+	Fairy: Agreed. You heard the terms. You cannot unhear them. The stump is left of the tree. The nail will not come out without hate.
+- No
+	do add_opinion("fairy", -1)
+	Fairy: Then you get nothing. The offer stands. Offers here always stand. They only get worse.
+=> END
+
+
+~ fairy_ledger
+if get_opinion("fairy") < 0
+	Fairy: You. I give less to those I do not like. I decide what less means.
+Fairy: By my count I owe you {{get_favor("fairy")}}, and you owe me {{get_debt("fairy")}}. Your count does not matter.
+- A truth. One favor. [if get_favor("fairy") >= 1 /]
+	do add_favor("fairy", -1)
+	## Under sanity 50 touching the shape is safe.
+	Fairy: The shape past the red line is not there when your mind is going. The less of you there is, the less of it. That is a truth.
+## Pays 15 sanity, 10 when her opinion is under 0.
+- Calm. One favor. [if get_favor("fairy") >= 1 /]
+	do add_favor("fairy", -1)
+	if get_opinion("fairy") < 0
+		do add_sanity(10)
+		Fairy: Calm. The smallest I had. You never said which size.
+	else
+		do add_sanity(15)
+		Fairy: Calm, as agreed. Do not get used to it.
+## Up to 3 debts. She takes 25 sanity each at the gate.
+- Calm now. Pay later. [if get_debt("fairy") < 3 /]
+	do add_debt("fairy", 1)
+	do add_sanity(20)
+	Fairy: Calm, now. You owe me for it. I collect at the gate, and I take it from you, not your pockets.
+- Call it even. One favor for one debt. [if get_favor("fairy") >= 1 and get_debt("fairy") >= 1 /]
+	do add_favor("fairy", -1)
+	do add_debt("fairy", -1)
+	do add_opinion("fairy", -1)
+	Fairy: One for one. How dull. I was looking forward to collecting.
+## Pays a debt first, else she owes 1. Red pile never runs out.
+- Take this hate. [if has_item("aspect_of_hate") /]
+	do remove_item("aspect_of_hate")
+	if get_debt("fairy") > 0
+		do add_debt("fairy", -1)
+		Fairy: Hate. I will eat it. One debt is gone. It tastes like you.
+	else
+		do add_favor("fairy", 1)
+		Fairy: Hate. I will eat it. I owe you 1 more. Bring more. You make so much of it.
+## Right answer pays once. Wrong ones cost sanity and can be retried.
+- Ask me something. [if get_sanity_zone() < 2 and get_fact("choice.fairy_risk", "") != "right" /]
+	Fairy: Answer me, then. What holds the gate shut?
+	- Roots
+		do set_fact("choice.fairy_risk", "right")
+		do add_favor("fairy", 1)
+		Fairy: Correct. I hate that. I owe you 1 more.
+	- Iron
+		do set_fact("choice.fairy_risk", "wrong")
+		do add_sanity(-15)
+		Fairy: Incorrect. That one came out of you. You may ask again.
+	- A key
+		do set_fact("choice.fairy_risk", "wrong")
+		do add_sanity(-15)
+		Fairy: Incorrect. Keys are a human idea. You may ask again.
+## Flavor, no effect.
+- What happened to the last human?
+	Fairy: They paid. In full. Then a little more.
+- Leave
+	Fairy: Go, then. I remember everything that is open between us. Everything.
+=> END
+

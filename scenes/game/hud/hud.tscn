@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/game/hud/debug_state_label.tscn" id="4_debug"]
 [ext_resource type="PackedScene" path="res://scenes/game/hud/controls_label.tscn" id="5_controls"]
 [ext_resource type="PackedScene" path="res://scenes/game/hud/pickup_toast.tscn" id="6_toast"]
+[ext_resource type="PackedScene" path="res://scenes/game/hud/explain_feed.tscn" id="7_explain"]
 
 [sub_resource type="Theme" id="Theme_hud"]
 Label/font_sizes/font_size = 20
@@ -53,3 +54,8 @@ size_flags_vertical = 0
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 8
+
+[node name="ExplainFeed" parent="Margin" instance=ExtResource("7_explain")]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0

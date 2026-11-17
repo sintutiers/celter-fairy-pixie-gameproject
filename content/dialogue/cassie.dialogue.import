@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://brdijciqw4uj4"
+path="res://.godot/imported/cassie.dialogue-76aa58a276dcb94b89587529986c36e6.tres"
+
+[deps]
+
+source_file="res://content/dialogue/cassie.dialogue"
+dest_files=["res://.godot/imported/cassie.dialogue-76aa58a276dcb94b89587529986c36e6.tres"]
+
+[params]
+
+defaults=true

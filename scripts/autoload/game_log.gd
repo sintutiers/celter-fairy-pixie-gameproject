@@ -6,6 +6,10 @@
 ## Formatted by [Log], so every line starts with file and line that wrote it.
 extends Node
 
+## Emitted on every [method write], also for channel that is off, as plain text
+## without file and line. Lets [ExplainFeed] show changes without each system knowing it.
+signal wrote(channel: StringName, text: String)
+
 ## Overwritten on every start.
 const FILE_PATH: String = "user://game.log"
 
@@ -38,6 +42,9 @@ func _ready() -> void:
 ## GameLog.write(&"sanity", "zone", zone, "at", "%.1f" % value)
 ## [/codeblock]
 func write(channel: StringName, ...values: Array) -> void:
+	# Formatted only when something listens, movement writes every few frames.
+	if wrote.has_connections():
+		wrote.emit(channel, " ".join(PackedStringArray(values.map(func(value: Variant) -> String: return str(value)))))
 	if not channels[channel]:
 		return
 	values.push_front("[%s]" % channel)

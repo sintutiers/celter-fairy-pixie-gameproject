@@ -1,0 +1,64 @@
+~ cassie
+if is_quest_done("help_cassie")
+	=> cassie_ledger
+if has_item("showcase_key")
+	Cassie: You still have my key. The door is right there. Why are you still looking at me?
+	=> END
+if get_opinion("cassie") < 0
+	Cassie: You. You walked away from me. Everyone does. I keep a list. You are on it now.
+elif get_level_flag("showcase.met")
+	Cassie: You came back. They never come back. Are you real this time?
+else
+	Cassie: Oh. Hi. Do not move. Please. When people move they leave, and when they leave I forget their faces.
+	do set_level_flag("showcase.met")
+	## Flavor, no effect.
+	- How long have you been here?
+		Cassie: I used to count the days. Then the days stopped. Now I count the people who leave.
+	- Say nothing
+		Cassie: Good. Quiet is good. Quiet means you are still here.
+Cassie: There is a door. I cannot open it. I tried until my hands stopped working. Will you?
+- Help her
+	do add_sanity(10)
+	do give_item("showcase_key")
+	if get_quest_stage("help_cassie") == -1
+		do advance_quest("help_cassie")
+	do add_opinion("cassie", 1)
+	Cassie: Here. My key. The last one who held it went through and did not come back. You will come back. Right?
+- Ignore her
+	do add_sanity(-20)
+	do add_opinion("cassie", -1)
+	Cassie: Right. Fine. It is fine. I will just stand here. I am very good at standing here.
+=> END
+
+
+~ cassie_ledger
+if get_opinion("cassie") < 0
+	Cassie: The door is open. I am grateful. I am. I also remember you leaving. I see it every time I close my eyes.
+else
+	Cassie: You opened it. You came back and you opened it. Nobody comes back.
+Cassie: I owe you {{get_favor("cassie")}}. I count it at night. I count it during the day too. There is no difference here.
+- Hate. One favor. [if get_favor("cassie") >= 1 /]
+	if give_item("aspect_of_hate")
+		do add_favor("cassie", -1)
+		Cassie: Take it. One hate. It whispers when I hold it. It says things about you.
+	else
+		Cassie: Your hands are full. I will keep the favor. I keep everything. I cannot let anything go.
+- What does the fairy want? One favor. [if get_favor("cassie") >= 1 /]
+	do add_favor("cassie", -1)
+	do set_fact("choice.cassie_told")
+	Cassie: She waits at the gate. She smiles while she takes. She took something from me once. I do not remember what. That is how I know it mattered.
+- Talk to the fairy for me. One favor. [if get_favor("cassie") >= 1 and get_debt("fairy") >= 1 /]
+	do add_favor("cassie", -1)
+	do add_debt("fairy", -1)
+	do add_opinion("fairy", -1)
+	Cassie: I talked to her. Your debt is gone. She looked at me the whole time. She has not stopped looking.
+## Repeatable, the loaf never runs out.
+- Take this bread. [if has_item("bread") /]
+	do remove_item("bread")
+	do add_favor("cassie", 1)
+	do add_opinion("cassie", 1)
+	Cassie: For me? I forgot what food tastes like. I forgot a lot of things. I owe you one more.
+- Leave
+	Cassie: Okay. Go. I will be here. I am always here.
+=> END
+

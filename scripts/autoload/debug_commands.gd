@@ -9,9 +9,8 @@
 ## must be passed as second argument even when function name matches.
 extends Node
 
-## On = dialogue shows what line did to sanity, facts, favors and debts.
-## Dialogue files wrap that text in [code][if DebugCommands.explain]...[/if][/code].
-## Not saved, off on every start.
+## On = [ExplainFeed] shows what dialogue and pickups did, design notes and why
+## options are locked. Not saved, off on every start.
 var explain: bool = false
 
 # Component that toggle_sanity_drain paused, so same one is resumed.
@@ -26,7 +25,7 @@ func _ready() -> void:
 		"Sets the player's sanity. Usage: sanity <value>",
 	)
 	LimboConsole.register_command(use_item, "use", "Uses a carried item. Usage: use <item_id>")
-	LimboConsole.register_command(toggle_explain, "explain", "Toggles dialogue explaining what it did.")
+	LimboConsole.register_command(toggle_explain, "explain", "Toggles explaining what dialogue and pickups did.")
 	LimboConsole.register_command(toggle_sanity_drain, "drain", "Toggles sanity drain of the current player.")
 	LimboConsole.register_command(set_fact, "fact", "Sets a fact, lists all without one. Usage: fact <key> <value>")
 	LimboConsole.register_command(load_level, "level", "Loads a level, lists all without one. Usage: level <number>")

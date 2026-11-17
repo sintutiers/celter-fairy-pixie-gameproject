@@ -1,0 +1,170 @@
+~ sign
+Sign: This one lets you keep walking while it talks. Most things here do not.
+Sign: Cassie will not let you move. She needs you to stay.
+=> END
+
+
+~ jar
+do advance_quest("jar")
+## Fairy, tree and shape each take it.
+JAR. Something small inside scratches at the glass. It has been scratching for a long time.
+=> END
+
+
+~ door_locked
+Locked. Cassie has the key. She will not let go of it easily.
+=> END
+
+
+~ door_open
+do advance_quest("help_cassie")
+do add_favor("cassie", 1)
+## Spend what Cassie owes you by talking to her.
+The door opens. Behind you, Cassie whispers a number.
+=> END
+
+
+~ chest
+ASPECT OF HATE. It is warm, like something just let go of it.
+=> END
+
+
+~ loaf
+BREAD. Stale. Someone left it here for you. Stacks to 5.
+=> END
+
+
+~ pile
+3 ASPECT OF HATE. They do not stack. The pile is always full again when you look back.
+=> END
+
+
+~ pile_small
+3 ASPECT OF HATE. This pile does not grow back. Something already ate the rest.
+=> END
+
+
+~ full
+Your hands are full. They are shaking.
+=> END
+
+
+~ bread_used
+Stale bread. It tastes like a kitchen you cannot picture anymore. You feel calmer.
+=> END
+
+
+~ gate_locked
+A locked gate. Roots hold it shut. They tighten when you touch them. Ask the tree.
+=> END
+
+
+~ gate_open
+do advance_quest("feed_tree")
+The roots pull back. Slowly. Like they do not want to.
+if get_debt("fairy") > 0
+	do add_sanity(-25 * get_debt("fairy"))
+	do set_fact("debt.fairy", 0)
+	do add_opinion("fairy", -1)
+	## 25 sanity per fairy debt.
+	Fairy: There you are. You owe me. I collect now, and I take it from wherever I like.
+=> END
+
+
+~ spring
+do add_sanity(10)
+## Once.
+Water. Cold and clean. Your reflection moves a moment too late. You feel calmer anyway.
+=> END
+
+
+~ final_chest
+End of the showcase.
+if get_debt("tree") > 0
+	do add_sanity(-20 * get_debt("tree"))
+	do set_fact("debt.tree", 0)
+	do add_opinion("tree", -1)
+	## 20 sanity per tree debt.
+	Roots under the chest. The tree collects. It does not say sorry anymore.
+if get_favor("fairy") + get_favor("cassie") > 0
+	Still owed to you. Fairy {{get_favor("fairy")}}. Cassie {{get_favor("cassie")}}. Spend it, before they decide you were never here.
+=> END
+
+
+~ nail
+if has_item("iron_nail") or is_quest_done("iron_nail")
+	You already took the iron nail. The hole in the stump is still bleeding sap.
+	=> END
+do remove_item("aspect_of_hate")
+do give_item("iron_nail")
+do advance_quest("iron_nail")
+IRON NAIL. The hate drains out of your hand into the wood. The wood lets go. Your hand stays cold.
+=> END
+
+
+~ nail_stuck
+if not get_level_flag("showcase.nail_wanted")
+	An iron nail in a stump. Nobody asked for it. Yet.
+else
+	It will not move. It wants hate. The red pile has plenty.
+=> END
+
+
+~ shape
+Something stands here. It has your face. It looks more like you than you remember looking.
+- Back away
+	do add_sanity(-10)
+	do set_fact("choice.shape", "ran")
+	You run. It does not follow. It does not need to.
+## Fake under sanity 50, bites at 50 or more.
+- Touch it
+	do set_fact("choice.shape", "touched")
+	if get_sanity_zone() < 2
+		Your hand goes through. Nothing there. You are not sure there ever was.
+	else
+		do add_sanity(-15)
+		It bites. It has your teeth.
+- Feed it bread [if has_item("bread") /]
+	do remove_item("bread")
+	do set_fact("choice.shape", "fed")
+	It eats the way you eat. It watches you the whole time. Then it leaves.
+- Open the jar at it [if has_item("jar") /]
+	do remove_item("jar")
+	do advance_quest("jar")
+	do set_fact("choice.jar", "shape")
+	do set_fact("choice.shape", "jar")
+	do add_opinion("fairy", -1)
+	It takes what was inside. It leaves, and what it took screams the whole way. Somewhere, the fairy saw that.
+- Call in the fairy. Two favors. [if get_favor("fairy") >= 2 /]
+	do add_favor("fairy", -2)
+	do set_fact("choice.shape", "favor")
+	Fairy: Mine now. Do not ask what I do with it. We are settled.
+- Show it the nail [if has_item("iron_nail") /]
+	do add_opinion("fairy", -1)
+	do set_fact("choice.shape", "iron")
+	Iron. It flinches the way you would. It leaves. The fairy saw that.
+=> END
+
+
+~ idol_hungry
+if get_quest_stage("idol") == -1
+	do advance_quest("idol")
+	## It eats 5 sanity per second near it.
+	Idol: Hungry. You will do.
+Idol: Three hate. Or stand here, and I take it out of you instead.
+- Feed it three hate [if has_item("aspect_of_hate", 3) /]
+	do remove_item("aspect_of_hate", 3)
+	do set_level_flag("showcase.idol_fed")
+	do advance_quest("idol")
+	## Interact again to push it over.
+	Idol: Full. The stone cracks. Something inside is still chewing.
+- Leave
+	Idol: I am patient. You are not. Stay a little longer.
+=> END
+
+
+~ idol
+do advance_quest("idol")
+do add_sanity(15)
+It falls. The red drains out of the floor. You feel lighter, and you do not know what you lost.
+=> END

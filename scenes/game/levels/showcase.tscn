@@ -8,7 +8,10 @@
 [ext_resource type="Script" uid="uid://dq5r7n4mxqqoa" path="res://scripts/entities/interactable_thing.gd" id="5_thing"]
 [ext_resource type="Resource" uid="uid://ds0jpb0tn23s0" path="res://content/items/aspect_of_hate.tres" id="6_hate"]
 [ext_resource type="Resource" uid="uid://du4dj54nwpfrb" path="res://content/items/showcase_key.tres" id="7_key"]
-[ext_resource type="Resource" uid="uid://xyndj6m2nwcq" path="res://content/dialogue/showcase.dialogue" id="8_dialogue"]
+[ext_resource type="Resource" uid="uid://brdijciqw4uj4" path="res://content/dialogue/cassie.dialogue" id="8_cassie"]
+[ext_resource type="Resource" uid="uid://xyndj6m2nwcq" path="res://content/dialogue/world.dialogue" id="8_dialogue"]
+[ext_resource type="Resource" uid="uid://c3r7el8kj7cjw" path="res://content/dialogue/fairy.dialogue" id="8_fairy"]
+[ext_resource type="Resource" uid="uid://cjkrh3hqpi5wh" path="res://content/dialogue/tree.dialogue" id="8_tree"]
 [ext_resource type="Texture2D" uid="uid://cgdoexuttam65" path="res://The Amazing Art and Sound Folder/cassie_red1.png" id="9_cassie1"]
 [ext_resource type="Texture2D" uid="uid://6yeroqsmvbna" path="res://The Amazing Art and Sound Folder/cassie_red2.png" id="10_cassie2"]
 [ext_resource type="PackedScene" path="res://scenes/game/hud/hud.tscn" id="11_hud"]
@@ -191,7 +194,7 @@ pixel_size = 0.01
 text = "CONSOLE: 
 press `
 give <item> <count>, use <item>, sanity <value>
-explain: dialogue says what it did
+explain: shows what things did, notes and locked options
 log <channel>: mutes or unmutes a log channel
 F3: debug menu"
 font_size = 40
@@ -305,7 +308,7 @@ outline_size = 16
 
 [node name="Fairy" parent="World/4_Dash" unique_id=705425564 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 1.3, -6)
-dialogue = ExtResource("8_dialogue")
+dialogue = ExtResource("8_fairy")
 dialogue_cue = "fairy"
 
 [node name="Orb" type="CSGSphere3D" parent="World/4_Dash/Fairy" unique_id=2045525362]
@@ -410,8 +413,8 @@ outline_size = 16
 [node name="Cassie" parent="World/6_Interact" unique_id=584531233 node_paths=PackedStringArray("sprite") instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.6, 0)
 sprite = NodePath("Sprite")
-dialogue = ExtResource("8_dialogue")
-dialogue_cue = "npc"
+dialogue = ExtResource("8_cassie")
+dialogue_cue = "cassie"
 
 [node name="CollisionShape3D" parent="World/6_Interact/Cassie/InteractionZone" parent_id_path=PackedInt32Array(584531233, 1219954598) index="0" unique_id=972610560]
 shape = SubResource("SphereShape3D_5m4lm")
@@ -669,7 +672,7 @@ outline_size = 16
 
 [node name="Tree" parent="World/10_Tree" unique_id=1977004175 instance=ExtResource("99_thing_prefab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
-dialogue = ExtResource("8_dialogue")
+dialogue = ExtResource("8_tree")
 dialogue_cue = "tree"
 
 [node name="Trunk" type="CSGCylinder3D" parent="World/10_Tree/Tree" unique_id=362285545]

@@ -413,7 +413,7 @@ limbo_console_search_history={
 [internationalization]
 
 locale/translations=PackedStringArray("res://addons/maaacks_game_template/base/translations/menus_translations.en.translation", "res://addons/maaacks_game_template/base/translations/menus_translations.fr.translation")
-locale/translations_pot_files=PackedStringArray("res://content/dialogue/test1.dialogue", "res://content/dialogue/showcase.dialogue")
+locale/translations_pot_files=PackedStringArray("res://content/dialogue/test1.dialogue", "res://content/dialogue/showcase.dialogue", "res://content/dialogue/cassie.dialogue", "res://content/dialogue/fairy.dialogue", "res://content/dialogue/tree.dialogue", "res://content/dialogue/world.dialogue")
 
 [layer_names]
 

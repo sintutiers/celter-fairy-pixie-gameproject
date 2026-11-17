@@ -1,0 +1,62 @@
+~ tree
+if get_debt("tree") > 0
+	Tree: Bread. You owe. The roots are counting.
+	- Pay with bread [if has_item("bread") /]
+		do remove_item("bread")
+		do add_debt("tree", -1)
+		do add_opinion("tree", 1)
+		Tree: Paid. Even. The roots let go of you. For now.
+	- Not yet
+		do add_opinion("tree", -1)
+		## Unpaid tree debt is collected at the last chest.
+		Tree: Roots wait. Roots reach far. They are already under your feet.
+	=> END
+if is_quest_done("feed_tree")
+	Tree: You went through. Good. Do not come back. I will not be me much longer.
+	=> END
+if get_sanity_zone() == 0
+	Tree: Y o u  a r e  f a d i n g.
+if get_quest_stage("feed_tree") == -1
+	Tree: I am dying. It starts in the roots and climbs. It is slow. Will you help?
+	- Yes
+		do advance_quest("feed_tree")
+		do set_fact("choice.tree_helped")
+		do add_opinion("tree", 1)
+		Tree: Bread. On the table. Behind you. Do not look at anything else on the way.
+	- No
+		do set_fact("choice.tree_helped", false)
+		do add_opinion("tree", -1)
+		Tree: Then go. I rot either way. Come back if that changes.
+	## Flavor, no effect.
+	- What is killing you?
+		Tree: Something in the soil. It came with the last one like you. It is in you too. A little.
+	=> END
+if get_quest_stage("feed_tree") == 0
+	## 3 ways to open the gate: bread, jar, debt.
+	Tree: Bread. Table. Behind you. Hurry. I can feel it climbing.
+	- Give the bread [if has_item("bread") /]
+		do remove_item("bread")
+		do set_level_flag("showcase.gate_open")
+		do advance_quest("feed_tree")
+		do add_sanity(20)
+		Tree: Bread. It helps. A little. Less every time. The gate is open.
+	- Give the jar [if has_item("jar") /]
+		do remove_item("jar")
+		do advance_quest("jar")
+		do set_fact("choice.jar", "tree")
+		do set_level_flag("showcase.gate_open")
+		do advance_quest("feed_tree")
+		Tree: Small. Loud. It screamed going down. It will do. The gate is open.
+	- Open it now. I will owe you.
+		do add_debt("tree", 1)
+		do set_level_flag("showcase.gate_open")
+		do advance_quest("feed_tree")
+		## Pay the debt here with bread.
+		Tree: Open. Now you owe me bread. I will remember. The rot will too.
+	- Nothing for you
+		do add_opinion("tree", -1)
+		Tree: Hungry. Still. Always.
+	=> END
+Tree: The gate is open. Go, before I forget who you are.
+=> END
+
