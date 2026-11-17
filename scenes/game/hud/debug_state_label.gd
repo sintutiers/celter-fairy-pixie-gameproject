@@ -21,7 +21,7 @@ func _process(_delta: float) -> void:
 	if not api:
 		text = "no player"
 		return
-	var lines := PackedStringArray()
+	var lines: PackedStringArray = PackedStringArray()
 	if api.sanity:
 		lines.append("Sanity %.0f / %.0f (zone %d)" % [api.sanity.value, api.sanity.max_sanity, api.sanity.zone])
 	if api.inventory:

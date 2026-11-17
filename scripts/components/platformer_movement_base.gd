@@ -149,7 +149,7 @@ func _on_ready() -> void:
 
 
 func _on_setup() -> void:
-	var dependencies := {
+	var dependencies: Dictionary = {
 		"profile": profile,
 		"input_component": input_component,
 		"facing_component": facing_component,

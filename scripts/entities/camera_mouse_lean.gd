@@ -32,5 +32,5 @@ func _process(delta: float) -> void:
 	# -1 to 1 from screen centre, clamped for cursor outside window.
 	var offset: Vector2 = ((viewport.get_mouse_position() - half_size) / half_size).clampf(-1.0, 1.0)
 	var target: Vector2 = Vector2(-offset.y * max_degrees.x, -offset.x * max_degrees.y)
-	_lean = _lean.lerp(target, minf(smoothing * delta, 1.0))
+	_lean = _lean.lerp(target, 1.0 - exp(-smoothing * delta))
 	_camera.set_third_person_rotation_degrees(_base_degrees + Vector3(_lean.x, _lean.y, 0.0))
