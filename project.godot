@@ -33,8 +33,8 @@ SoundManager="*res://addons/sound_manager/sound_manager.gd"
 LimboConsole="*uid://dyxornv8vwibg"
 GameLog="*res://scripts/autoload/game_log.gd"
 DebugCommands="*uid://cyxhsqyyc2rs4"
-Net="*uid://cb5j7nu8sqpnd"
 SpacetimeDB="*res://spacetime_bindings/schema/spacetime_autoload.gd"
+Net="*uid://cb5j7nu8sqpnd"
 
 [clean_copy_examples]
 
@@ -417,7 +417,7 @@ limbo_console_search_history={
 [internationalization]
 
 locale/translations=PackedStringArray("res://addons/maaacks_game_template/base/translations/menus_translations.en.translation", "res://addons/maaacks_game_template/base/translations/menus_translations.fr.translation")
-locale/translations_pot_files=PackedStringArray("res://content/dialogue/test1.dialogue", "res://content/dialogue/showcase.dialogue", "res://content/dialogue/cassie.dialogue", "res://content/dialogue/fairy.dialogue", "res://content/dialogue/tree.dialogue", "res://content/dialogue/world.dialogue")
+locale/translations_pot_files=PackedStringArray("res://content/dialogue/test1.dialogue", "res://content/dialogue/cassie.dialogue", "res://content/dialogue/fairy.dialogue", "res://content/dialogue/tree.dialogue", "res://content/dialogue/world.dialogue")
 
 [layer_names]
 
@@ -467,7 +467,6 @@ general/save_file/file_location="User data (user://)"
 
 [rendering]
 
-rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true

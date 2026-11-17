@@ -13,6 +13,7 @@ extends Label
 	"crouch": "crouch",
 	"dash": "dash",
 	"interact": "interact",
+	"ui_cancel": "pause",
 }
 
 

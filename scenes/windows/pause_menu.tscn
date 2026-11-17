@@ -125,7 +125,9 @@ visible = false
 layout_mode = 2
 parent_scene = SubResource("PackedScene_3t83t")
 title = "Confirm Restart"
-text = "Restart the game?"
+text = "Restart from the last checkpoint?
+
+Items, choices and sanity stay as they are."
 
 [node name="MainMenuConfirmation" parent="." index="2" unique_id=1770307648 instance=ExtResource("4_6lma4")]
 unique_name_in_owner = true

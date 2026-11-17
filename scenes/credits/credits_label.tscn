@@ -13,41 +13,77 @@ size_flags_vertical = 5
 bbcode_enabled = true
 text = "[font_size=48]Collaborators[/font_size]
 
-[font_size=32]Role[/font_size]
-Person 1  
-Person 2  
-[url=]Person w/ Link[/url]  
+[font_size=32]Programming + Level Design[/font_size]
+[url=https://deanlemans.github.io/]Dean[/url]  
+
+[font_size=32]Art[/font_size]
+[url=https://erwall002.wixsite.com/erin-wall-1]Erin[/url]  
+
+[font_size=32]Miscellaneous Worker Ant[/font_size]
+Mink  
 
 [font_size=48]Sourced[/font_size]
-[font_size=32]Asset Type[/font_size]
-[font_size=24]Use Case[/font_size]
-Author: [url=]Name[/url]  
-Source: [url=]Domain : webpage.html[/url]  
-License: [url=]License[/url]
-
+[font_size=32]Images[/font_size]
 [font_size=24]Godot Engine Logo[/font_size]
 Author: Andrea Calabró  
 Source: [url=https://godotengine.org/press/]godotengine.org : press[/url]  
-License: [url=https://github.com/godotengine/godot/blob/master/LOGO_LICENSE.txt]CC BY 4.0 International[/url] 
+License: [url=https://github.com/godotengine/godot/blob/master/LOGO_LICENSE.txt]CC BY 4.0 International[/url]  
+
+[font_size=32]Addons[/font_size]
+[font_size=24]Dialogue Manager[/font_size]
+Author: Nathan Hoad and contributors  
+Source: [url=https://github.com/nathanhoad/godot_dialogue_manager]github: godot_dialogue_manager[/url]  
+License: MIT  
+
+[font_size=24]Sound Manager[/font_size]
+Author: Nathan Hoad  
+Source: [url=https://github.com/nathanhoad/godot_sound_manager]github: godot_sound_manager[/url]  
+License: MIT  
+
+[font_size=24]Phantom Camera[/font_size]
+Author: Marcus Skov  
+Source: [url=https://github.com/ramokz/phantom-camera]github: phantom-camera[/url]  
+License: MIT  
+
+[font_size=24]Godot State Charts[/font_size]
+Author: Jan Thomä  
+Source: [url=https://github.com/derkork/godot-statecharts]github: godot-statecharts[/url]  
+License: MIT  
+
+[font_size=24]LimboConsole[/font_size]
+Author: Serhii Snitsaruk  
+Source: [url=https://github.com/limbonaut/limbo_console]github: limbo_console[/url]  
+License: MIT  
+
+[font_size=24]Log.gd[/font_size]
+Author: Russell Matney  
+Source: [url=https://github.com/russmatney/log.gd]github: log.gd[/url]  
+License: MIT  
+
+[font_size=24]Debug Menu[/font_size]
+Author: Hugo Locurcio and contributors  
+Source: [url=https://github.com/antzGames/Antz-Debug-Menu]github: Antz-Debug-Menu[/url]  
+License: MIT  
+
+[font_size=24]Health, Hitboxes and Hitscans[/font_size]
+Author: David Clutter  
+Source: [url=https://github.com/cluttered-code/godot-health-hitbox-hurtbox]github: godot-health-hitbox-hurtbox[/url]  
+License: MIT  
+
+[font_size=24]SpacetimeDB Client SDK[/font_size]
+Author: Flametime  
+Source: [url=https://github.com/flametime/Godot-SpacetimeDB-SDK]github: Godot-SpacetimeDB-SDK[/url]  
+
+[font_size=24]Godot Game Template[/font_size]
+Author: [url=https://github.com/Maaack/Godot-Game-Template/graphs/contributors]Marek Belski and contributors[/url]  
+Source: [url=https://github.com/Maaack/Godot-Game-Template]github: Godot-Game-Template[/url]  
+License: MIT  
 
 [font_size=48]Tools[/font_size]
 [font_size=24]Godot[/font_size]
-[img=80]res:///assets/godot_engine_logo/logo_vertical_color_dark.png[/img]  
 Author: [url=https://godotengine.org/contact]Juan Linietsky, Ariel Manzur, and contributors[/url]  
 Source: [url=https://godotengine.org/]godotengine.org[/url]  
-License: [url=https://github.com/godotengine/godot/blob/master/LICENSE.txt]MIT License[/url] 
-
-[font_size=24]Godot Game Template[/font_size]
-[img=80]res:///assets/plugin_logo/logo.png[/img]  
-Author: [url=https://github.com/Maaack/Godot-Game-Template/graphs/contributors]Marek Belski and contributors[/url]  
-Source: [url=https://github.com/Maaack/Godot-Game-Template]github: Godot-Game-Template[/url]  
-License: [url=LICENSE.txt]MIT License[/url]  
-
-[font_size=24]Git[/font_size]
-[img=80]res:///assets/git_logo/Git-Logo-2Color.png[/img]  
-Author: [url=https://github.com/torvalds]Linus Torvalds[/url]  
-Source: [url=https://git-scm.com/downloads]git-scm.com[/url]  
-License: [url=https://opensource.org/licenses/GPL-2.0]GNU General Public License version 2[/url]
+License: [url=https://github.com/godotengine/godot/blob/master/LICENSE.txt]MIT License[/url]  
 "
 fit_content = true
 scroll_active = false
