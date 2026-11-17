@@ -121,6 +121,18 @@ static func get_current_level_path() -> String:
 	return game_state.current_level_path
 
 
+## Scene path of level [param node] was placed in. Topmost owner, not direct one:
+## inside instanced prefab direct owner is prefab root, which would share level flags
+## across every level. Node added from code (no owner) gets current level.
+static func get_placed_level_path(node: Node) -> String:
+	if not node.owner:
+		return get_current_level_path()
+	var level: Node = node.owner
+	while level.owner:
+		level = level.owner
+	return level.scene_file_path
+
+
 ## Level that [method continue_game] goes back to, empty without game state.
 static func get_checkpoint_level_path() -> String:
 	if not has_game_state():

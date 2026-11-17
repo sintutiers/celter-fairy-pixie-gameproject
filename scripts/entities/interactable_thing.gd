@@ -86,7 +86,7 @@ func _ready() -> void:
 		Log.warn("%s: persistent_id does nothing without free_after" % name)
 	_check_dialogue_cues()
 	# Already taken in earlier visit. Gone before its zone exists.
-	if free_after and persistent_id != "" and GameState.get_level_flag(_get_placed_level_path(), _get_finished_flag_key()):
+	if free_after and persistent_id != "" and GameState.get_level_flag(GameState.get_placed_level_path(self), _get_finished_flag_key()):
 		queue_free()
 		return
 	_setup_interaction_zone()
@@ -115,7 +115,7 @@ func execute_interaction_for_actor(actor: PlayerApi) -> void:
 	# Saved now, not after dialogue: item is already saved in inventory, so quitting
 	# mid dialogue would leave both pickup and item.
 	if free_after and persistent_id != "":
-		GameState.set_level_flag(_get_placed_level_path(), _get_finished_flag_key())
+		GameState.set_level_flag(GameState.get_placed_level_path(self), _get_finished_flag_key())
 	_running = true
 	GameLog.write(&"interact", "started", str(name))
 	started.emit(actor)
@@ -188,16 +188,3 @@ func _block_interaction_for_actor(actor: PlayerApi, reason: StringName) -> void:
 
 func _get_finished_flag_key() -> String:
 	return "thing." + persistent_id
-
-
-# Scene path of level this was placed in. Falls back to current level
-# when there is no owner (added from code).
-# Topmost owner, not direct one: inside instanced prefab direct
-# owner is prefab root, which would share flag across every level.
-func _get_placed_level_path() -> String:
-	if not owner:
-		return GameState.get_current_level_path()
-	var level: Node = owner
-	while level.owner:
-		level = level.owner
-	return level.scene_file_path

@@ -54,7 +54,7 @@ func _restore_sanity_on_first_entry(sanity: SanityComponent) -> void:
 		return
 	_entered = true
 	if persistent_id != "" and GameState.has_game_state():
-		var level_path: String = _get_placed_level_path()
+		var level_path: String = GameState.get_placed_level_path(self)
 		if GameState.get_level_flag(level_path, _get_entered_flag_key()):
 			return
 		GameState.set_level_flag(level_path, _get_entered_flag_key())
@@ -65,17 +65,6 @@ func _restore_sanity_on_first_entry(sanity: SanityComponent) -> void:
 # Old class name stays in key: changing it breaks saves.
 func _get_entered_flag_key() -> String:
 	return "sanctuary." + persistent_id
-
-
-# Scene path of level this was placed in, same rule as InteractableThing:
-# topmost owner, so area inside prefab does not share flag across levels.
-func _get_placed_level_path() -> String:
-	if not owner:
-		return GameState.get_current_level_path()
-	var level: Node = owner
-	while level.owner:
-		level = level.owner
-	return level.scene_file_path
 
 
 # Through api, same as PlayerApi.find_local_player_api, so body can be any player body.
