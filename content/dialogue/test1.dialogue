@@ -3,5 +3,5 @@ if has_item("aspect_of_hate")
 	You already have ASPECT OF HATE.
 	=> END
 You find ASPECT OF HATE
-do give_item("aspect_of_hate")
+$> give_item("aspect_of_hate")
 => END

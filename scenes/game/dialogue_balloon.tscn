@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" uid="uid://73jm5qjy52vq" path="res://addons/dialogue_manager/example_balloon/example_balloon.tscn" id="1_base"]
+[ext_resource type="Script" path="res://scenes/game/dialogue_balloon.gd" id="2_script"]
+
+[node name="DialogueBalloon" instance=ExtResource("1_base")]
+script = ExtResource("2_script")

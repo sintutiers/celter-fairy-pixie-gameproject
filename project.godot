@@ -59,6 +59,10 @@ gdscript/warnings/unsafe_call_argument=1
 gdscript/warnings/return_value_discarded=1
 gdscript/warnings/missing_await=1
 
+[dialogue_manager]
+
+runtime/balloon_path="res://scenes/game/dialogue_balloon.tscn"
+
 [display]
 
 window/stretch/mode="canvas_items"
