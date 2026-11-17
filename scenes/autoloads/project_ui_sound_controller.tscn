@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://b5oej1q4h7jvh" path="res://addons/maaacks_ui_sound_controller/base/scripts/ui_sound_controller.gd" id="1_uisfx"]
+[ext_resource type="AudioStream" uid="uid://c56bgpfs2m0n3" path="res://content/audio/soundEffect1.mp3" id="2_press"]
+
+[node name="ProjectUISoundController" type="Node"]
+process_mode = 3
+script = ExtResource("1_uisfx")
+button_pressed = ExtResource("2_press")

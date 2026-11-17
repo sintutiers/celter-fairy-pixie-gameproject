@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/menus/main_menu/pixie_dust.tscn" id="9_dust"]
 [ext_resource type="PackedScene" path="res://scenes/menus/main_menu/flicker_title.tscn" id="10_title"]
 [ext_resource type="FontFile" uid="uid://bqeoffprqpb61" path="res://content/misc/Nunito-Black.ttf" id="12_nreg"]
+[ext_resource type="AudioStream" uid="uid://j0qoue7dhu8q" path="res://content/audio/gameStart.mp3" id="13_music"]
 
 [sub_resource type="PackedScene" id="PackedScene_q0yg5"]
 [node name="MainMenuOptionsWindow" unique_id=1787637973 instance=ExtResource("3_0jpat")]
@@ -78,6 +79,7 @@ credits_packed_scene = SubResource("PackedScene_88r3n")
 
 [node name="BackgroundMusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1141822549]
 process_mode = 3
+stream = ExtResource("13_music")
 autoplay = true
 bus = &"Music"
 
