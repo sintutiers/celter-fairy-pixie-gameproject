@@ -7,19 +7,19 @@ if has_item("showcase_key")
 if get_opinion("cassie") < 0
 	Cassie: You. You walked away from me. Everyone does. I keep a list. You are on it now.
 elif get_level_flag("showcase.met")
-	Cassie: You came back. They never come back. Are you real this time?
+	Cassie: You came back. Are you real this time? Hold out your hand so I can check.
 else
 	Cassie: Oh. Hi. Do not move. Please. When people move they leave, and when they leave I forget their faces.
 	% Cassie: You have a face I could forget.
 	% Cassie: I knew someone with your hands. Or I will. It is hard to tell the direction.
-	% Cassie: You are the first. You are the third. I am not sure which is worse.
+	% Cassie: You are the third one today. Or the first. I lose count when the light changes.
 	$> set_level_flag("showcase.met")
 	## Flavor, no effect.
 	- How long have you been here?
-		Cassie: I used to count the days. Then the days stopped. Now I count the people who leave.
+		Cassie: I counted days until they stopped changing. Now I count the people who leave. You would be number nine.
 	- Say nothing
-		Cassie: Good. Quiet is good. Quiet means you are still here.
-Cassie: There is a door. I cannot open it. I tried until my hands stopped working. Will you?
+		Cassie: Good. If you are quiet I can hear you breathing, and then I know you are still here.
+Cassie: There is a door behind me. I tried it until my hands stopped working. Will you?
 - Help her
 	$> add_sanity(10)
 	$> give_item("showcase_key")
@@ -33,7 +33,7 @@ Cassie: There is a door. I cannot open it. I tried until my hands stopped workin
 - Ignore her
 	$> add_sanity(-20)
 	$> add_opinion("cassie", -1)
-	Cassie: Right. Fine. It is fine. I will just stand here. I am very good at standing here.
+	Cassie: Fine. I will stand here. I have had a lot of practice.
 => END
 
 
@@ -41,23 +41,23 @@ Cassie: There is a door. I cannot open it. I tried until my hands stopped workin
 if get_opinion("cassie") < 0
 	Cassie: The door is open. I am grateful. I am. I also remember you leaving. I see it every time I close my eyes.
 else
-	Cassie: You opened it. You came back and you opened it. Nobody comes back.
-Cassie: I owe you {{get_favor("cassie")}}. I count it at night. I count it during the day too. There is no difference here.
+	Cassie: You came back and opened it. I did not think anyone would.
+Cassie: I owe you {{get_favor("cassie")}}. I count it at night and during the day. Here they look the same.
 - Hate. One favor. [if get_favor("cassie") >= 1 /]
 	if give_item("aspect_of_hate")
 		$> add_favor("cassie", -1)
 		Cassie: Take it. One hate. It whispers when I hold it. It says things about you.
 	else
-		Cassie: Your hands are full. I will keep the favor. I keep everything. I cannot let anything go.
+		Cassie: Your hands are full. I will keep the favor with the rest of what I keep.
 - What does the fairy want? One favor. [if get_favor("cassie") >= 1 /]
 	$> add_favor("cassie", -1)
 	$> set_fact("choice.cassie_told")
-	Cassie: She waits at the gate. She smiles while she takes. She took something from me once. I do not remember what. That is how I know it mattered.
+	Cassie: She waits at the gate and smiles while she takes. She took something from me once. I only know because there is a gap where it was.
 - Talk to the fairy for me. One favor. [if get_favor("cassie") >= 1 and get_debt("fairy") >= 1 /]
 	$> add_favor("cassie", -1)
 	$> add_debt("fairy", -1)
 	$> add_opinion("fairy", -1)
-	Cassie: I talked to her. Your debt is gone. She looked at me the whole time. She has not stopped looking.
+	Cassie: I talked to her and your debt is gone. She looked at me the whole time, and she is still looking.
 ## Repeatable, the loaf never runs out.
 - Take this bread. [if has_item("bread") /]
 	$> remove_item("bread")
@@ -67,6 +67,6 @@ Cassie: I owe you {{get_favor("cassie")}}. I count it at night. I count it durin
 	Cassie: [#sanity_glitch] I will not forget that you brought it. I will keep it where I keep the other things.
 	Cassie: I owe you one more.
 - Leave
-	Cassie: Okay. Go. I will be here. I am always here.
+	Cassie: Okay. Go. I will be here.
 => END
 

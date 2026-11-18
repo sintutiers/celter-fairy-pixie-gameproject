@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://baupjsuxjq75l"
+path="res://.godot/imported/teto.dialogue-6dd7c093bd24cf8243ebb8e97500f3a7.tres"
+
+[deps]
+
+source_file="res://content/dialogue/teto.dialogue"
+dest_files=["res://.godot/imported/teto.dialogue-6dd7c093bd24cf8243ebb8e97500f3a7.tres"]
+
+[params]
+
+defaults=true

@@ -23,6 +23,8 @@
 [ext_resource type="Resource" path="res://content/items/jar.tres" id="19_jar"]
 [ext_resource type="Script" uid="uid://b8hhnqsugykly" path="res://addons/phantom_camera/scripts/resources/camera_3d_resource.gd" id="20_kk0hi"]
 [ext_resource type="PackedScene" uid="uid://bpqkpemvpjrgm" path="res://scenes/game/interactable_thing_prefab.tscn" id="99_thing_prefab"]
+[ext_resource type="Texture2D" uid="uid://bp7t2exveuhmj" path="res://scripts/components/teto_kidnapp_miku.png" id="100_teto"]
+[ext_resource type="Resource" uid="uid://baupjsuxjq75l" path="res://content/dialogue/teto.dialogue" id="101_teto_dialogue"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial_sc"]
 
@@ -770,6 +772,16 @@ material = SubResource("Mat_prize")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0.41)
 size = Vector3(0.15, 0.2, 0.05)
 material = SubResource("Mat_iron")
+
+[node name="Teto" parent="World/11_Gate" unique_id=1730492861 instance=ExtResource("99_thing_prefab")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, -6.5)
+dialogue = ExtResource("101_teto_dialogue")
+dialogue_cue = "teto"
+
+[node name="Sprite" type="Sprite3D" parent="World/11_Gate/Teto" unique_id=1730492862]
+pixel_size = 0.003
+billboard = 2
+texture = ExtResource("100_teto")
 
 [node name="12_Favor" type="Node3D" parent="World" unique_id=857876999]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -148)

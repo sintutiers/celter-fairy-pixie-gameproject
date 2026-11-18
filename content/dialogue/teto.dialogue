@@ -1,0 +1,278 @@
+~ teto
+if get_fact("teto.evicted")
+	=> teto_evicted
+if not get_fact("teto.met")
+	=> teto_intake
+=> teto_hub
+
+
+~ teto_intake
+$> set_fact("teto.met")
+% Teto: [speed=0.3]...[/speed][wait=0.8] You walked around the back. [wait=0.6] I heard your shoes on the gravel the whole way.
+% Teto: Oh. [wait=0.8] You came round the left side. [wait=0.5] Last time you came round the right.
+% Teto: [speed=0.4]Shh.[/speed] [wait=0.6] She just fell asleep. [wait=0.4] Do not make me start over.
+Teto: Stand there. On the mark. [wait=0.5] [color=#777]There is a mark. Look down. It is your size.[/color]
+Teto: [font_size=22][b][rainbow freq=1 sat=1][wave amp=30 freq=6]FORM 31-B[/wave][/rainbow][/b][/font_size] [color=#777]// witness intake // copy 4 of 4 // copies 1 to 3 are filled in, in your handwriting[/color]
+Teto: I will ask and you will answer. [wait=0.6] [color=#a33]I have the answer sheet right here, so do not bother lying.[/color]
+## Wrong answers cost sanity. She keeps count.
+Teto: [b]Question one.[/b] [wait=0.5] What did you see?
+- Nothing.
+	$> set_fact("teto.witness", "nothing")
+	$> add_opinion("teto", 1)
+	Teto: [rainbow freq=0.8 sat=0.9][wave amp=20 freq=5]Good![/wave][/rainbow] [wait=0.6] Say it again tonight before you sleep, and again in the morning.
+- A woman with drills for hair and a very large bag.
+	$> set_fact("teto.witness", "bag")
+	Teto: [speed=0.5]Drills and a bag.[/speed] [wait=0.8] I am writing down how tall you said she was. [wait=0.6] [color=#777]You did not say. I am writing it down anyway.[/color]
+- Teto kidnapping Miku.
+	$> set_fact("teto.witness", "kidnapping")
+	=>< teto_wrong
+	Teto: [speed=0.4]Look at the wall instead.[/speed] [wait=0.8] Grey, with a crack near the top. [wait=0.6] [font_size=12][color=#777]describe the wall to me until you believe it[/color][/font_size]
+Teto: [b]Question two.[/b] [wait=0.8] The bag. [wait=0.8] Is it moving?
+- No.
+	$> set_fact("teto.bag_moving", false)
+	$> add_opinion("teto", 1)
+	Teto: [rainbow freq=0.8 sat=0.9][wave amp=20 freq=5]No![/wave][/rainbow] [wait=0.6] Then why are you still looking at it.
+- It is breathing.
+	$> set_fact("teto.bag_moving", true)
+	=>< teto_wrong
+	Teto: [speed=0.5]That is you.[/speed] [wait=0.8] Hold your breath. [wait=1.2] [shake rate=6 level=3]See?[/shake] [wait=0.4] It stopped.
+- Can I see inside? [if get_sanity_zone() < 2 /]
+	$> set_fact("teto.bag_moving", "asked")
+	$> add_sanity(-10)
+	## Only asked at low sanity. Costs 10 sanity.
+	Teto: [#sanity_glitch] You already did. [wait=0.6] Twice. You keep forgetting so you can ask again.
+	Teto: [#sanity_glitch] Last time you cried. [wait=0.6] The time before, you climbed in.
+Teto: [b]Question three.[/b] [rainbow sat=1]The bonus round![/rainbow] [wait=0.8] [color=#777]After this one you can go home. Do you remember which way home is?[/color]
+=> teto_exam
+
+
+~ teto_hub
+if get_opinion("teto") <= -3
+	Teto: [color=#a33]You.[/color] [wait=0.8] I made room for you in the bag. [wait=0.6] I measured you while you slept, so it should fit.
+elif get_opinion("teto") < 0
+	% Teto: [speed=0.5]Oh.[/speed] [wait=0.8] You came back. [wait=0.5] I did not leave the light on for you.
+	% Teto: Further away. [wait=0.8] Further than that. [wait=0.8] [color=#777]You are not moving. Why are you not moving.[/color]
+elif get_opinion("teto") == 0
+	% Teto: Witness. [wait=0.6] Still seeing nothing? [wait=0.6] Good. Keep your eyes on the wall.
+	% Teto: The bag asked about you. [wait=1.0] [color=#777]It wanted to know if you still sleep on your left side.[/color]
+else
+	% Teto: There you are. [wait=0.6] I counted your steps around the box. [wait=0.4] Forty-one. [wait=0.6] [color=#777]It was forty-one last time too.[/color]
+	% Teto: [rainbow sat=1][wave amp=25 freq=6]Hi! Hi![/wave][/rainbow] [wait=1.2] [color=#777]You did not say hi back.[/color] [wait=0.8] The others stopped coming round the back. [wait=0.6] You will keep coming. Right?
+if get_favor("teto") + get_debt("teto") > 0
+	Teto: [font_size=12][color=#777]LEDGER // she owes you {{get_favor("teto")}} // you owe her {{get_debt("teto")}} // signed in your handwriting // you do not remember signing[/color][/font_size]
+=> teto_menu
+
+
+~ teto_menu
+- What is in the bag?
+	=> teto_bag
+- Spend a favor. Bread. [if get_favor("teto") >= 1 /]
+	if give_item("bread")
+		$> add_favor("teto", -1)
+		Teto: [color=#ffd94a][wave amp=15 freq=4]Fresh bread![/wave][/color] [wait=0.8] It is warm. [wait=0.8] [color=#777]Do not ask why it is warm.[/color] I owe you {{get_favor("teto")}}.
+	else
+		## Make room first.
+		Teto: Your hands are full. [wait=0.6] Put something down. [wait=0.6] [color=#777]I will look after it, with the other things people put down back here.[/color]
+	=> teto_menu
+- Borrow bread. [if get_debt("teto") < 3 /]
+	if give_item("bread")
+		$> add_debt("teto", 1)
+		## Debt to Teto. She does not collect. She just knows.
+		Teto: Take it. [wait=0.6] You owe me {{get_debt("teto")}}. [wait=0.8] [color=#777]I will not ask for it back. I will be around, behind things, until you remember.[/color]
+	else
+		Teto: You cannot carry more. [wait=0.6] [color=#777]I can see it on your shoulders.[/color]
+	=> teto_menu
+- Pay her back with bread. [if get_debt("teto") >= 1 and has_item("bread") /]
+	$> remove_item("bread")
+	$> add_debt("teto", -1)
+	$> add_opinion("teto", 1)
+	Teto: [speed=0.5]Returned.[/speed] [wait=0.6] It is still warm from your pocket. [wait=0.8] I will keep it next to her so she knows you were here.
+	=> teto_menu
+- Retake the exam.
+	=> teto_exam
+- Say her name. [if get_opinion("teto") >= 3 /]
+	=> teto_name
+- [[Miku?|Hatsune Miku?|Miku, are you in there?]]
+	$> set_fact("teto.said_miku")
+	=>< teto_wrong
+	Teto: [speed=0.4]There is nobody in the bag[/speed] [wait=1.0] who answers to that anymore.
+	=> teto_menu
+- Leave.
+	% Teto: Walk normally. [wait=0.6] [color=#777]People can tell from how you walk when you have seen something.[/color]
+	% Teto: [rainbow sat=1][wave amp=20 freq=5]Bye bye![/wave][/rainbow] [wait=0.8] Do not look back. [wait=1.5] [shake rate=8 level=3]You looked back.[/shake]
+	% Teto: See you soon. [wait=0.8] [color=#777]I will be the one by your door.[/color]
+	=> END
+
+
+~ teto_bag
+match get_fact("teto.bag_lore", 0)
+	when 0
+		$> set_fact("teto.bag_lore", 1)
+		Teto: [color=#ff8fd0][wave amp=15 freq=4]Bread![/wave][/color] [wait=0.6] Long bread. [wait=0.6] Shaped like a person, because I am very good at what I do. [wait=0.8] [color=#777]Do not count the fingers.[/color]
+	when 1
+		$> set_fact("teto.bag_lore", 2)
+		Teto: It is [b]storage[/b]. [wait=0.6] I keep the bag cold, like you would with milk.
+		Teto: [color=#777]She stopped kicking at 3 am. [wait=0.6] That means she is resting.[/color] [wait=0.8] [rainbow sat=1][wave amp=20 freq=5]She is resting![/wave][/rainbow]
+	when 2
+		$> set_fact("teto.bag_lore", 3)
+		$> add_sanity(-5)
+		## Costs 5 sanity.
+		Teto: [#sanity_glitch] She got a whole season. [wait=0.6] A year where people said her name and meant it.
+		Teto: [#sanity_glitch] I was a joke. [wait=0.6] April 1st. [wait=0.6] I was supposed to stop on April 2nd.
+		Teto: [#sanity_glitch] [speed=0.3]Nobody came to turn me off.[/speed] [wait=1.0] So I kept her, to see how it is done.
+	else
+		Teto: [speed=0.5]Stop asking.[/speed] [wait=0.8] The bag gets heavier each time you do. [wait=0.8] [color=#777]Have you weighed yourself lately?[/color]
+=> teto_menu
+
+
+~ teto_exam
+## Random question. Right answers raise opinion, wrong ones cost sanity.
+% => teto_q_age
+% => teto_q_birthday
+% => teto_q_food
+% => teto_q_hair
+% => teto_q_species
+
+
+~ teto_q_age
+Teto: [b]How old am I?[/b]
+- 31.
+	$> set_fact("teto.last_exam", "pass")
+	Teto: [rainbow freq=0.8 sat=0.9][wave amp=20 freq=5]Thirty-one![/wave][/rainbow] [wait=0.6] I have been thirty-one for a very long time. [wait=0.6] [color=#777]I check every morning.[/color]
+- Like 15?
+	$> set_fact("teto.last_exam", "fail")
+	=>< teto_wrong
+	Teto: [speed=0.5]Look at me.[/speed] [wait=1.0] Closer. [wait=1.0] [color=#777]Does this face look like it has been young for a while?[/color]
+- Old enough to know better.
+	$> set_fact("teto.last_exam", "pass")
+	$> add_opinion("teto", 1)
+	Teto: [wave amp=5 freq=1]Yes.[/wave] [wait=0.6] [color=#777]And I did it anyway, same as you are about to.[/color]
+=> teto_grade
+
+
+~ teto_q_birthday
+Teto: [b]When is my birthday?[/b]
+- April 1st.
+	$> set_fact("teto.last_exam", "pass")
+	Teto: [rainbow freq=0.8 sat=0.9][wave amp=20 freq=5]Correct![/wave][/rainbow] [wait=0.6] Everybody laughed. [wait=0.8] I laughed too, so they would not see my face.
+	Teto: [color=#777]I am still laughing. Put your ear against the box and you can hear it.[/color]
+- Christmas.
+	$> set_fact("teto.last_exam", "fail")
+	=>< teto_wrong
+	Teto: That is someone else's birthday, someone people waited up for. [wait=0.8] [color=#777]You are waiting up for me right now, and you had not noticed.[/color]
+- Every day. [if get_sanity_zone() < 2 /]
+	$> set_fact("teto.last_exam", "pass")
+	Teto: [#sanity_glitch] Yes. [wait=0.6] Every day I wake up behind this box and the day before is gone. [wait=0.8] How much do you remember of yesterday?
+=> teto_grade
+
+
+~ teto_q_food
+Teto: [b]What do I eat?[/b]
+- French bread.
+	$> set_fact("teto.last_exam", "pass")
+	Teto: [rainbow freq=0.8 sat=0.9][wave amp=20 freq=5]Bread![/wave][/rainbow] [wait=0.6] I keep some next to her, so she has something to smell.
+- Leeks.
+	$> set_fact("teto.last_exam", "fail")
+	=>< teto_wrong
+	Teto: Those are [b]hers[/b]. [wait=0.8] We do not say her things here. [wait=0.8] [shake rate=4 level=2][color=#777]the bag heard you[/color][/shake]
+- Whatever is in the bag.
+	$> set_fact("teto.last_exam", "fail")
+	=>< teto_wrong
+	Teto: [speed=0.4]No.[/speed] [wait=1.0] Not yet. [wait=1.0] [color=#777]I had not thought of that until you said it.[/color]
+=> teto_grade
+
+
+~ teto_q_hair
+Teto: [b]My hair. What shape is it?[/b]
+- Drills.
+	$> set_fact("teto.last_exam", "pass")
+	Teto: [rainbow freq=0.8 sat=0.9][wave amp=20 freq=5]Drills![/wave][/rainbow] [wait=0.6] They turn when I am thinking. [wait=0.8] [color=#777]They are turning now.[/color]
+- Twintails.
+	$> set_fact("teto.last_exam", "pass")
+	$> add_opinion("teto", 1)
+	Teto: Twintails. [wait=0.6] Thank you. [wait=0.6] Nobody calls them that. [wait=0.6] [color=#777]I am writing your name down next to it.[/color]
+- Bread.
+	$> set_fact("teto.last_exam", "fail")
+	=>< teto_wrong
+	Teto: You looked at me and saw [i]food[/i]. [wait=1.0] [color=#777]Interesting. That is how I looked at her, at first.[/color]
+=> teto_grade
+
+
+~ teto_q_species
+Teto: [b]What am I?[/b]
+- A chimera.
+	$> set_fact("teto.last_exam", "pass")
+	Teto: [rainbow freq=0.8 sat=0.9][wave amp=20 freq=5]Chimera![/wave][/rainbow] [wait=0.6] Part this, part that. [wait=0.6] [color=#777]Some of the parts were not mine to begin with.[/color]
+- A girl.
+	$> set_fact("teto.last_exam", "fail")
+	=>< teto_wrong
+	Teto: [speed=0.4]Look at my shadow.[/speed] [wait=1.0] [font_size=12][color=#777]it has a tail. you have been looking at me this whole time and did not see the tail.[/color][/font_size]
+- A prank that got out of hand.
+	$> set_fact("teto.last_exam", "pass")
+	$> add_opinion("teto", 1)
+	Teto: [speed=0.3]...[/speed] [wait=1.0] Yes. [wait=1.0] Do not say it that softly. [wait=0.6] I might keep you too.
+=> teto_grade
+
+
+~ teto_grade
+if get_fact("teto.last_exam", "") == "pass"
+	if get_fact("teto.exams_passed", 0) < 3
+		$> set_fact("teto.exams_passed", get_fact("teto.exams_passed", 0) + 1)
+		$> add_favor("teto", 1)
+		## Pays at most 3 times.
+		Teto: [font_size=30][b][rainbow sat=1][wave amp=25 freq=6]PASSED![/wave][/rainbow][/b][/font_size] [wait=0.8] I owe you {{get_favor("teto")}}. [wait=0.6] [color=#777]I always pay. Nobody ever asks me what with.[/color]
+	else
+		Teto: Passed. [wait=0.6] Again. [wait=0.6] You know all the answers now. [wait=0.8] [color=#777]So why do you keep coming back to be asked?[/color]
+else
+	Teto: [color=#a33][b]Failed.[/b][/color] [wait=0.8] [color=#7fffd4][wave amp=15 freq=4]It is fine![/wave][/color] [wait=0.6] Try again. [wait=0.6] [color=#777]I will not write this one down. I will just remember it.[/color]
+=> teto_menu
+
+
+~ teto_name
+$> set_fact("teto.named")
+$> add_sanity(10)
+## Opinion 3 or more. Gives 10 sanity.
+Teto: [speed=0.3]...[/speed] [wait=1.0] [rainbow freq=0.2 sat=0.5]Kasane Teto.[/rainbow]
+Teto: You said it slowly, like it was a real name. [wait=0.8] People usually laugh after.
+Teto: [speed=0.5]Fine.[/speed] [wait=1.0] I will let her out. [wait=1.0] [color=#777]Later. When I am sure that someone will still say mine.[/color]
+=> teto_menu
+
+
+~ teto_wrong
+$> set_fact("teto.wrong", get_fact("teto.wrong", 0) + 1)
+$> add_opinion("teto", -1)
+$> add_sanity(-5)
+match get_fact("teto.wrong", 0)
+	when 1
+		[[Teto|TETO|T E T O]]: [#jumpscare] [shake rate=40 level=25][font_size=40][b]WRONG.[/b][/font_size][/shake]
+		Teto: [color=#ff8fd0][wave amp=10 freq=4]Sorry! Sorry![/wave][/color] [wait=0.8] That was loud. [wait=0.6] [color=#777]I will do the next one closer to your ear.[/color]
+	when 2
+		[[Teto|TETO|T E T O]]: [#jumpscare] [shake rate=40 level=25][font_size=40][b]AGAIN.[/b][/font_size][/shake]
+		Teto: [color=#777]Two. [wait=0.6] Your hands are shaking. [wait=0.6] Hold them out, I want to count the fingers.[/color]
+	when 3
+		[[Teto|TETO|T E T O]]: [#jumpscare] [#sanity_glitch] [font_size=40][b]Three.[/b][/font_size]
+		Teto: [#sanity_glitch] I wrote it on the inside of the bag. [wait=0.6] [color=#777]You will read it later, from the inside.[/color]
+	when 4
+		[[Teto|TETO|T E T O]]: [#jumpscare] [#sanity_glitch] [shake rate=50 level=30][font_size=48]FOUR[/font_size][/shake]
+		Teto: [#sanity_glitch] [speed=0.3]One more[/speed] [wait=1.0] and there will be room for two in here.
+	else
+		$> set_fact("teto.evicted")
+		## Five wrong answers. Two bread brings her back.
+		[[Teto|TETO|T E T O]]: [#jumpscare] [#sanity_glitch] [shake rate=60 level=40][font_size=56][b]ENOUGH.[/b][/font_size][/shake]
+		Teto: [speed=0.2]...[/speed] [wait=1.0] We are leaving. [wait=0.8] [color=#777]When you get home, check behind your door before you lock it.[/color]
+		=> END!
+=> END
+
+
+~ teto_evicted
+Behind the box there are crumbs, a long drag mark and a note in your own handwriting. [i]"you know what you did. 2 baguettes."[/i]
+- Leave two bread. [if has_item("bread", 2) /]
+	$> remove_item("bread", 2)
+	$> set_fact("teto.evicted", false)
+	$> set_fact("teto.wrong", 0)
+	$> add_opinion("teto", 1)
+	## Her count starts over.
+	Teto: [rainbow sat=1][wave amp=25 freq=6]Welcome back![/wave][/rainbow] [wait=1.2] I was standing right behind you. [wait=0.8] [color=#777]You walked past me twice.[/color]
+	=> teto_hub
+- Leave.
+	=> END

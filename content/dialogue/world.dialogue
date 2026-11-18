@@ -68,7 +68,7 @@ if get_debt("fairy") > 0
 	$> add_opinion("fairy", -1)
 	## 25 sanity per fairy debt.
 	Fairy: [#sanity_glitch] There you are.
-	Fairy: [#sanity_glitch] You owe me. I am not taking it now. I took it when you were not looking.
+	Fairy: [#sanity_glitch] You owe me. I took it while you were looking at the roots.
 	Fairy: Check your hands. One of them is lighter than it was.
 => END
 
@@ -108,7 +108,7 @@ IRON NAIL. The hate drains out of your hand into the wood. The wood lets go. You
 if not get_level_flag("showcase.nail_wanted")
 	An iron nail in a stump. Nobody asked for it. Yet.
 else
-	It will not move. It wants hate. The red pile has plenty.
+	It will not move without hate. The red pile has plenty.
 => END
 
 
@@ -148,7 +148,7 @@ Something stands here. It has your face. It looks more like you than you remembe
 	$> set_fact("choice.shape", "favor")
 	Fairy: [#sanity_glitch] Mine now.
 	Fairy: [#sanity_glitch] Do not ask what I do with it. We are settled.
-	You are not sure the shape left. You are not sure it was ever the shape.
+	You are not sure which of you left.
 - Show it the nail [if has_item("iron_nail") /]
 	$> add_opinion("fairy", -1)
 	$> set_fact("choice.shape", "iron")
@@ -170,7 +170,7 @@ Idol: Three hate. Or stand here, and I take it out of you instead.
 	Idol: Full. The stone cracks.
 	Idol: There was something else in the hate. Did you notice? It is gone now. You can stop trying to remember it.
 - Leave
-	Idol: I am patient. You are not. Stay a little longer.
+	Idol: Stay a little longer. I am patient.
 => END
 
 

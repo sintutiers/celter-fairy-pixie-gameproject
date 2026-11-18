@@ -10,9 +10,9 @@ config_version=5
 
 [application]
 
-config/name="fairy pixie horror psychological game"
+config/name="fairy pixie celtic horror psychological game"
 config/description="Dean, Erin, MINK"
-config/version="1.0.0"
+config/version="versoin = not fucking done yet"
 run/main_scene="res://scenes/opening/opening.tscn"
 config/features=PackedStringArray("4.8", "GL Compatibility")
 config/icon="uid://bp7t2exveuhmj"
@@ -417,7 +417,7 @@ limbo_console_search_history={
 [internationalization]
 
 locale/translations=PackedStringArray("res://addons/maaacks_game_template/base/translations/menus_translations.en.translation", "res://addons/maaacks_game_template/base/translations/menus_translations.fr.translation")
-locale/translations_pot_files=PackedStringArray("res://content/dialogue/test1.dialogue", "res://content/dialogue/cassie.dialogue", "res://content/dialogue/fairy.dialogue", "res://content/dialogue/tree.dialogue", "res://content/dialogue/world.dialogue")
+locale/translations_pot_files=PackedStringArray("res://content/dialogue/test1.dialogue", "res://content/dialogue/cassie.dialogue", "res://content/dialogue/fairy.dialogue", "res://content/dialogue/tree.dialogue", "res://content/dialogue/world.dialogue", "res://content/dialogue/teto.dialogue")
 
 [layer_names]
 

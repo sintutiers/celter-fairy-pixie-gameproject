@@ -6,11 +6,11 @@ if get_fact("choice.nail_kept")
 		$> set_fact("choice.nail_kept", false)
 		$> add_opinion("fairy", 1)
 		$> add_favor("fairy", 1)
-		Fairy: Late. Late has a price, and you pay it. I owe you 1, not 2.
+		Fairy: Late. I owe you 1 for it, instead of 2.
 	- Keep it
 		$> add_opinion("fairy", -1)
 		## Ask again any time.
-		Fairy: Then stay where you are. I do not need to be close to you. I am already in your head.
+		Fairy: Then stay where you are. I can hear you thinking from here.
 	=> END
 if has_item("jar")
 	Fairy: That jar. It is mine. Whatever is inside remembers me.
@@ -42,13 +42,13 @@ if get_quest_stage("iron_nail") == 1
 			$> advance_quest("iron_nail")
 			$> add_opinion("fairy", 1)
 			$> add_favor("fairy", 2)
-			Fairy: The nail is gone. I owe you 2. Not one more. Come to me when you want to spend them.
+			Fairy: The nail is gone. I owe you 2. Come to me when you want to spend them.
 		- Keep it
 			$> set_fact("choice.nail_kept")
 			$> advance_quest("iron_nail")
 			$> add_opinion("fairy", -2)
 			## She still takes the nail later, for 1 favor.
-			Fairy: Then keep it close. You will need it. I will remember this.
+			Fairy: Then keep it close. I will remember this.
 	else
 		Fairy: You carry no nail. Do not waste my time. You do not have much of yours left.
 	=> END
@@ -66,7 +66,7 @@ if not get_level_flag("showcase.fairy_met")
 	- You know where. You sent me here. [if get_sanity_zone() < 2 /]
 		$> add_opinion("fairy", -1)
 		$> add_sanity(-5)
-		Fairy: I did not. But I like that you think I did. It means some of me is already living in you.
+		Fairy: I like that you think I did. It means some of me is already living in you.
 	- Not telling.
 		$> set_fact("choice.fairy_secret")
 		Fairy: Keep it. Secrets here ferment. When it is ready, I will drink it.
@@ -75,10 +75,10 @@ Fairy: I would ask a favor. A small one. There is an iron nail in a stump. Pull 
 	$> advance_quest("iron_nail")
 	$> set_level_flag("showcase.nail_wanted")
 	$> add_opinion("fairy", 1)
-	Fairy: Agreed. You heard the terms. You cannot unhear them. The stump is left of the tree. The nail will not come out without hate.
+	Fairy: Agreed. The stump is left of the tree. The nail will not come out without hate.
 - No
 	$> add_opinion("fairy", -1)
-	Fairy: Then you get nothing. The offer stands. Offers here always stand. They only get worse.
+	Fairy: Then you get nothing. Ask again later, and the offer will be worse.
 => END
 
 
@@ -86,11 +86,11 @@ Fairy: I would ask a favor. A small one. There is an iron nail in a stump. Pull 
 if get_opinion("fairy") < 0
 	Fairy: You. I give less to those I do not like. I decide what less means.
 Fairy: By my count I owe you {{get_favor("fairy")}}, and you owe me {{get_debt("fairy")}}.
-Fairy: I keep my count somewhere you cannot see. I keep it somewhere warm.
+Fairy: I keep my count somewhere warm, where you cannot see it.
 - A truth. One favor. [if get_favor("fairy") >= 1 /]
 	$> add_favor("fairy", -1)
 	## Under sanity 50 touching the shape is safe.
-	Fairy: The shape past the red line is not there when your mind is going. The less of you there is, the less of it. That is a truth.
+	Fairy: The shape past the red line is not there when your mind is going. It gets thinner as you do.
 ## Pays 15 sanity, 10 when her opinion is under 0.
 - Calm. One favor. [if get_favor("fairy") >= 1 /]
 	$> add_favor("fairy", -1)
@@ -137,8 +137,8 @@ Fairy: I keep my count somewhere you cannot see. I keep it somewhere warm.
 		Fairy: Incorrect. Keys are a human idea. You may ask again.
 ## Flavor, no effect.
 - What happened to the last human?
-	Fairy: They paid. In full. Then a little more.
+	Fairy: They paid in full. I kept them for the interest.
 - Leave
-	Fairy: Go, then. I remember everything that is open between us. Everything.
+	Fairy: Go, then. I remember everything still open between us.
 => END
 
