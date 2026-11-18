@@ -431,9 +431,14 @@ func update_information_label() -> void:
 		elif rendering_driver == "opengl3":
 			graphics_api_string = "OpenGL"
 
+	# Not bound in web builds, where calling it directly is a parse error that kills the whole script.
+	var api_version := ""
+	if RenderingServer.has_method("get_video_adapter_api_version"):
+		api_version = str(RenderingServer.call("get_video_adapter_api_version"))
+
 	information.text = (
 			"%s, %d threads\n" % [OS.get_processor_name().replace("(R)", "").replace("(TM)", ""), OS.get_processor_count()]
-			+ "%s %s (%s %s), %s %s\n" % [OS.get_name(), "64-bit" if OS.has_feature("64") else "32-bit", release_string, "double" if OS.has_feature("double") else "single", graphics_api_string, RenderingServer.get_video_adapter_api_version()]
+			+ "%s %s (%s %s), %s %s\n" % [OS.get_name(), "64-bit" if OS.has_feature("64") else "32-bit", release_string, "double" if OS.has_feature("double") else "single", graphics_api_string, api_version]
 			+ "%s, %s" % [adapter_string, driver_info_string]
 	)
 
