@@ -1,65 +1,65 @@
 ~ tree
 if get_debt("tree") > 0
-	Tree: Bread. You owe. The roots are counting.
-	Tree: They are patient. I am sorry.
-	- Pay with bread [if has_item("bread") /]
+	Tree: Bread. You owe. The roots are counting. [ID:cjkrh3hqpi5wh_674083]
+	Tree: They are patient. I am sorry. [ID:cjkrh3hqpi5wh_64fe77]
+	- Pay with bread [if has_item("bread") /] [ID:cjkrh3hqpi5wh_f98899]
 		$> remove_item("bread")
 		$> add_debt("tree", -1)
 		$> add_opinion("tree", 1)
-		Tree: Paid. The roots let go of you for now. They remember the shape of your feet.
-	- Not yet
+		Tree: Paid. The roots let go of you for now. They remember the shape of your feet. [ID:cjkrh3hqpi5wh_ca44f3]
+	- Not yet [ID:cjkrh3hqpi5wh_8b5687]
 		$> add_opinion("tree", -1)
 		## Unpaid tree debt is collected at the last chest.
-		Tree: Then stand still. They have been under you since you arrived.
+		Tree: Then stand still. They have been under you since you arrived. [ID:cjkrh3hqpi5wh_4fe7fe]
 	=> END
 if is_quest_done("feed_tree")
-	Tree: You went through. Good. Do not come back. I will not be me much longer.
+	Tree: You went through. Good. Do not come back. I will not be me much longer. [ID:cjkrh3hqpi5wh_691652]
 	=> END
 if get_sanity_zone() == 0
-	% Tree: [#sanity_glitch] Y o u  a r e  f a d i n g.
-	% Tree: [#sanity_glitch] I said bread. Did I say bread? I said something.
-	% Tree: [#sanity_glitch] You are still here. That is not always good.
+	% Tree: [#sanity_glitch] Y o u  a r e  f a d i n g. [ID:cjkrh3hqpi5wh_6ba1c6]
+	% Tree: [#sanity_glitch] I said bread. Did I say bread? I said something. [ID:cjkrh3hqpi5wh_dfd80d]
+	% Tree: [#sanity_glitch] You are still here. That is not always good. [ID:cjkrh3hqpi5wh_525c57]
 if get_quest_stage("feed_tree") == -1
-	Tree: I am dying. It starts in the roots and climbs. It is slow. Will you help?
-	- Yes
+	Tree: I am dying. It starts in the roots and climbs. It is slow. Will you help? [ID:cjkrh3hqpi5wh_584a13]
+	- Yes [ID:cjkrh3hqpi5wh_50ed47]
 		$> advance_quest("feed_tree")
 		$> set_fact("choice.tree_helped")
 		$> add_opinion("tree", 1)
-		Tree: There is bread on the table behind you. Do not look at anything else on the way.
-	- No
+		Tree: There is bread on the table behind you. Do not look at anything else on the way. [ID:cjkrh3hqpi5wh_4789bd]
+	- No [ID:cjkrh3hqpi5wh_592919]
 		$> set_fact("choice.tree_helped", false)
 		$> add_opinion("tree", -1)
-		Tree: Then go. I rot either way. Come back if that changes.
+		Tree: Then go. I rot either way. Come back if that changes. [ID:cjkrh3hqpi5wh_722678]
 	## Flavor, no effect.
-	- What is killing you?
-		Tree: Something in the soil. It came with the last one like you. It is in you too. A little.
+	- What is killing you? [ID:cjkrh3hqpi5wh_4c6480]
+		Tree: Something in the soil. It came with the last one like you. It is in you too. A little. [ID:cjkrh3hqpi5wh_ef21d6]
 	=> END
 if get_quest_stage("feed_tree") == 0
 	## 3 ways to open the gate: bread, jar, debt.
-	Tree: The bread is on the table behind you. Hurry, I can feel it climbing.
-	- Give the bread [if has_item("bread") /]
+	Tree: The bread is on the table behind you. Hurry, I can feel it climbing. [ID:cjkrh3hqpi5wh_85b112]
+	- Give the bread [if has_item("bread") /] [ID:cjkrh3hqpi5wh_f1a98b]
 		$> remove_item("bread")
 		$> set_level_flag("showcase.gate_open")
 		$> advance_quest("feed_tree")
 		$> add_sanity(20)
-		Tree: It helps, less every time. The gate is open.
-	- Give the jar [if has_item("jar") /]
+		Tree: It helps, less every time. The gate is open. [ID:cjkrh3hqpi5wh_698687]
+	- Give the jar [if has_item("jar") /] [ID:cjkrh3hqpi5wh_18d9b1]
 		$> remove_item("jar")
 		$> advance_quest("jar")
 		$> set_fact("choice.jar", "tree")
 		$> set_level_flag("showcase.gate_open")
 		$> advance_quest("feed_tree")
-		Tree: It screamed going down. It will do. The gate is open.
-	- Open it now. I will owe you.
+		Tree: It screamed going down. It will do. The gate is open. [ID:cjkrh3hqpi5wh_434900]
+	- Open it now. I will owe you. [ID:cjkrh3hqpi5wh_d196fc]
 		$> add_debt("tree", 1)
 		$> set_level_flag("showcase.gate_open")
 		$> advance_quest("feed_tree")
 		## Pay the debt here with bread.
-		Tree: Open. Now you owe me bread, and the rot will remember it too.
-	- Nothing for you
+		Tree: Open. Now you owe me bread, and the rot will remember it too. [ID:cjkrh3hqpi5wh_c86bef]
+	- Nothing for you [ID:cjkrh3hqpi5wh_eabfe1]
 		$> add_opinion("tree", -1)
-		Tree: Still hungry.
+		Tree: Still hungry. [ID:cjkrh3hqpi5wh_4eb734]
 	=> END
-Tree: The gate is open. Go, before I forget who you are.
+Tree: The gate is open. Go, before I forget who you are. [ID:cjkrh3hqpi5wh_d575a7]
 => END
 

@@ -1,144 +1,144 @@
 ~ fairy
 if get_fact("choice.nail_kept")
-	Fairy: Iron. Stay there. Not one step closer, unless you mean to give it up.
-	- Hand it over
+	Fairy: Iron. Stay there. Not one step closer, unless you mean to give it up. [ID:c3r7el8kj7cjw_2441ce]
+	- Hand it over [ID:c3r7el8kj7cjw_2c5326]
 		$> remove_item("iron_nail")
 		$> set_fact("choice.nail_kept", false)
 		$> add_opinion("fairy", 1)
 		$> add_favor("fairy", 1)
-		Fairy: Late. I owe you 1 for it, instead of 2.
-	- Keep it
+		Fairy: Late. I owe you 1 for it, instead of 2. [ID:c3r7el8kj7cjw_b406d1]
+	- Keep it [ID:c3r7el8kj7cjw_5ad3d5]
 		$> add_opinion("fairy", -1)
 		## Ask again any time.
-		Fairy: Then stay where you are. I can hear you thinking from here.
+		Fairy: Then stay where you are. I can hear you thinking from here. [ID:c3r7el8kj7cjw_f2451a]
 	=> END
 if has_item("jar")
-	Fairy: That jar. It is mine. Whatever is inside remembers me.
-	- Give her the jar
+	Fairy: That jar. It is mine. Whatever is inside remembers me. [ID:c3r7el8kj7cjw_a74234]
+	- Give her the jar [ID:c3r7el8kj7cjw_702c0d]
 		$> remove_item("jar")
 		$> advance_quest("jar")
 		$> set_fact("choice.jar", "fairy")
 		$> add_favor("fairy", 1)
 		$> add_opinion("fairy", 1)
-		Fairy: Mine, as I said. It will stop screaming soon. I owe you 1.
-	- Open it here
+		Fairy: Mine, as I said. It will stop screaming soon. I owe you 1. [ID:c3r7el8kj7cjw_f359d2]
+	- Open it here [ID:c3r7el8kj7cjw_18bad6]
 		$> remove_item("jar")
 		$> advance_quest("jar")
 		$> set_fact("choice.jar", "freed")
 		$> add_sanity(15)
 		$> add_opinion("fairy", -1)
-		Fairy: You let it out. That was mine. I will remember the hands that did it, and I will find them again.
-	- Not yet
+		Fairy: You let it out. That was mine. I will remember the hands that did it, and I will find them again. [ID:c3r7el8kj7cjw_0ee2eb]
+	- Not yet [ID:c3r7el8kj7cjw_9c75cc]
 		$> set_fact("choice.jar_kept")
 		## She asks again while you carry the jar.
-		Fairy: I can wait. I have waited longer than your kind has had names.
+		Fairy: I can wait. I have waited longer than your kind has had names. [ID:c3r7el8kj7cjw_bb2cbe]
 if is_quest_done("iron_nail")
 	=> fairy_ledger
 if get_quest_stage("iron_nail") == 1
 	if has_item("iron_nail")
-		Fairy: That is the nail. Hold it away from me. Will you hand it over?
-		- Give the nail
+		Fairy: That is the nail. Hold it away from me. Will you hand it over? [ID:c3r7el8kj7cjw_373dfc]
+		- Give the nail [ID:c3r7el8kj7cjw_df227d]
 			$> remove_item("iron_nail")
 			$> advance_quest("iron_nail")
 			$> add_opinion("fairy", 1)
 			$> add_favor("fairy", 2)
-			Fairy: The nail is gone. I owe you 2. Come to me when you want to spend them.
-		- Keep it
+			Fairy: The nail is gone. I owe you 2. Come to me when you want to spend them. [ID:c3r7el8kj7cjw_34b9fb]
+		- Keep it [ID:c3r7el8kj7cjw_18c967]
 			$> set_fact("choice.nail_kept")
 			$> advance_quest("iron_nail")
 			$> add_opinion("fairy", -2)
 			## She still takes the nail later, for 1 favor.
-			Fairy: Then keep it close. I will remember this.
+			Fairy: Then keep it close. I will remember this. [ID:c3r7el8kj7cjw_a39081]
 	else
-		Fairy: You carry no nail. Do not waste my time. You do not have much of yours left.
+		Fairy: You carry no nail. Do not waste my time. You do not have much of yours left. [ID:c3r7el8kj7cjw_4616ec]
 	=> END
 if get_quest_stage("iron_nail") == 0
-	Fairy: The nail is in a stump, left of the tree, far ahead. It will not come out without hate. You have plenty.
+	Fairy: The nail is in a stump, left of the tree, far ahead. It will not come out without hate. You have plenty. [ID:c3r7el8kj7cjw_8d9458]
 	=> END
 if not get_level_flag("showcase.fairy_met")
 	$> set_level_flag("showcase.fairy_met")
-	% Fairy: A human. Lost, by the look of you.
-	% Fairy: You have a very readable face. I have already read it twice.
-	Fairy: Where did you come from?
-	- I do not remember. [if get_sanity_zone() >= 2 /]
+	% Fairy: A human. Lost, by the look of you. [ID:c3r7el8kj7cjw_3185b0]
+	% Fairy: You have a very readable face. I have already read it twice. [ID:c3r7el8kj7cjw_e7f546]
+	Fairy: Where did you come from? [ID:c3r7el8kj7cjw_7f8e6a]
+	- I do not remember. [if get_sanity_zone() >= 2 /] [ID:c3r7el8kj7cjw_9ba814]
 		$> add_opinion("fairy", 1)
-		Fairy: Honest. That will not last.
-	- You know where. You sent me here. [if get_sanity_zone() < 2 /]
+		Fairy: Honest. That will not last. [ID:c3r7el8kj7cjw_4af508]
+	- You know where. You sent me here. [if get_sanity_zone() < 2 /] [ID:c3r7el8kj7cjw_9e0744]
 		$> add_opinion("fairy", -1)
 		$> add_sanity(-5)
-		Fairy: I like that you think I did. It means some of me is already living in you.
-	- Not telling.
+		Fairy: I like that you think I did. It means some of me is already living in you. [ID:c3r7el8kj7cjw_954e25]
+	- Not telling. [ID:c3r7el8kj7cjw_712625]
 		$> set_fact("choice.fairy_secret")
-		Fairy: Keep it. Secrets here ferment. When it is ready, I will drink it.
-Fairy: I would ask a favor. A small one. There is an iron nail in a stump. Pull it out for me.
-- Deal
+		Fairy: Keep it. Secrets here ferment. When it is ready, I will drink it. [ID:c3r7el8kj7cjw_c27147]
+Fairy: I would ask a favor. A small one. There is an iron nail in a stump. Pull it out for me. [ID:c3r7el8kj7cjw_267119]
+- Deal [ID:c3r7el8kj7cjw_6420a6]
 	$> advance_quest("iron_nail")
 	$> set_level_flag("showcase.nail_wanted")
 	$> add_opinion("fairy", 1)
-	Fairy: Agreed. The stump is left of the tree. The nail will not come out without hate.
-- No
+	Fairy: Agreed. The stump is left of the tree. The nail will not come out without hate. [ID:c3r7el8kj7cjw_df1934]
+- No [ID:c3r7el8kj7cjw_98da7f]
 	$> add_opinion("fairy", -1)
-	Fairy: Then you get nothing. Ask again later, and the offer will be worse.
+	Fairy: Then you get nothing. Ask again later, and the offer will be worse. [ID:c3r7el8kj7cjw_d4b17d]
 => END
 
 
 ~ fairy_ledger
 if get_opinion("fairy") < 0
-	Fairy: You. I give less to those I do not like. I decide what less means.
-Fairy: By my count I owe you {{get_favor("fairy")}}, and you owe me {{get_debt("fairy")}}.
-Fairy: I keep my count somewhere warm, where you cannot see it.
-- A truth. One favor. [if get_favor("fairy") >= 1 /]
+	Fairy: You. I give less to those I do not like. I decide what less means. [ID:c3r7el8kj7cjw_b1b573]
+Fairy: By my count I owe you {{get_favor("fairy")}}, and you owe me {{get_debt("fairy")}}. [ID:c3r7el8kj7cjw_7c2895]
+Fairy: I keep my count somewhere warm, where you cannot see it. [ID:c3r7el8kj7cjw_05157d]
+- A truth. One favor. [if get_favor("fairy") >= 1 /] [ID:c3r7el8kj7cjw_7acd9b]
 	$> add_favor("fairy", -1)
 	## Under sanity 50 touching the shape is safe.
-	Fairy: The shape past the red line is not there when your mind is going. It gets thinner as you do.
+	Fairy: The shape past the red line is not there when your mind is going. It gets thinner as you do. [ID:c3r7el8kj7cjw_d02196]
 ## Pays 15 sanity, 10 when her opinion is under 0.
-- Calm. One favor. [if get_favor("fairy") >= 1 /]
+- Calm. One favor. [if get_favor("fairy") >= 1 /] [ID:c3r7el8kj7cjw_8bda19]
 	$> add_favor("fairy", -1)
 	if get_opinion("fairy") < 0
 		$> add_sanity(10)
-		Fairy: Calm. The smallest I had. You never said which size.
+		Fairy: Calm. The smallest I had. You never said which size. [ID:c3r7el8kj7cjw_814caa]
 	else
 		$> add_sanity(15)
-		Fairy: Calm, as agreed. Do not get used to it.
+		Fairy: Calm, as agreed. Do not get used to it. [ID:c3r7el8kj7cjw_74fb37]
 ## Up to 3 debts. She takes 25 sanity each at the gate.
-- Calm now. Pay later. [if get_debt("fairy") < 3 /]
+- Calm now. Pay later. [if get_debt("fairy") < 3 /] [ID:c3r7el8kj7cjw_0c4aa7]
 	$> add_debt("fairy", 1)
 	$> add_sanity(20)
-	Fairy: Calm, now. You will pay at the gate.
-	Fairy: I take it from the part of you that is still deciding whether to trust me. That part is smaller every time.
-- Call it even. One favor for one debt. [if get_favor("fairy") >= 1 and get_debt("fairy") >= 1 /]
+	Fairy: Calm, now. You will pay at the gate. [ID:c3r7el8kj7cjw_9507a5]
+	Fairy: I take it from the part of you that is still deciding whether to trust me. That part is smaller every time. [ID:c3r7el8kj7cjw_3bd50b]
+- Call it even. One favor for one debt. [if get_favor("fairy") >= 1 and get_debt("fairy") >= 1 /] [ID:c3r7el8kj7cjw_3aee13]
 	$> add_favor("fairy", -1)
 	$> add_debt("fairy", -1)
 	$> add_opinion("fairy", -1)
-	Fairy: One for one. How dull. I was looking forward to collecting.
+	Fairy: One for one. How dull. I was looking forward to collecting. [ID:c3r7el8kj7cjw_c95246]
 ## Pays a debt first, else she owes 1. Red pile never runs out.
-- Take this hate. [if has_item("aspect_of_hate") /]
+- Take this hate. [if has_item("aspect_of_hate") /] [ID:c3r7el8kj7cjw_f5210e]
 	$> remove_item("aspect_of_hate")
 	if get_debt("fairy") > 0
 		$> add_debt("fairy", -1)
-		Fairy: Hate. I will eat it. One debt is gone. It tastes like you.
+		Fairy: Hate. I will eat it. One debt is gone. It tastes like you. [ID:c3r7el8kj7cjw_092cee]
 	else
 		$> add_favor("fairy", 1)
-		Fairy: Hate. I will eat it. I owe you 1 more. Bring more. You make so much of it.
+		Fairy: Hate. I will eat it. I owe you 1 more. Bring more. You make so much of it. [ID:c3r7el8kj7cjw_40a030]
 ## Right answer pays once. Wrong ones cost sanity and can be retried.
-- Ask me something. [if get_sanity_zone() < 2 and get_fact("choice.fairy_risk", "") != "right" /]
-	Fairy: Answer me, then. What holds the gate shut?
-	- Roots
+- Ask me something. [if get_sanity_zone() < 2 and get_fact("choice.fairy_risk", "") != "right" /] [ID:c3r7el8kj7cjw_c35f1e]
+	Fairy: Answer me, then. What holds the gate shut? [ID:c3r7el8kj7cjw_f81609]
+	- Roots [ID:c3r7el8kj7cjw_14d622]
 		$> set_fact("choice.fairy_risk", "right")
 		$> add_favor("fairy", 1)
-		Fairy: Correct. I hate that. I owe you 1 more.
-	- Iron
+		Fairy: Correct. I hate that. I owe you 1 more. [ID:c3r7el8kj7cjw_e1264a]
+	- Iron [ID:c3r7el8kj7cjw_98716f]
 		$> set_fact("choice.fairy_risk", "wrong")
 		$> add_sanity(-15)
-		Fairy: Incorrect. That one came out of you. You may ask again.
-	- A key
+		Fairy: Incorrect. That one came out of you. You may ask again. [ID:c3r7el8kj7cjw_532189]
+	- A key [ID:c3r7el8kj7cjw_4c079d]
 		$> set_fact("choice.fairy_risk", "wrong")
 		$> add_sanity(-15)
-		Fairy: Incorrect. Keys are a human idea. You may ask again.
+		Fairy: Incorrect. Keys are a human idea. You may ask again. [ID:c3r7el8kj7cjw_5c3ada]
 ## Flavor, no effect.
-- What happened to the last human?
-	Fairy: They paid in full. I kept them for the interest.
-- Leave
-	Fairy: Go, then. I remember everything still open between us.
+- What happened to the last human? [ID:c3r7el8kj7cjw_171d60]
+	Fairy: They paid in full. I kept them for the interest. [ID:c3r7el8kj7cjw_86e561]
+- Leave [ID:c3r7el8kj7cjw_a02886]
+	Fairy: Go, then. I remember everything still open between us. [ID:c3r7el8kj7cjw_b4a6e9]
 => END
 

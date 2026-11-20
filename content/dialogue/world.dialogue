@@ -1,18 +1,18 @@
 ~ sign
-Sign: This one lets you keep walking while it talks. Most things here do not.
-Sign: Cassie will not let you move. She needs you to stay.
+Sign: This one lets you keep walking while it talks. Most things here do not. [ID:xyndj6m2nwcq_a6c3f9]
+Sign: Cassie will not let you move. She needs you to stay. [ID:xyndj6m2nwcq_8eb642]
 => END
 
 
 ~ jar
 $> advance_quest("jar")
 ## Fairy, tree and shape each take it.
-JAR. Something small inside scratches at the glass. It has been scratching for a long time.
+JAR. Something small inside scratches at the glass. It has been scratching for a long time. [ID:xyndj6m2nwcq_449063]
 => END
 
 
 ~ door_locked
-Locked. Cassie has the key. She will not let go of it easily.
+Locked. Cassie has the key. She will not let go of it easily. [ID:xyndj6m2nwcq_7683cd]
 => END
 
 
@@ -20,139 +20,139 @@ Locked. Cassie has the key. She will not let go of it easily.
 $> advance_quest("help_cassie")
 $> add_favor("cassie", 1)
 ## Spend what Cassie owes you by talking to her.
-The door opens. Behind you, Cassie whispers a number.
+The door opens. Behind you, Cassie whispers a number. [ID:xyndj6m2nwcq_6cd491]
 => END
 
 
 ~ chest
-ASPECT OF HATE. It is warm, like something just let go of it.
+ASPECT OF HATE. It is warm, like something just let go of it. [ID:xyndj6m2nwcq_ccc43c]
 => END
 
 
 ~ loaf
-BREAD. Stale. Someone left it here for you. Stacks to 5.
+BREAD. Stale. Someone left it here for you. Stacks to 5. [ID:xyndj6m2nwcq_3c7df1]
 => END
 
 
 ~ pile
-3 ASPECT OF HATE. They do not stack. The pile is always full again when you look back.
+3 ASPECT OF HATE. They do not stack. The pile is always full again when you look back. [ID:xyndj6m2nwcq_e03a19]
 => END
 
 
 ~ pile_small
-3 ASPECT OF HATE. This pile does not grow back. Something already ate the rest.
+3 ASPECT OF HATE. This pile does not grow back. Something already ate the rest. [ID:xyndj6m2nwcq_66684b]
 => END
 
 
 ~ full
-Your hands are full. They are shaking.
+Your hands are full. They are shaking. [ID:xyndj6m2nwcq_cd81a0]
 => END
 
 
 ~ bread_used
-Stale bread. It tastes like a kitchen you cannot picture anymore. You feel calmer.
+Stale bread. It tastes like a kitchen you cannot picture anymore. You feel calmer. [ID:xyndj6m2nwcq_c3608e]
 => END
 
 
 ~ gate_locked
-A locked gate. Roots hold it shut. They tighten when you touch them. Ask the tree.
+A locked gate. Roots hold it shut. They tighten when you touch them. Ask the tree. [ID:xyndj6m2nwcq_d0d94f]
 => END
 
 
 ~ gate_open
 $> advance_quest("feed_tree")
-The roots pull back. Slowly. Like they do not want to.
+The roots pull back. Slowly. Like they do not want to. [ID:xyndj6m2nwcq_64623f]
 if get_debt("fairy") > 0
 	$> add_sanity(-25 * get_debt("fairy"))
 	$> set_fact("debt.fairy", 0)
 	$> add_opinion("fairy", -1)
 	## 25 sanity per fairy debt.
-	Fairy: [#sanity_glitch] There you are.
-	Fairy: [#sanity_glitch] You owe me. I took it while you were looking at the roots.
-	Fairy: Check your hands. One of them is lighter than it was.
+	Fairy: [#sanity_glitch] There you are. [ID:xyndj6m2nwcq_459e3d]
+	Fairy: [#sanity_glitch] You owe me. I took it while you were looking at the roots. [ID:xyndj6m2nwcq_c5665f]
+	Fairy: Check your hands. One of them is lighter than it was. [ID:xyndj6m2nwcq_25d976]
 => END
 
 
 ~ spring
 $> add_sanity(10)
 ## Once.
-Water. Cold and clean. Your reflection moves a moment too late. You feel calmer anyway.
+Water. Cold and clean. Your reflection moves a moment too late. You feel calmer anyway. [ID:xyndj6m2nwcq_57878a]
 => END
 
 
 ~ final_chest
-End of the showcase.
+End of the showcase. [ID:xyndj6m2nwcq_9a43c6]
 if get_debt("tree") > 0
 	$> add_sanity(-20 * get_debt("tree"))
 	$> set_fact("debt.tree", 0)
 	$> add_opinion("tree", -1)
 	## 20 sanity per tree debt.
-	Roots under the chest. The tree collects. It does not say sorry anymore.
+	Roots under the chest. The tree collects. It does not say sorry anymore. [ID:xyndj6m2nwcq_73a71e]
 if get_favor("fairy") + get_favor("cassie") > 0
-	Still owed to you. Fairy {{get_favor("fairy")}}. Cassie {{get_favor("cassie")}}. Spend it, before they decide you were never here.
+	Still owed to you. Fairy {{get_favor("fairy")}}. Cassie {{get_favor("cassie")}}. Spend it, before they decide you were never here. [ID:xyndj6m2nwcq_dc1743]
 => END
 
 
 ~ nail
 if has_item("iron_nail") or is_quest_done("iron_nail")
-	You already took the iron nail. The hole in the stump is still bleeding sap.
+	You already took the iron nail. The hole in the stump is still bleeding sap. [ID:xyndj6m2nwcq_d61d73]
 	=> END
 $> remove_item("aspect_of_hate")
 $> give_item("iron_nail")
 $> advance_quest("iron_nail")
-IRON NAIL. The hate drains out of your hand into the wood. The wood lets go. Your hand stays cold.
+IRON NAIL. The hate drains out of your hand into the wood. The wood lets go. Your hand stays cold. [ID:xyndj6m2nwcq_a2fadd]
 => END
 
 
 ~ nail_stuck
 if not get_level_flag("showcase.nail_wanted")
-	An iron nail in a stump. Nobody asked for it. Yet.
+	An iron nail in a stump. Nobody asked for it. Yet. [ID:xyndj6m2nwcq_22e413]
 else
-	It will not move without hate. The red pile has plenty.
+	It will not move without hate. The red pile has plenty. [ID:xyndj6m2nwcq_80ed8b]
 => END
 
 
 ~ shape
-Something stands here. It has your face. It looks more like you than you remember looking.
-- Back away
+Something stands here. It has your face. It looks more like you than you remember looking. [ID:xyndj6m2nwcq_2470bf]
+- Back away [ID:xyndj6m2nwcq_dcc612]
 	$> add_sanity(-10)
 	$> set_fact("choice.shape", "ran")
-	You run. It does not follow.
-	% You hear it exhale. You do not have breath to spare.
-	% Behind you, something with your walk goes the other way.
-	% It is still standing where it was. It is also in front of you.
+	You run. It does not follow. [ID:xyndj6m2nwcq_1c3991]
+	% You hear it exhale. You do not have breath to spare. [ID:xyndj6m2nwcq_fb5096]
+	% Behind you, something with your walk goes the other way. [ID:xyndj6m2nwcq_b1930c]
+	% It is still standing where it was. It is also in front of you. [ID:xyndj6m2nwcq_34abe3]
 ## Fake under sanity 50, bites at 50 or more.
-- Touch it
+- Touch it [ID:xyndj6m2nwcq_eb3647]
 	$> set_fact("choice.shape", "touched")
 	if get_sanity_zone() < 2
-		Your hand goes through.
-		% Nothing there. You are not sure there ever was.
-		% It was cold. The cold of a hand that has been waiting.
+		Your hand goes through. [ID:xyndj6m2nwcq_b83cc3]
+		% Nothing there. You are not sure there ever was. [ID:xyndj6m2nwcq_fbe98e]
+		% It was cold. The cold of a hand that has been waiting. [ID:xyndj6m2nwcq_2234f9]
 	else
 		$> add_sanity(-15)
-		It bites. It has your teeth.
-		[#sanity_glitch] It chews. It is thinking.
-- Feed it bread [if has_item("bread") /]
+		It bites. It has your teeth. [ID:xyndj6m2nwcq_5fefb7]
+		[#sanity_glitch] It chews. It is thinking. [ID:xyndj6m2nwcq_4f3952]
+- Feed it bread [if has_item("bread") /] [ID:xyndj6m2nwcq_1ebd55]
 	$> remove_item("bread")
 	$> set_fact("choice.shape", "fed")
-	It eats the way you eat. It watches you the whole time. Then it leaves.
-- Open the jar at it [if has_item("jar") /]
+	It eats the way you eat. It watches you the whole time. Then it leaves. [ID:xyndj6m2nwcq_63f300]
+- Open the jar at it [if has_item("jar") /] [ID:xyndj6m2nwcq_fe2a79]
 	$> remove_item("jar")
 	$> advance_quest("jar")
 	$> set_fact("choice.jar", "shape")
 	$> set_fact("choice.shape", "jar")
 	$> add_opinion("fairy", -1)
-	It takes what was inside. It leaves, and what it took screams the whole way. Somewhere, the fairy saw that.
-- Call in the fairy. Two favors. [if get_favor("fairy") >= 2 /]
+	It takes what was inside. It leaves, and what it took screams the whole way. Somewhere, the fairy saw that. [ID:xyndj6m2nwcq_622cd3]
+- Call in the fairy. Two favors. [if get_favor("fairy") >= 2 /] [ID:xyndj6m2nwcq_2617c8]
 	$> add_favor("fairy", -2)
 	$> set_fact("choice.shape", "favor")
-	Fairy: [#sanity_glitch] Mine now.
-	Fairy: [#sanity_glitch] Do not ask what I do with it. We are settled.
-	You are not sure which of you left.
-- Show it the nail [if has_item("iron_nail") /]
+	Fairy: [#sanity_glitch] Mine now. [ID:xyndj6m2nwcq_1c6041]
+	Fairy: [#sanity_glitch] Do not ask what I do with it. We are settled. [ID:xyndj6m2nwcq_2ab065]
+	You are not sure which of you left. [ID:xyndj6m2nwcq_9cbe73]
+- Show it the nail [if has_item("iron_nail") /] [ID:xyndj6m2nwcq_aa66d7]
 	$> add_opinion("fairy", -1)
 	$> set_fact("choice.shape", "iron")
-	Iron. It flinches the way you would. It leaves. The fairy saw that.
+	Iron. It flinches the way you would. It leaves. The fairy saw that. [ID:xyndj6m2nwcq_923e87]
 => END
 
 
@@ -160,22 +160,22 @@ Something stands here. It has your face. It looks more like you than you remembe
 if get_quest_stage("idol") == -1
 	$> advance_quest("idol")
 	## It eats 5 sanity per second near it.
-	Idol: Hungry. You will do.
-Idol: Three hate. Or stand here, and I take it out of you instead.
-- Feed it three hate [if has_item("aspect_of_hate", 3) /]
+	Idol: Hungry. You will do. [ID:xyndj6m2nwcq_d75f35]
+Idol: Three hate. Or stand here, and I take it out of you instead. [ID:xyndj6m2nwcq_748214]
+- Feed it three hate [if has_item("aspect_of_hate", 3) /] [ID:xyndj6m2nwcq_126bb4]
 	$> remove_item("aspect_of_hate", 3)
 	$> set_level_flag("showcase.idol_fed")
 	$> advance_quest("idol")
 	## Interact again to push it over.
-	Idol: Full. The stone cracks.
-	Idol: There was something else in the hate. Did you notice? It is gone now. You can stop trying to remember it.
-- Leave
-	Idol: Stay a little longer. I am patient.
+	Idol: Full. The stone cracks. [ID:xyndj6m2nwcq_22a4a3]
+	Idol: There was something else in the hate. Did you notice? It is gone now. You can stop trying to remember it. [ID:xyndj6m2nwcq_2b64c7]
+- Leave [ID:xyndj6m2nwcq_bec261]
+	Idol: Stay a little longer. I am patient. [ID:xyndj6m2nwcq_fad609]
 => END
 
 
 ~ idol
 $> advance_quest("idol")
 $> add_sanity(15)
-It falls. The red drains out of the floor. You feel lighter, and you do not know what you lost.
+It falls. The red drains out of the floor. You feel lighter, and you do not know what you lost. [ID:xyndj6m2nwcq_01cb69]
 => END

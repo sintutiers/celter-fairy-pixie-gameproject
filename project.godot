@@ -62,6 +62,7 @@ gdscript/warnings/missing_await=1
 [dialogue_manager]
 
 runtime/balloon_path="res://scenes/game/dialogue_balloon.tscn"
+editor/translations/use_static_ids_as_translation_keys=false
 
 [display]
 
