@@ -14,7 +14,7 @@ else
 	% Cassie: I knew someone with your hands. Or I will. It is hard to tell the direction. [ID:brdijciqw4uj4_54031a]
 	% Cassie: You are the third one today. Or the first. I lose count when the light changes. [ID:brdijciqw4uj4_c1b454]
 	$> set_level_flag("showcase.met")
-	## Flavor, no effect.
+	## flavor, no effect.
 	- How long have you been here? [ID:brdijciqw4uj4_5dead3]
 		Cassie: I counted days until they stopped changing. Now I count the people who leave. You would be number nine. [ID:brdijciqw4uj4_ac8ec3]
 	- Say nothing [ID:brdijciqw4uj4_0a4fe5]
@@ -28,7 +28,7 @@ Cassie: There is a door behind me. I tried it until my hands stopped working. Wi
 	$> add_opinion("cassie", 1)
 	Cassie: Here. My key. The last one who held it went through and did not come back. [ID:brdijciqw4uj4_e38f97]
 	Cassie: You will come back. Right? [ID:brdijciqw4uj4_8a1f67]
-	## No answer on purpose, she does not want one.
+	## no answer on purpose, she does not want one.
 	Cassie: That was not a question I wanted answered. Take it. Please. [ID:brdijciqw4uj4_2590bb]
 - Ignore her [ID:brdijciqw4uj4_20dd41]
 	$> add_sanity(-20)
@@ -58,7 +58,7 @@ Cassie: I owe you {{get_favor("cassie")}}. I count it at night and during the da
 	$> add_debt("fairy", -1)
 	$> add_opinion("fairy", -1)
 	Cassie: I talked to her and your debt is gone. She looked at me the whole time, and she is still looking. [ID:brdijciqw4uj4_490ce4]
-## Repeatable, the loaf never runs out.
+## repeatable, the loaf never runs out.
 - Take this bread. [if has_item("bread") /] [ID:brdijciqw4uj4_5002b1]
 	$> remove_item("bread")
 	$> add_favor("cassie", 1)

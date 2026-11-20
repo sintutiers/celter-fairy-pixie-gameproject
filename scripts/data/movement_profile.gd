@@ -6,8 +6,8 @@ class_name MovementProfile
 extends Resource
 
 @export_group("Movement")
-@export var move_speed: float = 10.0
-@export var run_speed: float = 20.0
+@export var move_speed: float = 7.5
+@export var run_speed: float = 12.5
 @export var move_acceleration: float = 120.0
 ## Used instead of [member move_acceleration] when reversing direction.
 @export var turn_acceleration: float = 360.0
@@ -16,14 +16,14 @@ extends Resource
 
 @export_group("Jump")
 ## Peak height of standing jump.
-@export var jump_height: float = 5.0
+@export var jump_height: float = 2.0
 ## Gravity while rising. 0 or less uses world gravity.
 @export var jump_gravity: float = 10.0
 ## Grace time to still jump after leaving ground.
-@export_range(0.0, 1.0, 0.01) var coyote_time: float = 0.1
+@export_range(0.0, 1.0, 0.02) var coyote_time: float = 0.1
 ## Grace time for jump pressed before landing.
 @export_range(0.0, 1.0, 0.01) var jump_buffer_time: float = 0.1
-@export_range(1, 10, 1) var max_jumps: int = 2
+@export_range(1, 10, 1) var max_jumps: int = 1
 ## Vertical velocity multiplier when jump is released while rising. Lower = shorter hop.
 @export_range(0.0, 1.0, 0.05) var jump_cut_multiplier: float = 0.5
 @export_range(0.0, 3.0, 0.05) var running_jump_height_multiplier: float = 1.5
@@ -35,25 +35,24 @@ extends Resource
 ## Added to world gravity while falling.
 @export var fall_gravity_offset: float = 0.0
 ## Hang time applies while vertical speed is below this.
-## Keep it well under jump launch speed (about 10 for default jump), or it covers whole jump.
-@export var apex_hang_threshold: float = 2.0
+## Keep it well under jump launch speed (about 10 for default jump), or covers whole jump.
+@export var apex_hang_threshold: float = 1.5
 @export_range(0.0, 1.0, 0.05) var apex_hang_gravity_multiplier: float = 0.5
 
 @export_group("Wall")
 @export var wall_jump_enabled: bool = true
-@export var wall_slide_speed: float = 3.0
-@export var wall_jump_push_speed: float = 12.0
+@export var wall_slide_speed: float = 4.0
+@export var wall_jump_push_speed: float = 10.0
 ## Horizontal input is ignored for this long after wall jump.
 @export_range(0.0, 1.0, 0.01) var wall_jump_lock_duration: float = 0.1
 
 @export_group("Dash")
-## Off = dash only works in air.
 @export var can_dash_on_ground: bool = false
 @export var dash_speed: float = 35.0
 @export_range(0.0, 1.0, 0.01) var dash_duration: float = 0.3
 @export_range(0.0, 5.0, 0.01) var dash_cooldown: float = 0.75
-## Dashes per airtime, refilled on landing.
-@export_range(1, 10, 1) var max_dashes: int = 1
+## Dash per airtime, refilled on landing.
+@export_range(0, 10, 1) var max_dashes: int = 0
 
 @export_group("Crouch")
 ## Collision shape height multiplier while crouched. Bottom stays at feet.

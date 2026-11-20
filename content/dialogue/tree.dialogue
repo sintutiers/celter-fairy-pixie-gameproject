@@ -9,7 +9,7 @@ if get_debt("tree") > 0
 		Tree: Paid. The roots let go of you for now. They remember the shape of your feet. [ID:cjkrh3hqpi5wh_ca44f3]
 	- Not yet [ID:cjkrh3hqpi5wh_8b5687]
 		$> add_opinion("tree", -1)
-		## Unpaid tree debt is collected at the last chest.
+		## unpaid tree debt is collected at the last chest.
 		Tree: Then stand still. They have been under you since you arrived. [ID:cjkrh3hqpi5wh_4fe7fe]
 	=> END
 if is_quest_done("feed_tree")
@@ -30,7 +30,7 @@ if get_quest_stage("feed_tree") == -1
 		$> set_fact("choice.tree_helped", false)
 		$> add_opinion("tree", -1)
 		Tree: Then go. I rot either way. Come back if that changes. [ID:cjkrh3hqpi5wh_722678]
-	## Flavor, no effect.
+	## flavor, no effect.
 	- What is killing you? [ID:cjkrh3hqpi5wh_4c6480]
 		Tree: Something in the soil. It came with the last one like you. It is in you too. A little. [ID:cjkrh3hqpi5wh_ef21d6]
 	=> END
@@ -54,7 +54,7 @@ if get_quest_stage("feed_tree") == 0
 		$> add_debt("tree", 1)
 		$> set_level_flag("showcase.gate_open")
 		$> advance_quest("feed_tree")
-		## Pay the debt here with bread.
+		## pay the debt here with bread.
 		Tree: Open. Now you owe me bread, and the rot will remember it too. [ID:cjkrh3hqpi5wh_c86bef]
 	- Nothing for you [ID:cjkrh3hqpi5wh_eabfe1]
 		$> add_opinion("tree", -1)

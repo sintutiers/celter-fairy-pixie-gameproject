@@ -6,7 +6,7 @@ Sign: Cassie will not let you move. She needs you to stay. [ID:xyndj6m2nwcq_8eb6
 
 ~ jar
 $> advance_quest("jar")
-## Fairy, tree and shape each take it.
+## fairy, tree and shape each take it.
 JAR. Something small inside scratches at the glass. It has been scratching for a long time. [ID:xyndj6m2nwcq_449063]
 => END
 
@@ -19,7 +19,7 @@ Locked. Cassie has the key. She will not let go of it easily. [ID:xyndj6m2nwcq_7
 ~ door_open
 $> advance_quest("help_cassie")
 $> add_favor("cassie", 1)
-## Spend what Cassie owes you by talking to her.
+## spend what cassie owes you by talking to her.
 The door opens. Behind you, Cassie whispers a number. [ID:xyndj6m2nwcq_6cd491]
 => END
 
@@ -75,7 +75,7 @@ if get_debt("fairy") > 0
 
 ~ spring
 $> add_sanity(10)
-## Once.
+## once.
 Water. Cold and clean. Your reflection moves a moment too late. You feel calmer anyway. [ID:xyndj6m2nwcq_57878a]
 => END
 
@@ -121,7 +121,7 @@ Something stands here. It has your face. It looks more like you than you remembe
 	% You hear it exhale. You do not have breath to spare. [ID:xyndj6m2nwcq_fb5096]
 	% Behind you, something with your walk goes the other way. [ID:xyndj6m2nwcq_b1930c]
 	% It is still standing where it was. It is also in front of you. [ID:xyndj6m2nwcq_34abe3]
-## Fake under sanity 50, bites at 50 or more.
+## fake under sanity 50, bites at 50 or more.
 - Touch it [ID:xyndj6m2nwcq_eb3647]
 	$> set_fact("choice.shape", "touched")
 	if get_sanity_zone() < 2
@@ -159,14 +159,14 @@ Something stands here. It has your face. It looks more like you than you remembe
 ~ idol_hungry
 if get_quest_stage("idol") == -1
 	$> advance_quest("idol")
-	## It eats 5 sanity per second near it.
+	## it eats 5 sanity per second near it.
 	Idol: Hungry. You will do. [ID:xyndj6m2nwcq_d75f35]
 Idol: Three hate. Or stand here, and I take it out of you instead. [ID:xyndj6m2nwcq_748214]
 - Feed it three hate [if has_item("aspect_of_hate", 3) /] [ID:xyndj6m2nwcq_126bb4]
 	$> remove_item("aspect_of_hate", 3)
 	$> set_level_flag("showcase.idol_fed")
 	$> advance_quest("idol")
-	## Interact again to push it over.
+	## interact again to push it over.
 	Idol: Full. The stone cracks. [ID:xyndj6m2nwcq_22a4a3]
 	Idol: There was something else in the hate. Did you notice? It is gone now. You can stop trying to remember it. [ID:xyndj6m2nwcq_2b64c7]
 - Leave [ID:xyndj6m2nwcq_bec261]

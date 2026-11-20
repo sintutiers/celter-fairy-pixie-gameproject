@@ -9,7 +9,7 @@ if get_fact("choice.nail_kept")
 		Fairy: Late. I owe you 1 for it, instead of 2. [ID:c3r7el8kj7cjw_b406d1]
 	- Keep it [ID:c3r7el8kj7cjw_5ad3d5]
 		$> add_opinion("fairy", -1)
-		## Ask again any time.
+		## ask again any time.
 		Fairy: Then stay where you are. I can hear you thinking from here. [ID:c3r7el8kj7cjw_f2451a]
 	=> END
 if has_item("jar")
@@ -30,7 +30,7 @@ if has_item("jar")
 		Fairy: You let it out. That was mine. I will remember the hands that did it, and I will find them again. [ID:c3r7el8kj7cjw_0ee2eb]
 	- Not yet [ID:c3r7el8kj7cjw_9c75cc]
 		$> set_fact("choice.jar_kept")
-		## She asks again while you carry the jar.
+		## she asks again while you carry the jar.
 		Fairy: I can wait. I have waited longer than your kind has had names. [ID:c3r7el8kj7cjw_bb2cbe]
 if is_quest_done("iron_nail")
 	=> fairy_ledger
@@ -47,7 +47,7 @@ if get_quest_stage("iron_nail") == 1
 			$> set_fact("choice.nail_kept")
 			$> advance_quest("iron_nail")
 			$> add_opinion("fairy", -2)
-			## She still takes the nail later, for 1 favor.
+			## she still takes the nail later, for 1 favor.
 			Fairy: Then keep it close. I will remember this. [ID:c3r7el8kj7cjw_a39081]
 	else
 		Fairy: You carry no nail. Do not waste my time. You do not have much of yours left. [ID:c3r7el8kj7cjw_4616ec]
@@ -89,9 +89,9 @@ Fairy: By my count I owe you {{get_favor("fairy")}}, and you owe me {{get_debt("
 Fairy: I keep my count somewhere warm, where you cannot see it. [ID:c3r7el8kj7cjw_05157d]
 - A truth. One favor. [if get_favor("fairy") >= 1 /] [ID:c3r7el8kj7cjw_7acd9b]
 	$> add_favor("fairy", -1)
-	## Under sanity 50 touching the shape is safe.
+	## under sanity 50 touching the shape is safe.
 	Fairy: The shape past the red line is not there when your mind is going. It gets thinner as you do. [ID:c3r7el8kj7cjw_d02196]
-## Pays 15 sanity, 10 when her opinion is under 0.
+## pays 15 sanity, 10 when her opinion is under 0.
 - Calm. One favor. [if get_favor("fairy") >= 1 /] [ID:c3r7el8kj7cjw_8bda19]
 	$> add_favor("fairy", -1)
 	if get_opinion("fairy") < 0
@@ -100,7 +100,7 @@ Fairy: I keep my count somewhere warm, where you cannot see it. [ID:c3r7el8kj7cj
 	else
 		$> add_sanity(15)
 		Fairy: Calm, as agreed. Do not get used to it. [ID:c3r7el8kj7cjw_74fb37]
-## Up to 3 debts. She takes 25 sanity each at the gate.
+## up to 3 debts. she takes 25 sanity each at the gate.
 - Calm now. Pay later. [if get_debt("fairy") < 3 /] [ID:c3r7el8kj7cjw_0c4aa7]
 	$> add_debt("fairy", 1)
 	$> add_sanity(20)
@@ -111,7 +111,7 @@ Fairy: I keep my count somewhere warm, where you cannot see it. [ID:c3r7el8kj7cj
 	$> add_debt("fairy", -1)
 	$> add_opinion("fairy", -1)
 	Fairy: One for one. How dull. I was looking forward to collecting. [ID:c3r7el8kj7cjw_c95246]
-## Pays a debt first, else she owes 1. Red pile never runs out.
+## pays a debt first, else she owes 1. red pile never runs out.
 - Take this hate. [if has_item("aspect_of_hate") /] [ID:c3r7el8kj7cjw_f5210e]
 	$> remove_item("aspect_of_hate")
 	if get_debt("fairy") > 0
@@ -120,7 +120,7 @@ Fairy: I keep my count somewhere warm, where you cannot see it. [ID:c3r7el8kj7cj
 	else
 		$> add_favor("fairy", 1)
 		Fairy: Hate. I will eat it. I owe you 1 more. Bring more. You make so much of it. [ID:c3r7el8kj7cjw_40a030]
-## Right answer pays once. Wrong ones cost sanity and can be retried.
+## right answer pays once. wrong ones cost sanity and can be retried.
 - Ask me something. [if get_sanity_zone() < 2 and get_fact("choice.fairy_risk", "") != "right" /] [ID:c3r7el8kj7cjw_c35f1e]
 	Fairy: Answer me, then. What holds the gate shut? [ID:c3r7el8kj7cjw_f81609]
 	- Roots [ID:c3r7el8kj7cjw_14d622]
@@ -135,7 +135,7 @@ Fairy: I keep my count somewhere warm, where you cannot see it. [ID:c3r7el8kj7cj
 		$> set_fact("choice.fairy_risk", "wrong")
 		$> add_sanity(-15)
 		Fairy: Incorrect. Keys are a human idea. You may ask again. [ID:c3r7el8kj7cjw_5c3ada]
-## Flavor, no effect.
+## flavor, no effect.
 - What happened to the last human? [ID:c3r7el8kj7cjw_171d60]
 	Fairy: They paid in full. I kept them for the interest. [ID:c3r7el8kj7cjw_86e561]
 - Leave [ID:c3r7el8kj7cjw_a02886]
