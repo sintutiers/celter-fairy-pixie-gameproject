@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Shows "you picked up Bread", "no room for Bread" or "you used Bread" briefly, then fades.
+## Shows "you picked up Bread", "no room for Bread"/"you used Bread" briefly > fades.
 ## Listens to [signal InventoryComponent.item_added], [signal InventoryComponent.add_failed]
-## and [signal InventoryComponent.item_used].
+## + [signal InventoryComponent.item_used].
 ## @experimental: Placeholder until there is inventory UI.
 class_name PickupToast
 extends Label
@@ -15,7 +15,7 @@ var _tween: Tween
 
 func _ready() -> void:
 	text = ""
-	# Player made its api in _enter_tree, which runs before any _ready, see PlayerSpawner.
+	# player made its api in _enter_tree, which runs before any _ready, see PlayerSpawner
 	var api: PlayerApi = PlayerApi.find_local_player_api(get_tree())
 	if not api or not api.inventory:
 		Log.error("%s: no player with InventoryComponent in scene" % name)

@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## While console [code]explain[/code] is on ([member DebugCommands.explain]) shows what just happened:
-## every sanity, inventory and ledger change ([signal GameLog.wrote]), design notes written as
-## [code]##[/code] doc comments above dialogue lines and options, and condition of every locked option.
-## So .dialogue files hold only dialogue, logic and notes.
+## every sanity, inventory + ledger change ([signal GameLog.wrote]), design notes written as
+## [code]##[/code] doc comments above dialogue lines + options, + condition of every locked option.
+## ∴ .dialogue files hold only dialogue, logic + notes.
 ## [codeblock]
 ## ## 3 ways to open gate: bread, jar, debt.
 ## Tree: Bread. Table. Behind you.
@@ -20,7 +20,7 @@ const CHANNELS: Array[StringName] = [&"sanity", &"inventory", &"ledger"]
 @export var fade_time: float = 8.0
 
 var _lines: PackedStringArray = []
-# Doc comments are only in resource, not on DialogueLine or DialogueResponse.
+# doc comments are only in resource, not on DialogueLine/DialogueResponse
 var _resource: DialogueResource
 var _tween: Tween
 
@@ -30,7 +30,7 @@ func _ready() -> void:
 	GameLog.wrote.connect(_on_game_log_wrote)
 	DialogueManager.dialogue_started.connect(_on_dialogue_started)
 	DialogueManager.got_dialogue.connect(_on_got_dialogue)
-	# Responses menu has no signal for its buttons, so they are changed as they are added.
+	# responses menu has no signal for its buttons ∴ they are changed as they are added
 	get_tree().node_added.connect(_on_node_added)
 
 
@@ -49,7 +49,7 @@ func _on_got_dialogue(line: DialogueLine) -> void:
 		_add_feed_line("note: " + notes)
 
 
-# Menu sets text, disabled and "response" meta before add_child, so all are there now.
+# menu sets text, disabled + "response" meta before add_child ∴ all are there now
 func _on_node_added(node: Node) -> void:
 	var button: Button = node as Button
 	if not DebugCommands.explain or not button or not button.has_meta(&"response"):
@@ -78,5 +78,5 @@ func _add_feed_line(feed_line: String) -> void:
 		_tween.kill()
 	_tween = create_tween()
 	_tween.tween_property(self, "modulate:a", 0.0, fade_time)
-	# Faded feed starts empty, old lines would come back with next one.
+	# faded feed starts ∅, else old lines come back w/ next one
 	_tween.tween_callback(func() -> void: _lines.clear())

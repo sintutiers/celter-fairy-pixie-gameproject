@@ -1,25 +1,25 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Area that changes sanity drain while player is inside. Defaults make sanctuary:
-## drain paused and first entry restores [member first_entry_sanity], once per area.
-## With [member pauses_drain] off and [member extra_drain_per_second] set it is
+## drain paused + first entry restores [member first_entry_sanity], once /area.
+## W/ [member pauses_drain] off + [member extra_drain_per_second] set it is
 ## thing that eats sanity when player is close.
-## Needs [CollisionShape3D] child and mask on physics layer 2 ("player").
+## Needs [CollisionShape3D] child + mask on physics layer 2 ("player").
 class_name SanityArea
 extends Area3D
 
 ## Stops sanity drain while inside, see [method SanityComponent.pause_sanity_drain].
 @export var pauses_drain: bool = true
-## Added to [member SanityComponent.drain_per_second] while inside. Pauses with normal
-## drain, so sanctuary and locking interactions stop it too.
+## Added to [member SanityComponent.drain_per_second] while inside. Pauses w/ normal
+## drain ∴ sanctuary + locking interactions stop it too.
 @export var extra_drain_per_second: float = 0.0
-## Added to sanity on first entry. 0 = none.
+## Added to sanity on first entry. 0 = ∅.
 @export var first_entry_sanity: float = 10.0
-## Saves first entry per level in [LevelState], so it stays used after reload.
-## Must be unique within level. Empty = used again every time level loads.
+## Saves first entry /level in [LevelState] ∴ it stays used after reload.
+## Must be unique within level. ∅ = used again every time level loads.
 @export var persistent_id: String = ""
 
-# Also covers play without game state, where nothing is saved.
+# also covers play w/o game state, where ∅ is saved
 var _entered: bool = false
 
 
@@ -62,12 +62,12 @@ func _restore_sanity_on_first_entry(sanity: SanityComponent) -> void:
 	sanity.add_sanity(first_entry_sanity)
 
 
-# Old class name stays in key: changing it breaks saves.
+# old class name stays in key: changing it breaks saves
 func _get_entered_flag_key() -> String:
 	return "sanctuary." + persistent_id
 
 
-# Through api, same as PlayerApi.find_local_player_api, so body can be any player body.
+# through api like PlayerApi.find_local_player_api ∴ body can be any player body
 func _get_sanity_component_of_body(body: Node3D) -> SanityComponent:
 	var api: PlayerApi = body.get(&"api")
 	if not api or not api.sanity:

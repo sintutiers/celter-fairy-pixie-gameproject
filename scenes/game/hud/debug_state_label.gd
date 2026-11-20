@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Shows sanity numbers, inventory slots and every fact as text. Developer view, see [member Hud.show_debug_state].
-## Polled every frame because facts have no signal. Stops while hidden.
+## Shows sanity numbers, inventory slots + every fact as text. Developer view, see [member Hud.show_debug_state].
+## Polled every frame ∵ facts have no signal. Stops while hidden.
 class_name DebugStateLabel
 extends Label
 
@@ -16,7 +16,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	# Looked up every frame, player can respawn or change level.
+	# looked up every frame, player can respawn/change level
 	var api: PlayerApi = PlayerApi.find_local_player_api(get_tree())
 	if not api:
 		text = "no player"
@@ -39,7 +39,7 @@ func _process(_delta: float) -> void:
 	text = "\n".join(lines)
 
 
-# Title and journal text of quest stage. Placeholder for quest journal.
+# title + journal text of quest stage, placeholder for quest journal
 func _format_quest_stage_line(id: String, stage: int) -> String:
 	var quest: QuestData = QuestData.load_quest_by_id(id)
 	if not quest:

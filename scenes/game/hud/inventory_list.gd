@@ -15,7 +15,7 @@ func _ready() -> void:
 		return
 	_inventory = api.inventory
 	_inventory.changed.connect(_on_inventory_changed)
-	# Player ready before this already sent its load signal.
+	# player ready before this already sent its load signal
 	_on_inventory_changed()
 
 

@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Picks sprite animation from [PlatformerMovementBase] and [FacingComponent] signals.
+## Picks sprite animation from [PlatformerMovementBase] + [FacingComponent] signals.
 ## Dependencies (sprite, movement_component, facing_component) are injected by body, all required.
-## Sprite can be [AnimatedSprite3D] or [AnimatedSprite2D].
+## Sprite can be [AnimatedSprite3D]/[AnimatedSprite2D].
 class_name AnimationComponent
 extends Component
 
@@ -10,15 +10,15 @@ extends Component
 ## Seconds for full turn squash.
 @export var flip_duration: float = 0.1
 
-## [AnimatedSprite3D] or [AnimatedSprite2D]. Typed [Node] because they share no base class.
+## [AnimatedSprite3D]/[AnimatedSprite2D]. Typed [Node] ∵ they share no base class.
 var sprite: Node
 var movement_component: PlatformerMovementBase
 var facing_component: FacingComponent
 
 var _is_airborne: bool = false
-# Landing animation is playing. Ground motion changes are held back until it ends.
+# landing animation playing, ground motion changes held back until it ends
 var _is_landing: bool = false
-# Tumbling (airspin) must not be replaced by falling loop.
+# tumbling (airspin) must not be replaced by falling loop
 var _is_tumbling: bool = false
 var _pending_ground_motion: StringName = Animations.IDLE
 var _flip_tween: Tween
@@ -43,7 +43,6 @@ func _on_setup() -> void:
 	_set_sprite_flip_h(not facing_component.default_facing_right)
 
 
-# Every airborne animation sets same two flags.
 func _play_airborne_animation(animation: StringName, tumbling: bool = false) -> void:
 	_is_airborne = true
 	_is_tumbling = tumbling
@@ -52,7 +51,7 @@ func _play_airborne_animation(animation: StringName, tumbling: bool = false) -> 
 
 func _on_ground_motion_changed(motion: StringName) -> void:
 	if _is_landing:
-		# Moving cuts landing short, anything else waits for it to finish.
+		# moving cuts landing short, anything else waits for it
 		if motion == Animations.WALK or motion == Animations.RUN:
 			_is_landing = false
 			_play_sprite_animation(motion)
@@ -88,8 +87,7 @@ func _on_landed(motion: StringName) -> void:
 	_is_airborne = false
 	_is_tumbling = false
 	_pending_ground_motion = motion
-	# Already moving on touchdown (direction held through jump): motion never
-	# changes while landing plays, so nothing would cut it short. Skip it.
+	# already moving on touchdown: motion wont change during landing to cut it short ∴ skip it
 	if motion == Animations.WALK or motion == Animations.RUN:
 		_is_landing = false
 		_play_sprite_animation(motion)
@@ -116,15 +114,14 @@ func _on_facing_flipped(new_facing_x: float) -> void:
 	var flip: bool = new_facing_x < 0.0
 	if _flip_tween:
 		_flip_tween.kill()
-	# Squash x to 0, swap flip at midpoint, expand back.
 	_flip_tween = create_tween()
 	_flip_tween.tween_property(sprite, "scale:x", 0.0, flip_duration * 0.5)
 	_flip_tween.tween_callback(_set_sprite_flip_h.bind(flip))
 	_flip_tween.tween_property(sprite, "scale:x", _base_scale_x, flip_duration * 0.5)
 
 
-# AnimatedSprite2D and AnimatedSprite3D share no base class, so sprite is a Node and
-# these four accessors are the only unsafe access. Both types have all of these members.
+# AnimatedSprite2D + 3D share no base class ∴ sprite is Node
+# these four accessors are only unsafe access, both types have these members
 func _play_sprite_animation(animation: StringName) -> void:
 	sprite.play(animation)
 

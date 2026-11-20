@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Saved game data, accessed through static helpers.
-## One save, held in memory and written as JSON to [member save_path] by [method save].
-## New field needs default here plus line in [method _to_dictionary] and [method _apply_dictionary].
+## One save, held in memory + written as JSON to [member save_path] by [method save].
+## New field needs default here + line in [method _to_dictionary] + [method _apply_dictionary].
 ## Changing what saved data means (renamed fact key, reordered quest stages, new key format)
-## needs bump of [constant SAVE_VERSION] and step in [method _migrate_save_to_current_version], or old saves break.
+## needs bump of [constant SAVE_VERSION] + step in [method _migrate_save_to_current_version], else old saves break.
 class_name GameState
 extends RefCounted
 
@@ -12,7 +12,7 @@ extends RefCounted
 const SAVE_VERSION: int = 1
 
 ## Extra instance for multiplayer testing passes [code]--save=<name>[/code] after
-## [code]--[/code] and gets its own file, because all editor instances share user://.
+## [code]--[/code] + gets its own file ∵ all editor instances share user://.
 static var save_path: String = _get_save_path()
 
 static var _current: GameState
@@ -32,8 +32,8 @@ var play_time: int
 var total_time: int
 
 
-## Returns saved [LevelState] for level scene path or uid, or null without game state.
-## Level seen for first time gets state created and saved, so read can write.
+## Returns saved [LevelState] for level scene path/uid, null w/o game state.
+## Level seen for first time gets state created + saved ∴ read can write.
 static func get_level_state(level_state_key: String) -> LevelState:
 	level_state_key = _get_level_state_key(level_state_key)
 	if not has_game_state():
@@ -50,29 +50,29 @@ static func get_level_state(level_state_key: String) -> LevelState:
 		return new_level_state
 
 
-## False until save file exists, as with scene run straight from editor before
-## game was ever started from main menu. Getters then return defaults and nothing is saved.
+## False until save file exists, as w/ scene run straight from editor before
+## game was ever started from main menu. Getters > return defaults + ∅ is saved.
 static func has_game_state() -> bool:
 	return _current != null or FileAccess.file_exists(save_path)
 
 
-## Every access goes through here. First call loads save file, or creates it.
+## Every access goes through here. First call loads save file/creates it.
 static func get_or_create_state() -> GameState:
 	if _current:
 		return _current
 	_current = GameState.new()
 	if FileAccess.file_exists(save_path):
 		_current._apply_dictionary(_read_save_file())
-	# Also writes back migrated save.
+	# also writes back migrated save
 	save()
 	return _current
 
 
-## Writes whole state to [member save_path]. Does nothing before [method get_or_create_state].
+## Writes whole state to [member save_path]. Does ∅ before [method get_or_create_state].
 static func save() -> void:
 	if not _current:
 		return
-	# Written beside save and then moved over it, so crash mid write keeps old save.
+	# written beside save > moved over it ∴ crash mid write keeps old save
 	var temporary_path: String = save_path + ".tmp"
 	var file: FileAccess = FileAccess.open(temporary_path, FileAccess.WRITE)
 	if not file:
@@ -87,15 +87,15 @@ static func save() -> void:
 		Log.error("cannot replace %s: %s" % [save_path, error_string(error)])
 
 
-## Copies save file to [param path], for backup or bug report.
+## Copies save file to [param path], for backup/bug report.
 static func export_save(path: String) -> Error:
 	save()
 	return DirAccess.copy_absolute(save_path, path)
 
 
-## Replaces save with file at [param path], which may be older version. Old save is kept as .backup.
-## Returns false and changes nothing when file is not save.
-## Nodes still hold old values, so caller must reload scene.
+## Replaces save w/ file at [param path], which may be older version. Old save is kept as .backup.
+## Returns false + changes ∅ when file ≠ save.
+## Nodes still hold old values ∴ caller must reload scene.
 static func import_save(path: String) -> bool:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if parsed is not Dictionary:
@@ -113,7 +113,7 @@ static func import_save(path: String) -> bool:
 	return true
 
 
-## Level being played, empty without game state.
+## Level being played, ∅ w/o game state.
 static func get_current_level_path() -> String:
 	if not has_game_state():
 		return ""
@@ -133,7 +133,7 @@ static func get_placed_level_path(node: Node) -> String:
 	return level.scene_file_path
 
 
-## Level that [method continue_game] goes back to, empty without game state.
+## Level that [method continue_game] goes back to, ∅ w/o game state.
 static func get_checkpoint_level_path() -> String:
 	if not has_game_state():
 		return ""
@@ -171,14 +171,14 @@ static func start_game() -> void:
 	save()
 
 
-## Makes checkpoint level current one and saves.
+## Makes checkpoint level current one + saves.
 static func continue_game() -> void:
 	var game_state: GameState = get_or_create_state()
 	game_state.current_level_path = game_state.checkpoint_level_path
 	save()
 
 
-## Wipes level progress, facts, inventory, sanity and play time.
+## Wipes level progress, facts, inventory, sanity + play time.
 ## [member total_games_played] is kept.
 static func reset() -> void:
 	var game_state: GameState = get_or_create_state()
@@ -193,14 +193,14 @@ static func reset() -> void:
 	save()
 
 
-## True if [param flag] was set in that level. Unknown level or flag = false.
+## True if [param flag] was set in that level. Unknown level/flag = false.
 ## Used for "this pickup is already taken" persistence, see [member InteractableThing.persistent_id].
 static func get_level_flag(level_path: String, flag: String) -> bool:
 	var level_state: LevelState = get_level_state(level_path)
 	return level_state != null and level_state.flags.get(flag, false)
 
 
-## Saves immediately. Warns and saves nothing if level has no state.
+## Saves immediately. Warns + saves ∅ if level has no state.
 static func set_level_flag(level_path: String, flag: String, value: bool = true) -> void:
 	var level_state: LevelState = get_level_state(level_path)
 	if not level_state:
@@ -210,18 +210,18 @@ static func set_level_flag(level_path: String, flag: String, value: bool = true)
 	save()
 
 
-## Returns fact, or [param default] when unset or without game state.
+## Returns fact, [param default] when unset/w/o game state.
 ## Facts are global, for state that crosses levels: choices, opinions, quest stages.
 ## Per-level state (taken pickups) stays in [method get_level_flag].
-## Keys use prefix per writer: [code]"choice."[/code], [code]"opinion."[/code], [code]"quest."[/code].
+## Keys use prefix /writer: [code]"choice."[/code], [code]"opinion."[/code], [code]"quest."[/code].
 static func get_fact(key: String, default: Variant = false) -> Variant:
 	if not has_game_state():
 		return default
 	return get_or_create_state().facts.get(key, default)
 
 
-## Saves immediately. Warns and saves nothing without game state.
-## [b]Warning:[/b] Renaming key breaks saves that already hold it.
+## Saves immediately. Warns + saves ∅ w/o game state.
+## ⚠ Renaming key breaks saves that already hold it.
 static func set_fact(key: String, value: Variant = true) -> void:
 	if not has_game_state():
 		Log.warn("no game state, fact '%s' not saved" % key)
@@ -230,8 +230,8 @@ static func set_fact(key: String, value: Variant = true) -> void:
 	save()
 
 
-# Uid survives renaming or moving level scene, path does not.
-# Scene without uid keeps its path as key.
+# uid survives renaming/moving level scene, path doesnt
+# scene w/o uid keeps its path as key
 static func _get_level_state_key(level_path: String) -> String:
 	if level_path.is_empty() or level_path.begins_with("uid://"):
 		return level_path
@@ -245,7 +245,7 @@ static func _get_save_path() -> String:
 	return "user://save.json"
 
 
-# Empty for file that is not JSON object. That file is kept as .broken, next save would overwrite it.
+# ∅ for file that ≠ JSON object, kept as .broken since next save would overwrite it
 static func _read_save_file() -> Dictionary:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(save_path))
 	if parsed is not Dictionary:
@@ -259,9 +259,9 @@ static func _read_save_file() -> Dictionary:
 	return data
 
 
-# One step per version, in order, each lifts save by one. Steps change plain data
-# from file, before it becomes GameState, so they do not depend on how class looks now.
-# Never edit old step: saves already out there were written by it.
+# one step /version, in order, each lifts save by one
+# steps change plain file data before it becomes GameState ∴ they dont depend on current class
+# never edit old step: saves already out there were written by it
 static func _migrate_save_to_current_version(data: Dictionary) -> void:
 	var version: int = data.get("save_version", SAVE_VERSION)
 	if version > SAVE_VERSION:
@@ -269,10 +269,10 @@ static func _migrate_save_to_current_version(data: Dictionary) -> void:
 			"save is version %d, this game only knows %d. Loaded as is, expect missing progress."
 			% [version, SAVE_VERSION],
 		)
-	# No steps yet. First one starts with "if version < 2:" and renames or rebuilds keys in data.
+	# no steps yet, first one starts w/ "if version < 2:" + renames/rebuilds keys in data
 
 
-# JSON has one number type, so 3 is read back as 3.0. Counts and quest stages must stay int.
+# JSON has one number type ∴ 3 reads back as 3.0, counts + quest stages must stay int
 static func _convert_whole_number_to_int(value: Variant) -> Variant:
 	if value is float:
 		var number: float = value
@@ -299,7 +299,7 @@ func _to_dictionary() -> Dictionary:
 	}
 
 
-# Missing key keeps default, so new field needs no migration step.
+# missing key keeps default ∴ new field needs no migration step
 func _apply_dictionary(data: Dictionary) -> void:
 	current_level_path = data.get("current_level_path", "")
 	checkpoint_level_path = data.get("checkpoint_level_path", "")

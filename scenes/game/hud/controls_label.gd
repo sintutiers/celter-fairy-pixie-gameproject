@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Keyboard key per action, one line each, read from [InputMap] so remapped keys show.
+## Keyboard key /action, one line each, read from [InputMap] ∴ remapped keys show.
 ## Read on ready: remap in options menu shows after level reload.
 class_name ControlsLabel
 extends Label
 
-## Space separated input actions -> what they do. Keys of several actions are joined: "WASD move".
+## Space separated input actions to what they do. Keys of several actions are joined: "WASD move".
 @export var actions: Dictionary[String, String] = {
 	"move_up move_left move_down move_right": "move",
 	"run": "run",

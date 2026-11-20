@@ -1,3 +1,5 @@
+## Game tab of options menu: reset, export + import of save,
+## see [method GameState.export_save] + [method GameState.import_save].
 extends Control
 
 @onready var _save_file_dialog: FileDialog = %SaveFileDialog
@@ -19,7 +21,7 @@ func _on_import_save_button_pressed() -> void:
 	_save_file_dialog.popup_centered_ratio()
 
 
-# One dialog for both buttons, its mode tells which one opened it.
+# one dialog for both buttons, its mode tells which one opened it
 func _on_save_file_dialog_file_selected(path: String) -> void:
 	if _save_file_dialog.file_mode == FileDialog.FILE_MODE_SAVE_FILE:
 		var error: Error = GameState.export_save(path)
@@ -28,6 +30,6 @@ func _on_save_file_dialog_file_selected(path: String) -> void:
 	if not GameState.import_save(path):
 		_save_data_status_label.text = "%s is not a save file" % path.get_file()
 		return
-	# Same as reset: scene reloads, so player and menus read imported save.
+	# same as reset: scene reloads ∴ player + menus read imported save
 	get_tree().paused = false
 	get_tree().reload_current_scene()

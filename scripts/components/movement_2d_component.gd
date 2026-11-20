@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## [PlatformerMovementBase] for side scrolling [CharacterBody2D].
 ## Horizontal movement is x axis, vertical is along [member CharacterBody2D.up_direction].
-## Only x of move input is used, up and down do nothing.
+## Only x of move input is used, up + down do ∅.
 ## Dependencies (body, collision_shape) are injected by body.
 ## [b]Note:[/b] [MovementProfile] values are in world units. Defaults are tuned for 3D
 ## meters, 2D game in pixels needs its own profile.
@@ -35,7 +35,7 @@ func _on_setup() -> void:
 		)
 		_shape = null
 		return
-	# Own copy: height changes at runtime and scene shape resource is shared by every instance.
+	# own copy: height changes at runtime + scene shape resource is shared by every instance
 	_shape = _shape.duplicate()
 	collision_shape.shape = _shape
 	_standing_height = _get_collision_shape_height()
@@ -71,7 +71,7 @@ func _get_vertical_velocity() -> float:
 
 
 func _set_vertical_velocity(value: float) -> void:
-	# up_direction is always normalized, which slide() requires.
+	# up_direction is always normalized, which slide() requires
 	body.velocity = body.velocity.slide(body.up_direction) + body.up_direction * value
 
 
@@ -99,7 +99,7 @@ func _is_on_ceiling() -> bool:
 	return body.is_on_ceiling()
 
 
-# Resizes shape instead of scaling node, so bottom can be kept at feet.
+# resizes shape, not scaling node ∴ bottom stays at feet
 func _set_collision_shape_crouched(crouched: bool) -> void:
 	if not _shape:
 		return
@@ -113,7 +113,7 @@ func _set_collision_shape_crouched(crouched: bool) -> void:
 		)
 	_set_collision_shape_width(width)
 	_set_collision_shape_height(height)
-	# 2D y points down, so shape moves down by half lost height to keep bottom at feet.
+	# 2D y points down ∴ move shape down by half lost height to keep bottom at feet
 	collision_shape.position.y = _standing_shape_position.y + (_standing_height - height) * 0.5
 
 
@@ -143,18 +143,18 @@ func _set_collision_shape_width(width: float) -> void:
 		(_shape as RectangleShape2D).size.x = width
 
 
-# Capsule cannot be shorter than its two caps.
+# capsule cannot be shorter than its two caps
 func _get_minimum_collision_shape_height(width: float) -> float:
 	if _shape is CapsuleShape2D:
 		return width
 	return 0.0
 
 
-# Standing shape query. Shrunk by SKIN so floor and walls touching crouched shape do not count as blocking.
+# standing shape query, shrunk by SKIN ∴ floor + walls touching crouched shape dont block
 func _has_room_to_stand() -> bool:
 	if not _shape:
 		return true
-	# Pixels. Raise if standing up is refused next to walls, lower if low ceilings let you stand.
+	# pixels, raise if standing up is refused next to walls, lower if low ceilings let you stand
 	const SKIN: float = 0.5
 	var standing: Shape2D = _shape.duplicate()
 	var height: float = _standing_height - SKIN * 2.0

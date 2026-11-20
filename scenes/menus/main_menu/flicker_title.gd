@@ -1,19 +1,22 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Project name that every few seconds twitches sideways, turns red + some letters swap, then snaps back.
-## Root is plain Control, not Container, or Container would undo the twitch.
+## Project name that every few seconds twitches sideways, turns red + some letters swap > snaps back.
+## Root is plain Control, not Container, else Container would undo twitch.
 class_name FlickerTitle
 extends Control
 
-# Swaps to letters, not symbols, so it looks misread instead of hacked.
+# swaps to letters, not symbols ∴ it looks misread instead of hacked
 const CORRUPT_CHARACTERS: String = "abcdefghijklmnopqrstuvwxyz"
 
+## Shortest seconds between flickers.
 @export var min_wait: float = 3.0
+## Longest seconds between flickers.
 @export var max_wait: float = 8.0
 ## Furthest label moves sideways, in pixels.
 @export var max_offset: float = 6.0
 ## Chance per letter of being swapped during flicker.
 @export_range(0.0, 1.0) var corrupt_chance: float = 0.15
+## Label color during flicker.
 @export var flicker_color: Color = Color(0.9, 0.3, 0.4)
 
 var _tween: Tween
@@ -32,7 +35,7 @@ func _queue_flicker() -> void:
 
 
 func _flicker() -> void:
-	# Read at each flicker, so text set by config name label is kept.
+	# read at each flicker ∴ text set by config name label is kept
 	var clean_text: String = _label.text
 	var rest_position: Vector2 = _label.position
 	_tween = create_tween()

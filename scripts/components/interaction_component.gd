@@ -1,14 +1,14 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Finds closest [InteractableThing] in range and runs it on interact press.
-## Things with [member InteractableThing.auto] run once when player walks into their
-## radius (again after leaving and re-entering) and never lock.
-## In range means inside thing zone: [Area3D] sensor on body scans
+## Finds closest [InteractableThing] in range + runs it on interact press.
+## Things w/ [member InteractableThing.auto] run once when player walks into their
+## radius (again after leaving + re-entering) + never lock.
+## In range = inside thing zone: [Area3D] sensor on body scans
 ## [constant InteractableThing.ZONE_LAYER], see [method InteractableThing.get_interactable_from_zone].
-## With [member InteractableThing.locks_player] lock lasts until [method InteractableThing.execute_interaction_for_actor]
-## returns. Nothing new starts while one is running.
-## Lock lives here, not in state chart. Movement and sanity react to
-## [signal interact_started] and [signal interact_ended].
+## W/ [member InteractableThing.locks_player] lock lasts until [method InteractableThing.execute_interaction_for_actor]
+## returns. ∅ new starts while one is running.
+## Lock lives here, not in state chart. Movement + sanity react to
+## [signal interact_started] + [signal interact_ended].
 ## Dependencies (input_component, body, api) are injected by body.
 class_name InteractionComponent
 extends Component
@@ -18,7 +18,7 @@ signal interact_started
 ## Emitted when locking interaction ends.
 signal interact_ended
 
-## Radius of player sensor. Small, so thing zone radius is reach.
+## Radius of player sensor. Small ∴ thing zone radius is reach.
 const SENSOR_RADIUS: float = 0.05
 
 var input_component: InputComponent
@@ -34,7 +34,7 @@ var _sensor: Area3D
 
 
 func _physics_process(_delta: float) -> void:
-	# No sensor until _on_setup, which is deferred.
+	# no sensor until _on_setup, which is deferred
 	if is_locked or _busy or not _sensor:
 		return
 	if input_component.get_frame().interact_pressed:
@@ -48,7 +48,7 @@ func _on_setup() -> void:
 	_add_interaction_sensor()
 
 
-# Child of body, not of this component: plain Node has no transform to follow.
+# child of body, not this component: plain Node has no transform to follow
 func _add_interaction_sensor() -> void:
 	var shape: SphereShape3D = SphereShape3D.new()
 	shape.radius = SENSOR_RADIUS
@@ -74,8 +74,7 @@ func _interact_with_nearest_interactable() -> void:
 	if locks:
 		_set_interaction_locked(true)
 	await target.execute_interaction_for_actor(api)
-	# Press that closed dialogue can still be latched as press. Wait it
-	# out so it does not restart interaction.
+	# press that closed dialogue can still be latched, wait it out ∴ it doesnt restart interaction
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	if locks:
@@ -83,7 +82,7 @@ func _interact_with_nearest_interactable() -> void:
 	_busy = false
 
 
-# Closest press-to-interact thing whose zone sensor is in.
+# closest press-to-interact thing whose zone sensor is in
 func _find_nearest_interactable() -> InteractableThing:
 	var closest: InteractableThing = null
 	var closest_dist_sq: float = INF
@@ -104,7 +103,7 @@ func _on_interaction_zone_entered(zone: Area3D) -> void:
 		return
 	var thing: InteractableThing = InteractableThing.get_interactable_from_zone(zone)
 	if thing and thing.enabled and thing.auto:
-		# Auto things never lock, so waiting here blocks nothing.
+		# auto things never lock ∴ waiting here blocks ∅
 		await thing.execute_interaction_for_actor(api)
 #endregion
 

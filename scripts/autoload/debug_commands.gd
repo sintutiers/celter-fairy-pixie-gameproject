@@ -1,19 +1,19 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Debug commands for [LimboConsole]. Autoload.
-## Player commands go through [PlayerApi], so they work for 2D and 3D player.
-## Also checks every .dialogue file on startup for unknown item and quest ids and
+## Player commands go through [PlayerApi] ∴ they work for 2D + 3D player.
+## Also checks every .dialogue file on startup for unknown item + quest ids +
 ## for unclosed option conditions, see [method _check_dialogue_files].
 ##
 ## [LimboConsole] silently fails to register bare callable, command name
 ## must be passed as second argument even when function name matches.
 extends Node
 
-## On = [ExplainFeed] shows what dialogue and pickups did, design notes and why
+## On = [ExplainFeed] shows what dialogue + pickups did, design notes + why
 ## options are locked. Not saved, off on every start.
 var explain: bool = false
 
-# Component that toggle_sanity_drain paused, so same one is resumed.
+# component toggle_sanity_drain paused ∴ same one gets resumed
 var _drain_paused_sanity: SanityComponent
 
 
@@ -33,13 +33,13 @@ func _ready() -> void:
 	LimboConsole.register_command(show_save_file, "savefile", "Shows the save file in the file manager.")
 	LimboConsole.add_argument_autocomplete_source("give", 0, _get_all_item_ids)
 	LimboConsole.add_argument_autocomplete_source("use", 0, _get_all_item_ids)
-	# Exported builds hold no .dialogue source, only compiled resources.
+	# exported builds hold no .dialogue source, only compiled resources
 	if OS.has_feature("editor"):
 		_check_dialogue_files()
 
 
 #region Commands
-## Gives [param count] of item with [param id]. Id is .tres file name,
+## Gives [param count] of item w/ [param id]. Id is .tres file name,
 ## same as in .dialogue files, see [method ItemData.load_item_by_id].
 func give_item(id: String, count: int = 1) -> void:
 	var api: PlayerApi = _get_player_api()
@@ -51,7 +51,7 @@ func give_item(id: String, count: int = 1) -> void:
 		LimboConsole.error("could not give %d %s, see the errors above" % [count, id])
 
 
-## Uses carried item with [param id], see [method InventoryComponent.use_inventory_item].
+## Uses carried item w/ [param id], see [method InventoryComponent.use_inventory_item].
 ## Only way to use item until there is inventory UI.
 func use_item(id: String) -> void:
 	var api: PlayerApi = _get_player_api()
@@ -81,8 +81,8 @@ func toggle_explain() -> void:
 	LimboConsole.info("explain %s" % ("on" if explain else "off"))
 
 
-## Pauses sanity drain of current player, or resumes it when paused by this.
-## New player after respawn or level change drains again.
+## Pauses sanity drain of current player/resumes it when paused by this.
+## New player after respawn/level change drains again.
 func toggle_sanity_drain() -> void:
 	if is_instance_valid(_drain_paused_sanity):
 		_drain_paused_sanity.resume_sanity_drain()
@@ -100,8 +100,8 @@ func toggle_sanity_drain() -> void:
 	LimboConsole.info("sanity drain off")
 
 
-## Sets fact [param key], see [method GameState.set_fact]. Lists every fact without key.
-## [param value] true, false or whole number is saved as that, anything else as text.
+## Sets fact [param key], see [method GameState.set_fact]. Lists every fact w/o key.
+## [param value] true, false/whole number is saved as that, anything else as text.
 func set_fact(key: String = "", value: String = "true") -> void:
 	if not GameState.has_game_state():
 		LimboConsole.error("no save data, start from the main menu once")
@@ -120,8 +120,8 @@ func set_fact(key: String = "", value: String = "true") -> void:
 	LimboConsole.info("%s = %s" % [key, parsed])
 
 
-## Loads level [param number] from list of [LevelManager], 1 = first. Lists them without valid number.
-## Number and not name, level file names hold spaces.
+## Loads level [param number] from list of [LevelManager], 1 = first. Lists them w/o valid number.
+## Number + not name, level file names hold spaces.
 func load_level(number: int = 0) -> void:
 	var scene: Node = get_tree().current_scene
 	var manager: LevelManager = Component.find_descendant_of_type(scene, LevelManager) if scene else null
@@ -145,7 +145,7 @@ func set_time_scale(value: float = 1.0) -> void:
 	LimboConsole.info("timescale %s" % value)
 
 
-## Opens folder of [member GameState.save_path] with file selected.
+## Opens folder of [member GameState.save_path] w/ file selected.
 func show_save_file() -> void:
 	var path: String = ProjectSettings.globalize_path(GameState.save_path)
 	if OS.shell_show_in_file_manager(path) == OK:
@@ -155,7 +155,7 @@ func show_save_file() -> void:
 #endregion
 
 
-# Looked up per command, cached one goes stale on respawn or level change.
+# looked up /command, cached one goes stale on respawn/level change
 func _get_player_api() -> PlayerApi:
 	var api: PlayerApi = PlayerApi.find_local_player_api(get_tree())
 	if not api:
@@ -163,10 +163,10 @@ func _get_player_api() -> PlayerApi:
 	return api
 
 
-# Autocomplete for give and use: every .tres in ItemData.DIR, by id.
+# autocomplete for give + use: every .tres in ItemData.DIR, by id
 func _get_all_item_ids() -> Array[String]:
 	var ids: Array[String] = []
-	# Not DirAccess, in exported project it lists PCK contents, not original file names.
+	# not DirAccess: in export it lists PCK contents, not original file names
 	for file: String in ResourceLoader.list_directory(ItemData.DIR):
 		if file.get_extension() == "tres":
 			ids.append(file.get_basename())
@@ -174,15 +174,13 @@ func _get_all_item_ids() -> Array[String]:
 
 
 #region Dialogue check
-# Typo in .dialogue id only fails when that line is reached in play, which for
-# rare branch is never during testing. This reports them all on every run from editor.
-# Only literal ids are seen. Flags and facts have no list to check against.
+# typo in .dialogue id only fails once line is reached ∴ rare branches slip through testing
+# reports them all on every editor run, literal ids only (flags + facts have no list)
 func _check_dialogue_files() -> void:
 	var calls: RegEx = RegEx.create_from_string(
 		"\\b(give_item|remove_item|has_item|use_item|get_quest_stage|is_quest_done|advance_quest)\\(\\s*\"([^\"]*)\"",
 	)
-	# Option condition must end in " /]". With plain "]" it compiles, is shown
-	# as option text and is never checked.
+	# option condition must end in " /]", plain "]" compiles but shows as text + is never checked
 	var unclosed_conditions: RegEx = RegEx.create_from_string("(?m)^\\s*- .*\\[if [^\\]]*[^/]\\]$")
 	for path: String in _find_dialogue_files("res://"):
 		var text: String = FileAccess.get_file_as_string(path)
@@ -197,7 +195,7 @@ func _check_dialogue_files() -> void:
 			Log.error("%s:%d: %s(\"%s\") but %s%s.tres does not exist" % [path, line, found.get_string(1), id, directory, id])
 
 
-# Hidden folders are skipped by DirAccess, addons hold only example dialogue.
+# DirAccess skips hidden folders, addons hold only example dialogue
 func _find_dialogue_files(directory: String) -> PackedStringArray:
 	var files: PackedStringArray = PackedStringArray()
 	for folder: String in DirAccess.get_directories_at(directory):

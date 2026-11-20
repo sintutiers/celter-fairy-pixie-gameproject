@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## 2D twin of [PlayerBody]: owns every component on player [CharacterBody2D] and wires
+## 2D twin of [PlayerBody]: owns every component on player [CharacterBody2D] + wires
 ## their dependencies in [method Node._enter_tree]. Same rules, see [PlayerBody].
 ##
 ## No interaction yet, [InteractionComponent] is 3D only.
@@ -14,7 +14,7 @@ var api: PlayerApi
 
 
 func _enter_tree() -> void:
-	# Runs again when body is moved in tree. First wiring still holds.
+	# runs again when body is moved in tree, first wiring still holds
 	if api:
 		return
 	var input: InputComponent = _find_descendant_of_type(InputComponent)

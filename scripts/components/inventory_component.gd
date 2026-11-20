@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Player inventory, [ItemData] to count. Stack of [member ItemData.max_stack]
 ## takes one slot, [member max_slots] limits slots used in total.
-## Saved in [member GameState.inventory] on every change and loaded on ready,
-## so it survives level changes and restarts. Without game state nothing is saved.
+## Saved in [member GameState.inventory] on every change + loaded on ready,
+## ∴ it survives level changes + restarts. W/o game state ∅ is saved.
 ## Dependencies (api, optional sanity_component) are injected by body.
 class_name InventoryComponent
 extends Component
@@ -23,14 +23,14 @@ signal item_used(item: ItemData, consumed: bool)
 var sanity_component: SanityComponent
 ## Passed to item use dialogues as extra game state.
 var api: PlayerApi
-## Item to count. Read only, change it through [method add_inventory_item] and [method remove_inventory_item].
+## Item to count. Read only, change it through [method add_inventory_item] + [method remove_inventory_item].
 var items: Dictionary[ItemData, int] = { }
 
-# Item use dialogues are skipped while another dialogue is open.
+# item use dialogues are skipped while another dialogue is open
 var _in_dialogue: bool = false
 
 
-## True if at least [param count] of [param item] are carried.
+## True if >= [param count] of [param item] are carried.
 func has_inventory_item(item: ItemData, count: int = 1) -> bool:
 	return item != null and items.get(item, 0) >= count
 
@@ -50,7 +50,7 @@ func can_carry_item(item: ItemData, count: int = 1) -> bool:
 	return get_used_slot_count() + extra <= max_slots
 
 
-## All or nothing. Returns false when there is no room and nothing was added.
+## All/∅. Returns false when there is no room + ∅ was added.
 ## Pushes error when [param count] is below 1.
 func add_inventory_item(item: ItemData, count: int = 1) -> bool:
 	if not item:
@@ -70,7 +70,7 @@ func add_inventory_item(item: ItemData, count: int = 1) -> bool:
 	return true
 
 
-## Returns false when fewer than [param count] are carried and nothing was removed.
+## Returns false when fewer than [param count] are carried + ∅ was removed.
 ## Pushes error when [param count] is below 1.
 func remove_inventory_item(item: ItemData, count: int = 1) -> bool:
 	if count < 1:
@@ -87,9 +87,9 @@ func remove_inventory_item(item: ItemData, count: int = 1) -> bool:
 	return true
 
 
-## Applies item effects and consumes it if [member ItemData.consumed_on_use].
+## Applies item effects + consumes it if [member ItemData.consumed_on_use].
 ## Its use dialogue only shows when no dialogue is open.
-## Returns false if item is not carried.
+## Returns false if item not carried.
 func use_inventory_item(item: ItemData) -> bool:
 	if not has_inventory_item(item):
 		return false
@@ -121,8 +121,8 @@ func _on_setup() -> void:
 	_require_dependencies({ "api": api })
 
 
-# Only changed: nothing was picked up, pickup toast must stay quiet.
-# Item whose .tres is gone is reported by load_item_by_id and dropped on next save.
+# only changed: ∅ was picked up, pickup toast must stay quiet
+# item whose .tres is gone is reported by load_item_by_id + dropped on next save
 func _load_saved_inventory() -> void:
 	if not GameState.has_game_state():
 		return
@@ -134,7 +134,7 @@ func _load_saved_inventory() -> void:
 	changed.emit()
 
 
-# Saved by id, not by resource. Renaming item file breaks saves that hold it.
+# saved by id, not resource: renaming item file breaks saves that hold it
 func _save_inventory() -> void:
 	if not GameState.has_game_state():
 		return

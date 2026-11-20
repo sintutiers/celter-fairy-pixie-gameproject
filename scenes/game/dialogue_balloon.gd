@@ -1,13 +1,13 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Dialogue Manager example balloon + [code][#sanity_glitch][/code] tag: text of that line trembles and flickers.
+## Dialogue Manager example balloon + [code][#sanity_glitch][/code] tag: text of that line trembles + flickers.
 ## [code][#jumpscare][/code] tag slams [member jumpscare_texture] over whole screen for a moment.
-## Only how it is shown changes, line text stays clean for logs, explain and screen readers.
+## Only how it is shown changes, line text stays clean for logs, explain + screen readers.
 ## Use it rarely, if every line glitches it stops meaning anything.
 ## [codeblock]
 ## Fairy: [#sanity_glitch] There you are.
 ## [/codeblock]
-## Tag goes right after character name, as in Dialogue Manager docs. Before [code]Fairy:[/code] it breaks the name.
+## Tag goes right after character name, as in Dialogue Manager docs. Before [code]Fairy:[/code] it breaks name.
 class_name DialogueBalloon
 extends DialogueManagerExampleBalloon
 
@@ -16,14 +16,14 @@ const JUMPSCARE_TAG: String = "jumpscare"
 
 ## Max tilt of glitching text, in degrees.
 @export var glitch_angle: float = 0.8
-## Max part of alpha a flicker takes away. Kept low, so it never becomes a strobe.
+## Max part of alpha flicker takes away. Kept low ∴ it never becomes strobe.
 @export_range(0.0, 1.0) var glitch_flicker: float = 0.35
 ## Seconds between jitters.
 @export var glitch_interval: float = 0.08
 @export_group("Jumpscare")
 ## Covers screen on [code][#jumpscare][/code] lines.
 @export var jumpscare_texture: Texture2D
-## Played with it. Empty = silent.
+## Played w/ it. ∅ = silent.
 @export var jumpscare_sound: AudioStream
 ## Seconds it stays before fading.
 @export var jumpscare_duration: float = 0.7
@@ -52,13 +52,13 @@ func _process(delta: float) -> void:
 	if _glitch_timer > 0.0:
 		return
 	_glitch_timer = glitch_interval
-	# Containers set position + size, not rotation or modulate, so these stay.
+	# containers set position + size, not rotation/modulate ∴ these stay
 	dialogue_label.pivot_offset = dialogue_label.size / 2.0
 	dialogue_label.rotation = deg_to_rad(randf_range(-glitch_angle, glitch_angle))
 	dialogue_label.modulate.a = 1.0 - randf() * glitch_flicker
 
 
-# Added last, so drawn over balloon. Ignores mouse, so the line can still be clicked through.
+# added last ∴ drawn over balloon, ignores mouse ∴ line can still be clicked through
 func _play_jumpscare() -> void:
 	if not jumpscare_texture:
 		Log.error("jumpscare tag but balloon has no jumpscare_texture")

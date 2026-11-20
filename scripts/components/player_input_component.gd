@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Reads input map actions into [InputFrame].
-## Presses and releases come from input events and are latched. Held state is polled.
+## Presses + releases come from input events + are latched. Held state is polled.
 class_name PlayerInputComponent
 extends InputComponent
 
@@ -11,8 +11,8 @@ var _dash_pressed: bool = false
 var _interact_pressed: bool = false
 
 
-# Drops edges nobody asked for, so press is seen by one physics frame only.
-# Without this, press during interaction lock would fire after it.
+# drops edges nobody asked for ∴ press is seen by one physics frame only
+# w/o this, press during interaction lock would fire after it
 func _physics_process(_delta: float) -> void:
 	_jump_pressed = false
 	_jump_released = false
@@ -32,13 +32,13 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _on_ready() -> void:
-	# Runs after every consumer of frame.
+	# runs after every consumer of frame
 	process_physics_priority = 100
 
 
 func _build_frame() -> InputFrame:
 	var frame: InputFrame = InputFrame.new()
-	# Held state stays polled. Tracking it from events desyncs when UI consumes release.
+	# held state stays polled, tracking it from events desyncs when UI consumes release
 	frame.move = Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
 	frame.run = Input.is_action_pressed(&"run")
 	frame.crouch = Input.is_action_pressed(&"crouch")

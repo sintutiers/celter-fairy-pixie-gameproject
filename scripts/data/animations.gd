@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Sprite animation names, must match animations in player sprite frames.
 ## Ground motions ([constant IDLE] to [constant CROUCH_IDLE]) are also what
-## [signal PlatformerMovementBase.ground_motion_changed] reports, and
+## [signal PlatformerMovementBase.ground_motion_changed] reports +
 ## [AnimationComponent] plays them as is.
 class_name Animations
 extends RefCounted

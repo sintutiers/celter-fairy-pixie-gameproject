@@ -28,7 +28,7 @@ func _on_setup() -> void:
 	if not _capsule:
 		Log.error("%s: crouch needs a CapsuleShape3D, the shape stays standing size" % name)
 		return
-	# Own copy: height changes at runtime and scene shape resource is shared by every instance.
+	# own copy: height changes at runtime + scene shape resource is shared by every instance
 	_capsule = _capsule.duplicate()
 	collision_shape.shape = _capsule
 	_standing_height = _capsule.height
@@ -43,7 +43,6 @@ func _get_movement_input(frame: InputFrame) -> Vector2:
 	return frame.move
 
 
-# Input y maps to world z, rotated by body basis.
 func _convert_input_direction_to_world(direction: Vector2) -> Vector2:
 	var world: Vector3 = body.global_basis * Vector3(direction.x, 0.0, direction.y)
 	return Vector2(world.x, world.z)
@@ -67,7 +66,7 @@ func _get_vertical_velocity() -> float:
 
 
 func _set_vertical_velocity(value: float) -> void:
-	# up_direction is always normalized, which slide() requires.
+	# up_direction is always normalized, which slide() requires
 	body.velocity = body.velocity.slide(body.up_direction) + body.up_direction * value
 
 
@@ -96,8 +95,8 @@ func _is_on_ceiling() -> bool:
 	return body.is_on_ceiling()
 
 
-# Resizes capsule instead of scaling node. Jolt only scales capsules uniformly,
-# so y scale left bottom below feet and lifted body off floor.
+# resizes capsule, not scaling node: Jolt only scales capsules uniformly,
+# ∴ y scale left bottom below feet + lifted body off floor
 func _set_collision_shape_crouched(crouched: bool) -> void:
 	if not _capsule:
 		return
@@ -105,19 +104,19 @@ func _set_collision_shape_crouched(crouched: bool) -> void:
 	var radius: float = _standing_radius
 	if crouched:
 		radius = _standing_radius * profile.crouch_radius_scale
-		# Capsule cannot be shorter than its two caps.
+		# capsule cannot be shorter than its two caps
 		height = maxf(_standing_height * profile.crouch_collision_scale, radius * 2.0)
 	_capsule.radius = radius
 	_capsule.height = height
-	# Lowered by half lost height, so bottom stays at feet.
+	# lowered by half lost height ∴ bottom stays at feet
 	collision_shape.position.y = _standing_shape_position.y - (_standing_height - height) * 0.5
 
 
-# Standing capsule query. Shrunk by SKIN so floor and walls touching crouched capsule do not count as blocking.
+# standing capsule query, shrunk by SKIN ∴ floor + walls touching crouched capsule dont block
 func _has_room_to_stand() -> bool:
 	if not _capsule:
 		return true
-	# Meters. Raise if standing up is refused next to walls, lower if low ceilings let you stand.
+	# meters, raise if standing up is refused next to walls, lower if low ceilings let you stand
 	const SKIN: float = 0.02
 	var standing: CapsuleShape3D = CapsuleShape3D.new()
 	standing.radius = _standing_radius - SKIN

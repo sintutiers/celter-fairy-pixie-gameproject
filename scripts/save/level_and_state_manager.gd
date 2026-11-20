@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## [LevelManager] that mirrors level paths into [GameState] so they are saved.
+## [LevelManager] that mirrors level paths into [GameState] ∴ they are saved.
 ## Saved checkpoint wins over one in manager when set.
 extends LevelManager
 

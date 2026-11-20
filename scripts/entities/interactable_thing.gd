@@ -1,34 +1,34 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 @icon("res://scripts/entities/table2 duke.png")
-## Anything player can interact with: tree, box, person.
-## [method execute_interaction_for_actor] gives [member item] (if any), shows [member dialogue] (if any) and
-## returns when it ends, so caller can hold interact lock for whole interaction.
+## Anything player can interact w/: tree, box, person.
+## [method execute_interaction_for_actor] gives [member item] (if any), shows [member dialogue] (if any) +
+## returns when it ends ∴ caller can hold interact lock for whole interaction.
 ## When blocked (missing [member requires_item], missing [member requires_flag] or
-## no room) nothing is given and thing stays.
-## Reach is [member interaction_zone], [Area3D] you shape in editor. Without one it builds
+## no room) ∅ is given + thing stays.
+## Reach is [member interaction_zone], [Area3D] you shape in editor. W/o one it builds
 ## sphere zone in [method Node._ready]. Zone sits on [constant ZONE_LAYER],
 ## player [InteractionComponent] detects thing through it.
 class_name InteractableThing
 extends Node3D
 
 ## Emitted when blocked. [param reason] is [constant REQUIRES_ITEM], [constant REQUIRES_FLAG]
-## or [constant FULL].
+## / [constant FULL].
 signal blocked(by: PlayerApi, reason: StringName)
-## Emitted when interaction passed every gate and begins. Not emitted when blocked.
-## Lets siblings react (NPC stops walking, turns to player) without this knowing them.
+## Emitted when interaction passed every gate + begins. Not emitted when blocked.
+## Lets siblings react (NPC stops walking, turns to player) w/o this knowing them.
 signal started(by: PlayerApi)
 ## Emitted when that interaction ended, before [member free_after] frees node.
 signal finished(by: PlayerApi)
 
-## Physics layer 5 ("interaction"). Only zones are on it, and only player sensor scans it.
+## Physics layer 5 ("interaction"). Only zones are on it + only player sensor scans it.
 const ZONE_LAYER: int = 1 << 4
 const _ZONE_OWNER_META: StringName = &"interactable_thing"
 const REQUIRES_ITEM: StringName = &"requires_item"
 const REQUIRES_FLAG: StringName = &"requires_flag"
 const FULL: StringName = &"full"
 
-## Off = [method execute_interaction_for_actor] does nothing and player sensor skips it.
+## Off = [method execute_interaction_for_actor] does ∅ + player sensor skips it.
 @export var enabled: bool = true
 ## Plays [member sprite] on interact, paused otherwise.
 @export var animate_on_interact: bool = false
@@ -36,7 +36,7 @@ const FULL: StringName = &"full"
 @export var free_after: bool = false
 ## Freezes player until interaction ended. Off = player keeps moving (signs, barks).
 @export var locks_player: bool = true
-## With [member free_after]: once freed it stays gone, saved per level in [LevelState].
+## W/ [member free_after]: once freed it stays gone, saved /level in [LevelState].
 ## Must be unique within level.
 @export var persistent_id: String = ""
 ## Defaults to single [AnimatedSprite3D] below this node when [member animate_on_interact] is set.
@@ -44,37 +44,40 @@ const FULL: StringName = &"full"
 ## Reach: player inside this area can interact (or triggers it, for [member auto]).
 ## Found automatically when it is a direct [Area3D] child, assign here only to use another.
 ## Scene [code]scenes/game/interactable_thing_prefab.tscn[/code] already has one.
-## Layer, mask and monitoring are set from code, only shape matters.
-## None found = sphere built from [member interact_radius] ([member auto_radius] for [member auto]).
+## Layer, mask + monitoring are set from code, only shape matters.
+## ∅ found = sphere built from [member interact_radius] ([member auto_radius] for [member auto]).
 @export var interaction_zone: Area3D
 ## Reach for interact press, measured from this node origin. Only used when
-## [member interaction_zone] is empty. Ignored for [member auto].
+## [member interaction_zone] is ∅. Ignored for [member auto].
 @export var interact_radius: float = 2.0
 @export_group("Pickup")
-## Given on interaction, all or nothing: with no room it blocks with [constant FULL].
+## Given on interaction, all/∅: w/ no room it blocks w/ [constant FULL].
 @export var item: ItemData
+## How many of [member item] are given.
 @export var item_count: int = 1
-## Nothing is given until player carries this. It is not taken away.
+## ∅ is given until player carries this. It is not taken away.
 @export var requires_item: ItemData
-## Nothing runs until this flag is set, see [method PlayerApi.set_level_flag].
+## ∅ runs until this flag is set, see [method PlayerApi.set_level_flag].
 ## Checked before [member requires_item].
 @export var requires_flag: String = ""
-## Runs when player walks into zone instead of on interact press,
-## again after leaving and re-entering. Never locks, so give it no dialogue.
-## Entering while disabled or during locking interaction does not count, walk out and back in.
+## Runs when player walks into zone, not on interact press,
+## again after leaving + re-entering. Never locks ∴ give it no dialogue.
+## Entering while disabled/during locking interaction does not count, walk out + back in.
 @export var auto: bool = false
-## Radius of built zone for [member auto]. Only used when [member interaction_zone] is empty.
+## Radius of built zone for [member auto]. Only used when [member interaction_zone] is ∅.
 @export var auto_radius: float = 1.0
 @export_group("Dialogue")
+## Shown on interaction, starting at [member dialogue_cue]. Gets actor as extra game state.
 @export var dialogue: DialogueResource
+## Cue in [member dialogue] that starts on interaction, checked on load.
 @export var dialogue_cue: String = "start"
-## Cue shown when blocked. Needs [member dialogue], ignored for [member auto]. Empty = silent.
+## Cue shown when blocked. Needs [member dialogue], ignored for [member auto]. ∅ = silent.
 @export var blocked_cue: String = ""
 
 var _running: bool = false
 
 
-## Thing that owns [param zone], or null for any other area.
+## Thing that owns [param zone]/null for any other area.
 static func get_interactable_from_zone(zone: Area3D) -> InteractableThing:
 	return zone.get_meta(_ZONE_OWNER_META, null)
 
@@ -85,7 +88,7 @@ func _ready() -> void:
 	if persistent_id != "" and not free_after:
 		Log.warn("%s: persistent_id does nothing without free_after" % name)
 	_check_dialogue_cues()
-	# Already taken in earlier visit. Gone before its zone exists.
+	# already taken in earlier visit, gone before its zone exists
 	if free_after and persistent_id != "" and GameState.get_level_flag(GameState.get_placed_level_path(self), _get_finished_flag_key()):
 		queue_free()
 		return
@@ -98,7 +101,7 @@ func _ready() -> void:
 		sprite.pause()
 
 
-## Runs interaction for [param actor] and returns when it ends.
+## Runs interaction for [param actor] + returns when it ends.
 ## [param actor] is also dialogue extra game state.
 func execute_interaction_for_actor(actor: PlayerApi) -> void:
 	if not enabled or _running:
@@ -112,8 +115,8 @@ func execute_interaction_for_actor(actor: PlayerApi) -> void:
 	if item and not actor.give_item(item.get_item_id(), item_count):
 		await _block_interaction_for_actor(actor, FULL)
 		return
-	# Saved now, not after dialogue: item is already saved in inventory, so quitting
-	# mid dialogue would leave both pickup and item.
+	# saved now, not after dialogue: item already saved in inventory ∴ quitting
+	# mid dialogue would leave both pickup + item
 	if free_after and persistent_id != "":
 		GameState.set_level_flag(GameState.get_placed_level_path(self), _get_finished_flag_key())
 	_running = true
@@ -131,8 +134,8 @@ func execute_interaction_for_actor(actor: PlayerApi) -> void:
 		queue_free()
 
 
-# Wrong cue only fails when interacted with. Checked on load, so every thing in level
-# is checked even after cues move between .dialogue files.
+# wrong cue only fails on interact, checked on load ∴ every thing in level
+# is checked even after cues move between .dialogue files
 func _check_dialogue_cues() -> void:
 	if not dialogue:
 		return
@@ -142,7 +145,7 @@ func _check_dialogue_cues() -> void:
 			Log.error("%s: cue \"%s\" not in %s" % [name, cue, dialogue.resource_path])
 
 
-# Uses authored zone, or builds sphere one. It does not monitor, player sensor does.
+# player sensor monitors, not zone
 func _setup_interaction_zone() -> void:
 	if not interaction_zone:
 		interaction_zone = _find_child_zone()
@@ -155,7 +158,6 @@ func _setup_interaction_zone() -> void:
 	interaction_zone.set_meta(_ZONE_OWNER_META, self)
 
 
-# First direct [Area3D] child, so zone needs no assigning when added below thing.
 func _find_child_zone() -> Area3D:
 	for child: Node in get_children():
 		if child is Area3D:

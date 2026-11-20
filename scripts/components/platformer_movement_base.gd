@@ -1,22 +1,22 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Platformer movement: walk, run, jump, wall slide, dash, crouch.
-## State chart picks active state, this does physics for it and sends
+## State chart picks active state, this does physics for it + sends
 ## events back through [method _send_state_chart_event]. Values come from [MovementProfile].
-## Extend it and implement abstract functions for 2D or 3D.
+## Extend it + implement abstract functions for 2D/3D.
 ##
 ## Dependencies (profile, input, facing, state chart, optional interaction) are injected
-## by body in [method Node._enter_tree], so they are set in [method Component._on_ready]
-## and [method Component._on_setup].
+## by body in [method Node._enter_tree] ∴ they are set in [method Component._on_ready]
+## + [method Component._on_setup].
 @abstract
 class_name PlatformerMovementBase
 extends Component
 
-## Emitted when idle, walk, run, push or crouch motion changes on ground.
+## Emitted when idle, walk, run, push/crouch motion changes on ground.
 signal ground_motion_changed(motion: StringName)
 ## [param jump_count] is jump number in this airtime, 1 for first.
 signal jumped(jump_count: int)
-## Emitted instead of [signal jumped] when jump pushes off wall.
+## Emitted, not [signal jumped] when jump pushes off wall.
 signal wall_jumped
 ## [param motion] is ground motion at moment of landing.
 signal landed(motion: StringName)
@@ -24,7 +24,7 @@ signal landed(motion: StringName)
 signal started_falling
 ## Emitted once when wall slide starts.
 signal wall_slid
-## Emitted when wall slide ends by losing wall, not by landing or wall jump.
+## Emitted when wall slide ends by losing wall, not by landing/wall jump.
 signal fell_from_wall
 ## Emitted once when dash starts.
 signal dashed
@@ -39,7 +39,7 @@ var interaction_component: InteractionComponent
 var state_chart: StateChart
 
 var _empty_frame: InputFrame = InputFrame.new()
-# Transition was sent this frame, so post-move check is stale and skipped.
+# transition sent this frame ∴ post-move check is stale + skipped
 var _transition_sent: bool = false
 var _grounded_before_move: bool = false
 var _locked: bool = false
@@ -52,10 +52,10 @@ var _dash_cooldown_timer: float = 0.0
 var _dashes_used: int = 0
 var _dash_direction: Vector2 = Vector2.RIGHT
 var _wall_jump_lock_timer: float = 0.0
-# Normal of wall last jumped off this airtime, ZERO after landing.
+# normal of wall last jumped off this airtime, ZERO after landing
 var _last_wall_jump_normal: Vector2 = Vector2.ZERO
 var _was_falling: bool = false
-# Only for GameLog, so held direction is logged once.
+# only for GameLog ∴ held direction is logged once
 var _logged_input_direction: Vector2i = Vector2i.ZERO
 
 @onready var _ground_state: StateChartState = %Ground
@@ -66,8 +66,8 @@ var _logged_input_direction: Vector2i = Vector2i.ZERO
 
 
 #region Lifecycle
-# Order per frame: state chart runs active state physics (priority 0),
-# then this runs move_and_slide and post-move checks (priority 1).
+# frame order: state chart runs active state physics (priority 0),
+# > this runs move_and_slide + post-move checks (priority 1)
 func _physics_process(delta: float) -> void:
 	if _dash_cooldown_timer > 0.0:
 		_dash_cooldown_timer -= delta
@@ -81,8 +81,8 @@ func _physics_process(delta: float) -> void:
 
 
 #region Abstract
-# Horizontal vectors are in world space (x/z in 3D). Vertical values are along up.
-# _get_gravity_magnitude returns positive magnitude.
+# horizontal vectors in world space (x/z in 3D), vertical values along up
+# _get_gravity_magnitude returns positive magnitude
 @abstract func _get_gravity_magnitude() -> float
 
 
@@ -128,14 +128,14 @@ func _physics_process(delta: float) -> void:
 @abstract func _set_collision_shape_crouched(crouched: bool) -> void
 
 
-# Standing shape fits at current position. Gates leaving crouch under low ceiling.
+# standing shape fits at current position, gates leaving crouch under low ceiling
 @abstract func _has_room_to_stand() -> bool
 #endregion
 
 
 func _on_ready() -> void:
 	process_physics_priority = 1
-	# _on_setup reports missing state chart.
+	# _on_setup reports missing state chart
 	if not state_chart:
 		return
 	state_chart.process_physics_priority = 0
@@ -168,7 +168,7 @@ func _on_setup() -> void:
 
 
 #region Helpers
-# Stops state chart too, so no state handler runs on missing dependencies.
+# stops state chart too ∴ no state handler runs on missing dependencies
 func _disable_movement() -> void:
 	set_physics_process(false)
 	if state_chart:
@@ -179,7 +179,7 @@ func _set_input_locked(value: bool) -> void:
 	_locked = value
 
 
-# Empty while locked, so every state sees no input instead of needing its own check.
+# ∅ while locked ∴ states see no input w/o their own check
 func _get_input_frame() -> InputFrame:
 	if _locked:
 		return _empty_frame
@@ -203,7 +203,6 @@ func _get_current_movement_input() -> Vector2:
 	return _get_movement_input(_get_input_frame()).limit_length(1.0)
 
 
-# Sends event to state chart, see StateEvents. Post-move check is skipped this frame.
 func _send_state_chart_event(event: StringName) -> void:
 	_transition_sent = true
 	state_chart.send_event(event)
@@ -225,7 +224,7 @@ func _apply_horizontal_movement(
 	if input_sign != _logged_input_direction:
 		_logged_input_direction = input_sign
 		GameLog.write(&"movement", "input", input_sign)
-	# Wall jump lock ignores input, facing included.
+	# wall jump lock ignores input, facing included
 	if _wall_jump_lock_timer > 0.0:
 		return
 	var horizontal_velocity: Vector2 = _get_horizontal_velocity()
@@ -258,7 +257,7 @@ func _update_current_motion(on_ground: bool, input_dir: Vector2, is_running: boo
 	if motion == _current_motion:
 		return
 	_current_motion = motion
-	# Tracked in air too, so landing reports right motion. Only emitted on ground.
+	# tracked in air too ∴ landing reports right motion, only emitted on ground
 	if on_ground:
 		GameLog.write(&"movement", str(motion))
 		ground_motion_changed.emit(motion)
@@ -272,7 +271,7 @@ func _update_jump_buffer(delta: float) -> void:
 
 
 func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
-	# Wall jump does not need a spare jump, wall slide only runs it when wall jump is enabled.
+	# wall jump needs no spare jump, wall slide only runs it when wall jump is enabled
 	var can_jump: bool = is_wall_jump or _coyote_timer > 0.0 or _jumps_used < profile.max_jumps
 	if _jump_buffer_timer <= 0.0 or not can_jump:
 		return false
@@ -281,7 +280,7 @@ func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
 		profile.running_jump_height_multiplier if is_running else 1.0
 	)
 	var rise_gravity: float = profile.jump_gravity if profile.jump_gravity > 0.0 else _get_gravity_magnitude()
-	# v = sqrt(2 * g * h) reaches exactly height under rise gravity.
+	# v = sqrt(2 * g * h) reaches exactly height under rise gravity
 	_set_vertical_velocity(sqrt(2.0 * rise_gravity * height))
 
 	if is_wall_jump:
@@ -297,7 +296,6 @@ func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
 
 	_coyote_timer = 0.0
 	_jump_buffer_timer = 0.0
-	# Wall jump is free, so it does not spend air jumps.
 	if not is_wall_jump:
 		_jumps_used += 1
 	_was_falling = false
@@ -317,15 +315,14 @@ func _should_start_dash() -> bool:
 	return _get_input_frame().dash_pressed
 
 
-# Refills jumps and dashes, whatever state landing came from.
+# refills jumps + dashes, whatever state landing came from
 func _handle_landing() -> void:
 	_dashes_used = 0
 	_jumps_used = 0
 	_last_wall_jump_normal = Vector2.ZERO
 	_was_falling = false
-	# landed already carries motion. Emitting ground_motion_changed here
-	# would replace landing animation on same frame, see
-	# AnimationComponent._on_ground_motion_changed.
+	# landed already carries motion, emitting ground_motion_changed here would
+	# replace landing animation same frame, see AnimationComponent._on_ground_motion_changed
 	GameLog.write(&"movement", "landed", str(_current_motion))
 	landed.emit(_current_motion)
 	_send_state_chart_event(StateEvents.LAND)
@@ -367,13 +364,12 @@ func _on_air_state_physics_processing(delta: float) -> void:
 		return
 
 	var vertical: float = _get_vertical_velocity()
-	# Rise gravity only while going up, so jump height and fall speed tune separately.
+	# rise gravity only while going up ∴ jump height + fall speed tune separately
 	var gravity: float = (
 		profile.jump_gravity
 		if (profile.jump_gravity > 0.0 and vertical > 0.0)
 		else _get_gravity_magnitude() + profile.fall_gravity_offset
 	)
-	# Less gravity near apex for hang time.
 	if absf(vertical) < profile.apex_hang_threshold:
 		gravity *= profile.apex_hang_gravity_multiplier
 	vertical = maxf(vertical - gravity * delta, -profile.max_fall_speed)
@@ -389,8 +385,7 @@ func _on_air_state_physics_processing(delta: float) -> void:
 		_was_falling = false
 
 	_coyote_timer -= delta
-	# Walking off ledge spends ground jump once grace time is over,
-	# otherwise every air jump is still available.
+	# walking off ledge spends ground jump after grace time, air jumps stay available
 	if _coyote_timer <= 0.0 and _jumps_used == 0:
 		_jumps_used = 1
 	_update_jump_buffer(delta)
@@ -441,8 +436,8 @@ func _on_wall_slide_state_physics_processing(delta: float) -> void:
 	_apply_horizontal_movement(delta, _get_current_movement_input(), false)
 
 
-# Without refill, wall jumps are free, so same wall twice in a row is blocked
-# to stop climbing one wall forever. Walls facing same way count as same wall.
+# w/o refill wall jumps are free ∴ same wall twice in a row is blocked
+# to stop climbing one wall forever, walls facing same way count as same wall
 func _can_wall_jump() -> bool:
 	if not profile.wall_jump_enabled:
 		return false
@@ -490,7 +485,7 @@ func _run_dash_post_move_check() -> void:
 		_update_current_motion(true, _get_current_movement_input(), _get_input_frame().run)
 		_handle_landing()
 	else:
-		# Dash entry cleared _was_falling, so next air frame emits started_falling.
+		# dash entry cleared _was_falling ∴ next air frame emits started_falling
 		_send_state_chart_event(StateEvents.FALL)
 #endregion
 
@@ -502,7 +497,6 @@ func _on_crouch_state_entered() -> void:
 
 func _on_crouch_state_physics_processing(delta: float) -> void:
 	_apply_horizontal_movement(delta, _get_current_movement_input(), false, profile.crouch_speed_multiplier)
-	# Never carry upward velocity into crouch.
 	_set_vertical_velocity(minf(_get_vertical_velocity(), 0.0) - _get_gravity_magnitude() * delta)
 
 

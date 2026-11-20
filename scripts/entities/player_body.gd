@@ -1,19 +1,20 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Owns every component on player [CharacterBody3D] and wires their dependencies
+## Owns every component on player [CharacterBody3D] + wires their dependencies
 ## in [method Node._enter_tree]. This is only wiring site, components never look up
 ## each other themselves.
 ##
-## Components are found by type among descendants, so one of each. Missing one is
-## skipped, and whoever depends on it reports that in [method Component._on_setup].
+## Components are found by type among descendants ∴ one of each. Missing one is
+## skipped + whoever depends on it reports that in [method Component._on_setup].
 ## Adding component takes two steps: add node to scene, wire it here.
-## [MovementProfile] is [Resource] and cannot be found in tree, so it is exported.
-## Without one, movement reports it and stays off.
-## Dialogue and interactables only call [member api] methods. Other code (HUD, debug
+## [MovementProfile] is [Resource] + cannot be found in tree ∴ it is exported.
+## W/o one, movement reports it + stays off.
+## Dialogue + interactables only call [member api] methods. Other code (HUD, debug
 ## commands, [SanityArea]) reads components through it.
 class_name PlayerBody
 extends CharacterBody3D
 
+## Tuning values given to movement component, see [MovementProfile].
 @export var movement_profile: MovementProfile
 
 ## Set when body enters tree, see [PlayerApi].
@@ -21,7 +22,7 @@ var api: PlayerApi
 
 
 func _enter_tree() -> void:
-	# Runs again when body is moved in tree. First wiring still holds.
+	# runs again when body is moved in tree, first wiring still holds
 	if api:
 		return
 	var input: InputComponent = _find_descendant_of_type(InputComponent)

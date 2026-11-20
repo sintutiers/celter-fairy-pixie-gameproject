@@ -2,24 +2,24 @@
 # SPDX-License-Identifier: EUPL-1.2
 @icon("res://scripts/components/teto_kidnapp_miku.png")
 ## Base class for everything that lives on character as component.
-## Extend it instead of [Node] to get [method _on_ready] and [method _on_setup] hooks.
+## Extend it, not [Node] to get [method _on_ready] + [method _on_setup] hooks.
 ##
 ## Body (ancestor that owns components) injects dependencies in its
-## [method Node._enter_tree]. That runs top-down, so they are set in both hooks.
+## [method Node._enter_tree]. That runs top-down ∴ they are set in both hooks.
 ## Dependencies are plain typed fields, not [code]@export[/code]. Body finds
-## components and assigns them once, see [PlayerBody]. Check them in [method _on_setup].
+## components + assigns them once, see [PlayerBody]. Check them in [method _on_setup].
 ##
-## [method _on_setup] is deferred, so every sibling has finished [method Node._ready] by then.
-## [b]Warning:[/b] Hooks are not chained. They do nothing here, so components extending
+## [method _on_setup] is deferred ∴ every sibling has finished [method Node._ready] by then.
+## ⚠ Hooks are not chained. They do ∅ here ∴ components extending
 ## [Component] directly need no [code]super()[/code]. Subclasses of other components
 ## (e.g. [Movement3DComponent]) must call it, parent does real work.
 class_name Component
 extends Node
 
 
-## Returns descendant of [param root] that is [param type], or null.
-## Pushes error when there are several and returns first.
-## Pushes warning when nothing is found and [param warn] is true.
+## Returns descendant of [param root] that is [param type]/null.
+## Pushes error when there are several + returns first.
+## Pushes warning when ∅ is found + [param warn] is true.
 static func find_descendant_of_type(root: Node, type: Variant, warn: bool = false) -> Node:
 	var found: Node = null
 	for node: Node in root.find_children("*", "", true, false):
@@ -44,14 +44,14 @@ func _on_ready() -> void:
 	pass
 
 
-## Runs deferred, at idle time after [method Node._ready], so every sibling is ready.
+## Runs deferred, at idle time after [method Node._ready] ∴ every sibling is ready.
 ## Check dependencies here, see [method _require_dependencies].
 func _on_setup() -> void:
 	pass
 
 
 ## Pushes one error naming every null dependency ([code]{ "label": value }[/code]).
-## Returns true when all are set, so caller can bail out.
+## Returns true when all are set ∴ caller can bail out.
 func _require_dependencies(dependencies: Dictionary) -> bool:
 	var missing: PackedStringArray = PackedStringArray()
 	for dependency_name: String in dependencies:
