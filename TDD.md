@@ -1,7 +1,7 @@
 ---
 uid: 4um2r409vhplswwy95ul8
 title: Technical Design Document
-modified: Friday, November 20th 2026, 10:00 pm
+modified: Friday, November 20th 2026, 10:18 pm
 created: Thursday, October 8th 2026, 2:31 pm
 author:
   - "[Dean](https://deanlemans.github.io/)"
@@ -30,6 +30,7 @@ easy to read, safe to rewrite, honest about what it does.)
 	- [API DOCS](<#API DOCS>)
 	- [INLINE COMMENTS](<#INLINE COMMENTS>)
 		- [HYGIENE](<#HYGIENE>)
+	- [SYMBOLS](<#SYMBOLS>)
 - [Game System Architecture](<#Game System Architecture>)
 	- [Components (Extend Component, Wired by Body, Not Looked up Themselves)](<#Components (Extend Component, Wired by Body, Not Looked up Themselves)>)
 	- [Component Wiring](<#Component Wiring>)
@@ -44,7 +45,7 @@ easy to read, safe to rewrite, honest about what it does.)
 
 ## Technical Stack
 
-Godot 4.8, GDScript. Godot compatibility renderer, if need more advanced features we use that then, not sooner.
+Godot 4.8, GDScript. Godot compatibility renderer(openGL), if more advanced features we use that then, not sooner.
 ### Addons
 - [Dialogue Manager 4.2.0](https://github.com/nathanhoad/godot_dialogue_manager/releases/tag/v4.2.0) - dialogue + choices : `DialogueManager` (autoload)
 - [Antzs Debug Menu 1.3.0](https://github.com/antzGames/Antz-Debug-Menu/releases/tag/v1.3.0) - debug : `DebugMenu` (autoload)
@@ -174,6 +175,7 @@ GAME DEV DOCUMENTATION AND COMMENT PRINCIPLES
 
 - Comment the surprising, not the obvious with inline comments.
 - be direct and concise, skip the word "the" and "a" and apostrophes even if its less pretty (keeps things more direct)
+	- use symbols over words, even if less readable, see [SYMBOLS](<#SYMBOLS>)
 - Explain why, not what.
 - Code shows what it does. Comments show reasoning, decisions, xor constraints.
 - Code documents implementation; comments document intent.
@@ -196,6 +198,9 @@ Example:
 ```gdscript
 ## Emitted when facing changes.
 signal flipped(new_facing_x: float)
+
+## Replaces save w/ file at [param path]. Returns false + changes ∅ when file ≠ save.
+static func import_save(path: String) -> bool:
 ```
 
 ### INLINE COMMENTS
@@ -209,7 +214,7 @@ Use single-hash comments inside function bodies.
 
 Example:
 ```gdscript
-# Own copy: height changes at runtime and scene shape resource shared by every instance.
+# own copy: height changes at runtime + scene shape resource is shared by every instance
 _capsule = _capsule.duplicate()
 ```
 
@@ -219,7 +224,32 @@ _capsule = _capsule.duplicate()
 - Update outdated doc comments.
 	- Editor hover and class reference will show stale docs. An incorrect comment is worse than no comment.
 - Be consistent.
-	- Example: capital letter, end with period, put comments above code.
+	- inline `#`: lowercase, no period at end, above code.
+	- doc `##`: capital letter, end with period.
+	- class names + identifiers keep their case (`DirAccess`, `JSON`, `_ready`).
+
+### SYMBOLS
+Used in both `#` and `##`. Not inside `[code]`, `[codeblock]` or quoted strings.
+
+| symbol | word | example |
+| --- | --- | --- |
+| `+` | and | `refills jumps + dashes` |
+| `/` | or, per | `respawn/level change`, `one step /version` |
+| `∴` | so, therefore | `leave cleanly ∴ server drops our row at once` |
+| `>` | then | `spawn remote if missing > apply` |
+| `∵` | because | `read here ∵ addon reparents camera` |
+| `!` | not | `saved by id, !resource` |
+| `≠` | is not (between two things) | `when file ≠ save` |
+| `≈` | about | `≈10 for default jump` |
+| `⚠` | warning | `## ⚠ Renaming key breaks saves.` |
+| `∅` | nothing, empty, none | `Warns + saves ∅ w/o game state.` |
+| `w/` `w/o` | with, without | `w/o game state` |
+| `>=` `<=` | at least, at most | `length <= 1` |
+
+pitfalls:
+- "or" meaning otherwise is not `/`, use `, else` (`[NetSyncComponent], else motion stutters`).
+- "one more than" is not `>`, write count out (`thresholds size + 1 entries`).
+- `null` stays `null`, its GDScript value, not `∅`.
 
 ## Game System Architecture
 (architecture inspired by <https://gameprogrammingpatterns.com> and others i need to link)
@@ -494,7 +524,7 @@ graph LR
 
 Game makes use of Godots API (`CharacterBody3D`, `Resource`, signals) plus addons listed above.
 
-- Movement values are tweaked in a `MovementProfile` resource, not in code.
+- Movement values tweaked in `MovementProfile` resource, not in code.
 - State charts state nodes must have unique names `%Ground`, `%Air`, `%WallSlide`, `%Dash`, `%Crouch` + be in same scene as movement component. Chart is injected.
 - transition events in player scene must be same as `StateEvents` constants. carefull!; 1 typo / rename on either side gives no error, event just gets ignored.
 
@@ -524,6 +554,6 @@ stateDiagram-v2
 
 **Performance**
 
-- Web should be 45 FPS minimum (see Performance [FDD](<./FDD.md>)). if its followed; other platforms are automatically optimised as well
+- Web should be 45 FPS minimum (see Performance [FDD](<./FDD.md>)). if followed; other platforms are automatically optimised as well
 
 > see [FDD](<./FDD.md>) for User acceptance tests
