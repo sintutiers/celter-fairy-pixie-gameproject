@@ -965,6 +965,10 @@ script = ExtResource("27_sanvis")
 script = ExtResource("23_7hl3x")
 metadata/_custom_type_script = "uid://c76xrhf8h0lp4"
 
+[node name="NetSyncComponent" type="Node" parent="." unique_id=3750471]
+script = ExtResource("28_ejpuu")
+metadata/_custom_type_script = "uid://ejkwp3ydv186"
+
 [node name="StateChart" type="Node" parent="." unique_id=1642631168]
 unique_name_in_owner = true
 script = ExtResource("5_2dwxl")
@@ -1097,7 +1101,3 @@ to = NodePath("../../Air")
 event = &"fall"
 delay_in_seconds = "0.0"
 metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="NetSyncComponent" type="Node" parent="." unique_id=3750471]
-script = ExtResource("28_ejpuu")
-metadata/_custom_type_script = "uid://ejkwp3ydv186"
