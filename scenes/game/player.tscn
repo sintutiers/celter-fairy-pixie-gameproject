@@ -30,10 +30,8 @@
 [ext_resource type="Script" uid="uid://b1xsodjyi4dqh" path="res://scripts/components/sanity_visuals_component.gd" id="27_sanvis"]
 [ext_resource type="Script" uid="uid://ejkwp3ydv186" path="res://scripts/components/net_sync_component.gd" id="28_ejpuu"]
 
-[sub_resource type="Resource" id="Resource_tqokf"]
+[sub_resource type="Resource" id="Resource_dis3n"]
 script = ExtResource("2_0lqjd")
-can_dash_on_ground = true
-crouch_radius_scale = 0.75
 metadata/_custom_type_script = "uid://ceu4bej5ltbi5"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rnkgc"]
@@ -919,7 +917,7 @@ height = 1.0378418
 collision_layer = 3
 collision_mask = 3
 script = ExtResource("1_ff7hd")
-movement_profile = SubResource("Resource_tqokf")
+movement_profile = SubResource("Resource_dis3n")
 
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="." unique_id=62784842]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
