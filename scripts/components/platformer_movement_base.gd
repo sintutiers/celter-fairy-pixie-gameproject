@@ -52,6 +52,8 @@ var _dash_cooldown_timer: float = 0.0
 var _dashes_used: int = 0
 var _dash_direction: Vector2 = Vector2.RIGHT
 var _wall_jump_lock_timer: float = 0.0
+# Normal of wall last jumped off this airtime, ZERO after landing.
+var _last_wall_jump_normal: Vector2 = Vector2.ZERO
 var _was_falling: bool = false
 # Only for GameLog, so held direction is logged once.
 var _logged_input_direction: Vector2i = Vector2i.ZERO
@@ -283,7 +285,8 @@ func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
 	_set_vertical_velocity(sqrt(2.0 * rise_gravity * height))
 
 	if is_wall_jump:
-		_set_horizontal_velocity(_get_wall_normal() * profile.wall_jump_push_speed)
+		_last_wall_jump_normal = _get_wall_normal()
+		_set_horizontal_velocity(_last_wall_jump_normal * profile.wall_jump_push_speed)
 		_wall_jump_lock_timer = profile.wall_jump_lock_duration
 	else:
 		var horizontal_velocity: Vector2 = _get_horizontal_velocity()
@@ -318,6 +321,7 @@ func _should_start_dash() -> bool:
 func _handle_landing() -> void:
 	_dashes_used = 0
 	_jumps_used = 0
+	_last_wall_jump_normal = Vector2.ZERO
 	_was_falling = false
 	# landed already carries motion. Emitting ground_motion_changed here
 	# would replace landing animation on same frame, see
@@ -430,11 +434,21 @@ func _on_wall_slide_state_physics_processing(delta: float) -> void:
 	)
 	_update_jump_buffer(delta)
 
-	if profile.wall_jump_enabled and _try_jump(false, true):
+	if _can_wall_jump() and _try_jump(false, true):
 		_send_state_chart_event(StateEvents.JUMP)
 		return
 
 	_apply_horizontal_movement(delta, _get_current_movement_input(), false)
+
+
+# Without refill, wall jumps are free, so same wall twice in a row is blocked
+# to stop climbing one wall forever. Walls facing same way count as same wall.
+func _can_wall_jump() -> bool:
+	if not profile.wall_jump_enabled:
+		return false
+	if profile.wall_contact_refills_jumps:
+		return true
+	return _last_wall_jump_normal.dot(_get_wall_normal()) < 0.9
 
 
 func _run_wall_slide_post_move_check() -> void:
