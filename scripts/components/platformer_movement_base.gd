@@ -270,7 +270,8 @@ func _update_jump_buffer(delta: float) -> void:
 
 
 func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
-	var can_jump: bool = _coyote_timer > 0.0 or _jumps_used < profile.max_jumps
+	# Wall jump does not need a spare jump, wall slide only runs it when wall jump is enabled.
+	var can_jump: bool = is_wall_jump or _coyote_timer > 0.0 or _jumps_used < profile.max_jumps
 	if _jump_buffer_timer <= 0.0 or not can_jump:
 		return false
 
@@ -293,7 +294,9 @@ func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
 
 	_coyote_timer = 0.0
 	_jump_buffer_timer = 0.0
-	_jumps_used += 1
+	# Wall jump is free, so it does not spend air jumps.
+	if not is_wall_jump:
+		_jumps_used += 1
 	_was_falling = false
 
 	if is_wall_jump:
@@ -415,8 +418,7 @@ func _on_wall_slide_state_entered() -> void:
 	_was_falling = false
 	GameLog.write(&"movement", "wall slide")
 	wall_slid.emit()
-	# Wall contact refills jumps so wall jumps can chain.
-	if profile.wall_jump_enabled:
+	if profile.wall_contact_refills_jumps:
 		_jumps_used = 0
 		_coyote_timer = profile.coyote_time
 

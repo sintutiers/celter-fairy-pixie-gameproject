@@ -41,6 +41,8 @@ extends Resource
 
 @export_group("Wall")
 @export var wall_jump_enabled: bool = true
+## Touching wall (wall slide) refills jumps. Off = wall jumps are free but air jumps stay spent.
+@export var wall_contact_refills_jumps: bool = false
 @export var wall_slide_speed: float = 4.0
 @export var wall_jump_push_speed: float = 10.0
 ## Horizontal input is ignored for this long after wall jump.
