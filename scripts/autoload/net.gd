@@ -64,7 +64,7 @@ func _on_connected(_identity: PackedByteArray, _token: String) -> void:
 
 
 func _on_disconnected() -> void:
-	Log.warn("net: disconnected.")
+	Log.warn("net: disconnected")
 	for id: String in _remotes.keys():
 		_release_remote_player(id)
 
@@ -80,7 +80,7 @@ func _on_reducer_error(message: String) -> void:
 # local db only guaranteed once subscription is applied
 # register before iterating ∴ no row is missed, _apply_net_player_row is idempotent for rows seen twice
 func _on_subscription_applied() -> void:
-	var table = _module.db.net_player
+	var table: FaerieNetPlayerTable = _module.db.net_player
 	table.on_insert(_apply_net_player_row)
 	table.on_update(_on_net_player_row_updated)
 	table.on_delete(_on_net_player_row_deleted)

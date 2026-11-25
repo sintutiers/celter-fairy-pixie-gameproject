@@ -28,11 +28,6 @@ var value: float
 ## Number of [member thresholds] ratio is at/above. 0 = lowest zone.
 var zone: int = 0
 
-## True while >= one caller has paused drain.
-var paused: bool:
-	get:
-		return _pause_count > 0
-
 var _pause_count: int = 0
 
 
@@ -92,6 +87,9 @@ func set_current_sanity_value(new_value: float) -> void:
 
 
 func _on_ready() -> void:
+	# here, not _on_setup: ratio below divides by it
+	if max_sanity <= 0.0:
+		Log.error("%s: max_sanity must be above 0, is %s" % [name, max_sanity])
 	value = max_sanity
 	if GameState.has_game_state():
 		var saved: float = GameState.get_or_create_state().sanity
@@ -104,8 +102,6 @@ func _on_ready() -> void:
 
 
 func _on_setup() -> void:
-	if max_sanity <= 0.0:
-		Log.error("%s: max_sanity must be above 0, is %s" % [name, max_sanity])
 	var ascending: PackedFloat32Array = thresholds.duplicate()
 	ascending.sort()
 	if ascending != thresholds:

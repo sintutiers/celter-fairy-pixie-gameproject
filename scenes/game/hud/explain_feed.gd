@@ -30,8 +30,6 @@ func _ready() -> void:
 	GameLog.wrote.connect(_on_game_log_wrote)
 	DialogueManager.dialogue_started.connect(_on_dialogue_started)
 	DialogueManager.got_dialogue.connect(_on_got_dialogue)
-	# responses menu has no signal for its buttons ∴ they are changed as they are added
-	get_tree().node_added.connect(_on_node_added)
 
 
 func _on_game_log_wrote(channel: StringName, written: String) -> void:
@@ -44,28 +42,28 @@ func _on_dialogue_started(resource: DialogueResource) -> void:
 
 
 func _on_got_dialogue(line: DialogueLine) -> void:
-	var notes: String = _get_notes_for_line_id(line.id)
+	var notes: String = get_dialogue_notes(_resource, line.id)
 	if DebugCommands.explain and notes != "":
 		_add_feed_line("note: " + notes)
 
 
-# menu sets text, disabled + "response" meta before add_child ∴ all are there now
-func _on_node_added(node: Node) -> void:
-	var button: Button = node as Button
-	if not DebugCommands.explain or not button or not button.has_meta(&"response"):
+## Adds lock condition + notes of option to [param button] text, called by [DialogueBalloon] /option.
+static func annotate_response_button(button: Button, resource: DialogueResource) -> void:
+	if not button.has_meta(&"response"):
 		return
 	var response: DialogueResponse = button.get_meta(&"response")
 	if not response.is_allowed:
 		button.text += "  [needs %s]" % response.condition_as_text
-	var notes: String = _get_notes_for_line_id(response.id)
+	var notes: String = get_dialogue_notes(resource, response.id)
 	if notes != "":
 		button.text += "  (%s)" % notes
 
 
-func _get_notes_for_line_id(id: String) -> String:
-	if not _resource or not _resource.lines.has(id):
+## Design notes above line/option [param id], "" when it has none.
+static func get_dialogue_notes(resource: DialogueResource, id: String) -> String:
+	if not resource or not resource.lines.has(id):
 		return ""
-	return _resource.lines[id].get(&"notes", "")
+	return resource.lines[id].get(&"notes", "")
 
 
 func _add_feed_line(feed_line: String) -> void:

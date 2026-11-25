@@ -30,7 +30,7 @@ static func find_descendant_of_type(root: Node, type: Variant, warn: bool = fals
 			break
 		found = node
 	if not found and warn:
-		Log.warn("%s: no %s found." % [root.name, type])
+		Log.warn("%s: no %s found" % [root.name, type])
 	return found
 
 

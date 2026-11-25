@@ -51,9 +51,10 @@ func can_carry_item(item: ItemData, count: int = 1) -> bool:
 
 
 ## All/∅. Returns false when there is no room + ∅ was added.
-## Pushes error when [param count] is below 1.
+## Pushes error when [param item] is null/[param count] is below 1.
 func add_inventory_item(item: ItemData, count: int = 1) -> bool:
 	if not item:
+		Log.error("%s: add_inventory_item got null item" % name)
 		return false
 	if count < 1:
 		Log.error("%s: add count must be at least 1, got %d" % [name, count])
@@ -71,8 +72,11 @@ func add_inventory_item(item: ItemData, count: int = 1) -> bool:
 
 
 ## Returns false when fewer than [param count] are carried + ∅ was removed.
-## Pushes error when [param count] is below 1.
+## Pushes error when [param item] is null/[param count] is below 1.
 func remove_inventory_item(item: ItemData, count: int = 1) -> bool:
+	if not item:
+		Log.error("%s: remove_inventory_item got null item" % name)
+		return false
 	if count < 1:
 		Log.error("%s: remove count must be at least 1, got %d" % [name, count])
 		return false
@@ -89,8 +93,11 @@ func remove_inventory_item(item: ItemData, count: int = 1) -> bool:
 
 ## Applies item effects + consumes it if [member ItemData.consumed_on_use].
 ## Its use dialogue only shows when no dialogue is open.
-## Returns false if item not carried.
+## Returns false if item not carried, pushes error when it is null.
 func use_inventory_item(item: ItemData) -> bool:
+	if not item:
+		Log.error("%s: use_inventory_item got null item" % name)
+		return false
 	if not has_inventory_item(item):
 		return false
 	GameLog.write(&"inventory", "used %s" % item.get_item_id())

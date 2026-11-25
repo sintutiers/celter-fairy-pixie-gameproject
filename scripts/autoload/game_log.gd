@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Log of what player does, split in channels that console command
 ## [code]log[/code] turns on + off. Autoload.
-## Lines go to Godot output, [LimboConsole] + [constant FILE_PATH].
+## Lines go to Godot output, [LimboConsole] + Godot log file ([code]user://logs/godot.log[/code]).
 ## Formatted by [Log] ∴ every line starts w/ file + line that wrote it.
 extends Node
 
@@ -10,13 +10,8 @@ extends Node
 ## w/o file + line. Lets [ExplainFeed] show changes w/o each system knowing it.
 signal wrote(channel: StringName, text: String)
 
-## Overwritten on every start.
-const FILE_PATH: String = "user://game.log"
-
 ## Channel to on. Value here is state at every start, console changes not saved.
 var channels: Dictionary[StringName, bool] = { &"movement": false, &"sanity": true, &"inventory": true, &"interact": true, &"dialogue": true, &"ledger": true }
-
-var _file: FileAccess = FileAccess.open(FILE_PATH, FileAccess.WRITE)
 
 
 func _ready() -> void:
@@ -28,12 +23,8 @@ func _ready() -> void:
 		func() -> Array:
 			return channels.keys(),
 	)
-	if not _file:
-		Log.error("cannot write %s: %s" % [FILE_PATH, error_string(FileAccess.get_open_error())])
 	DialogueManager.passed_cue.connect(_on_passed_cue)
 	DialogueManager.got_dialogue.connect(_on_got_dialogue)
-	# balloon has no signal for picked option, only its menu does
-	get_tree().node_added.connect(_on_node_added)
 
 
 ## Writes [param values] as one line when [param channel] is on.
@@ -48,15 +39,9 @@ func write(channel: StringName, ...values: Array) -> void:
 	if not channels[channel]:
 		return
 	values.push_front("[%s]" % channel)
-	var stack: Array = get_stack()
-	var line: String = Log.to_printable(values, { stack = stack })
+	var line: String = Log.to_printable(values, { stack = get_stack() })
 	print_rich(line)
 	LimboConsole.print_line(line, false)
-	if not _file:
-		return
-	_file.store_line(Log.to_printable(values, { stack = stack, disable_colors = true }))
-	# flushed /line ∴ crash keeps what led up to it
-	_file.flush()
 
 
 ## Flips [param channel]/lists every channel when ∅.
@@ -79,12 +64,3 @@ func _on_passed_cue(cue: String) -> void:
 
 func _on_got_dialogue(line: DialogueLine) -> void:
 	write(&"dialogue", "%s: %s" % [line.character, line.text])
-
-
-func _on_node_added(node: Node) -> void:
-	if node is DialogueResponsesMenu:
-		(node as DialogueResponsesMenu).response_selected.connect(_on_response_selected)
-
-
-func _on_response_selected(response: DialogueResponse) -> void:
-	write(&"dialogue", "picked", response.text)

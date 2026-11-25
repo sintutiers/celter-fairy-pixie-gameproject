@@ -34,6 +34,11 @@ var _is_glitching: bool = false
 var _glitch_timer: float = 0.0
 
 
+func _ready() -> void:
+	super()
+	responses_menu.child_entered_tree.connect(_on_responses_menu_child_entered_tree)
+
+
 func apply_dialogue_line() -> void:
 	_is_glitching = dialogue_line.has_tag(GLITCH_TAG)
 	if not _is_glitching:
@@ -42,6 +47,17 @@ func apply_dialogue_line() -> void:
 	if dialogue_line.has_tag(JUMPSCARE_TAG):
 		_play_jumpscare()
 	await super()
+
+
+func _on_responses_menu_response_selected(response: DialogueResponse) -> void:
+	GameLog.write(&"dialogue", "picked", response.text)
+	super(response)
+
+
+# menu sets text, disabled + "response" meta before add_child ∴ all are there now
+func _on_responses_menu_child_entered_tree(node: Node) -> void:
+	if DebugCommands.explain and node is Button:
+		ExplainFeed.annotate_response_button(node as Button, dialogue_resource)
 
 
 func _process(delta: float) -> void:

@@ -62,7 +62,7 @@ func _corrupt(clean_text: String) -> String:
 	var corrupted: String = ""
 	for character: String in clean_text:
 		if character != " " and randf() < corrupt_chance:
-			corrupted += CORRUPT_CHARACTERS[randi() % CORRUPT_CHARACTERS.length()]
+			corrupted += CORRUPT_CHARACTERS[randi_range(0, CORRUPT_CHARACTERS.length() - 1)]
 		else:
 			corrupted += character
 	return corrupted

@@ -37,17 +37,16 @@ var total_time: int
 static func get_level_state(level_path: String) -> LevelState:
 	var level_state_key: String = _get_level_state_key(level_path)
 	if not has_game_state():
-		return
+		return null
 	var game_state: GameState = get_or_create_state()
 	if level_state_key.is_empty():
-		return
+		return null
 	if level_state_key in game_state.level_states:
 		return game_state.level_states[level_state_key]
-	else:
-		var new_level_state: LevelState = LevelState.new()
-		game_state.level_states[level_state_key] = new_level_state
-		save()
-		return new_level_state
+	var new_level_state: LevelState = LevelState.new()
+	game_state.level_states[level_state_key] = new_level_state
+	save()
+	return new_level_state
 
 
 ## False until save file exists, as w/ scene run straight from editor before
@@ -94,14 +93,16 @@ static func export_save(path: String) -> Error:
 
 
 ## Replaces save w/ file at [param path], which may be older version. Old save is kept as .backup.
-## Returns false + changes ∅ when file ≠ save.
+## Returns false, warns + changes ∅ when file ≠ save.
 ## Nodes still hold old values ∴ caller must reload scene.
 static func import_save(path: String) -> bool:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if parsed is not Dictionary:
+		Log.warn("%s is not JSON object, import stopped" % path)
 		return false
 	var data: Dictionary = parsed
 	if not data.has("save_version"):
+		Log.warn("%s has no save_version, import stopped" % path)
 		return false
 	if FileAccess.file_exists(save_path) and DirAccess.copy_absolute(save_path, save_path + ".backup") != OK:
 		Log.error("could not back up %s, import stopped" % save_path)

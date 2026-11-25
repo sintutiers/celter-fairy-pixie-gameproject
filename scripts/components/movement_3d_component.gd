@@ -13,6 +13,8 @@ var _standing_shape_position: Vector3
 var _capsule: CapsuleShape3D
 var _standing_height: float
 var _standing_radius: float
+# standing capsule, only checked on demand by _has_room_to_stand
+var _stand_up_cast: ShapeCast3D
 
 
 func _on_setup() -> void:
@@ -33,6 +35,7 @@ func _on_setup() -> void:
 	collision_shape.shape = _capsule
 	_standing_height = _capsule.height
 	_standing_radius = _capsule.radius
+	_add_stand_up_cast()
 
 
 func _get_gravity_magnitude() -> float:
@@ -112,18 +115,27 @@ func _set_collision_shape_crouched(crouched: bool) -> void:
 	collision_shape.position.y = _standing_shape_position.y - (_standing_height - height) * 0.5
 
 
-# standing capsule query, shrunk by SKIN ∴ floor + walls touching crouched capsule dont block
 func _has_room_to_stand() -> bool:
-	if not _capsule:
+	if not _stand_up_cast:
 		return true
+	_stand_up_cast.force_shapecast_update()
+	return not _stand_up_cast.is_colliding()
+
+
+# child of body ∴ follows it + skips it (exclude_parent), zero target = overlap at its spot
+# standing capsule shrunk by SKIN ∴ floor + walls touching crouched capsule dont block
+func _add_stand_up_cast() -> void:
 	# meters, raise if standing up is refused next to walls, lower if low ceilings let you stand
 	const SKIN: float = 0.02
 	var standing: CapsuleShape3D = CapsuleShape3D.new()
 	standing.radius = _standing_radius - SKIN
 	standing.height = _standing_height - SKIN * 2.0
-	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
-	query.shape = standing
-	query.transform = body.global_transform * Transform3D(Basis.IDENTITY, _standing_shape_position)
-	query.collision_mask = body.collision_mask
-	query.exclude = [body.get_rid()]
-	return body.get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty()
+	_stand_up_cast = ShapeCast3D.new()
+	_stand_up_cast.name = "StandUpCast"
+	_stand_up_cast.shape = standing
+	_stand_up_cast.position = _standing_shape_position
+	_stand_up_cast.target_position = Vector3.ZERO
+	_stand_up_cast.collision_mask = body.collision_mask
+	_stand_up_cast.max_results = 1
+	_stand_up_cast.enabled = false
+	body.add_child(_stand_up_cast)

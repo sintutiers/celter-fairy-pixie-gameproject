@@ -65,21 +65,6 @@ var _logged_input_direction: Vector2i = Vector2i.ZERO
 @onready var _crouch_state: StateChartState = %Crouch
 
 
-#region Lifecycle
-# frame order: state chart runs active state physics (priority 0),
-# > this runs move_and_slide + post-move checks (priority 1)
-func _physics_process(delta: float) -> void:
-	if _dash_cooldown_timer > 0.0:
-		_dash_cooldown_timer -= delta
-	if _wall_jump_lock_timer > 0.0:
-		_wall_jump_lock_timer -= delta
-	_grounded_before_move = _is_on_floor()
-	_move_and_slide()
-	if not _transition_sent:
-		_run_active_state_post_move_check()
-	_transition_sent = false
-
-
 #region Abstract
 # horizontal vectors in world space (x/z in 3D), vertical values along up
 # _get_gravity_magnitude returns positive magnitude
@@ -131,6 +116,21 @@ func _physics_process(delta: float) -> void:
 # standing shape fits at current position, gates leaving crouch under low ceiling
 @abstract func _has_room_to_stand() -> bool
 #endregion
+
+
+#region Lifecycle
+# frame order: state chart runs active state physics (priority 0),
+# > this runs move_and_slide + post-move checks (priority 1)
+func _physics_process(delta: float) -> void:
+	if _dash_cooldown_timer > 0.0:
+		_dash_cooldown_timer -= delta
+	if _wall_jump_lock_timer > 0.0:
+		_wall_jump_lock_timer -= delta
+	_grounded_before_move = _is_on_floor()
+	_move_and_slide()
+	if not _transition_sent:
+		_run_active_state_post_move_check()
+	_transition_sent = false
 
 
 func _on_ready() -> void:
@@ -253,7 +253,10 @@ func _update_current_motion(on_ground: bool, input_direction: Vector2, is_runnin
 		motion = Animations.WALK
 	else:
 		motion = Animations.IDLE
+	_set_current_motion(motion, on_ground)
 
+
+func _set_current_motion(motion: StringName, on_ground: bool) -> void:
 	if motion == _current_motion:
 		return
 	_current_motion = motion
@@ -501,12 +504,8 @@ func _on_crouch_state_physics_processing(delta: float) -> void:
 
 
 func _run_crouch_post_move_check() -> void:
-	var input_direction: Vector2 = _get_current_movement_input()
-	var motion: StringName = Animations.CROUCH_WALK if not input_direction.is_zero_approx() else Animations.CROUCH_IDLE
-	if motion != _current_motion:
-		_current_motion = motion
-		GameLog.write(&"movement", str(motion))
-		ground_motion_changed.emit(motion)
+	var moving: bool = not _get_current_movement_input().is_zero_approx()
+	_set_current_motion(Animations.CROUCH_WALK if moving else Animations.CROUCH_IDLE, true)
 
 	if not _is_on_floor():
 		_send_state_chart_event(StateEvents.FALL)
