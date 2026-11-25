@@ -3,7 +3,8 @@
 ## Debug commands for [LimboConsole]. Autoload.
 ## Player commands go through [PlayerApi] ∴ they work for 2D + 3D player.
 ## Also checks every .dialogue file on startup for unknown item + quest ids +
-## for unclosed option conditions, see [method _check_dialogue_files].
+## for unclosed option conditions, see [method _check_dialogue_files]. Same for broken
+## item + quest .tres, see [method _check_content_files].
 ##
 ## [LimboConsole] silently fails to register bare callable, command name
 ## must be passed as second argument even when function name matches.
@@ -36,6 +37,7 @@ func _ready() -> void:
 	# exported builds hold no .dialogue source, only compiled resources
 	if OS.has_feature("editor"):
 		_check_dialogue_files()
+		_check_content_files()
 
 
 #region Commands
@@ -205,4 +207,28 @@ func _find_dialogue_files(directory: String) -> PackedStringArray:
 		if file.get_extension() == "dialogue":
 			files.append(directory.path_join(file))
 	return files
+#endregion
+
+
+#region Content check
+# broken .tres only fails once dialogue/pickup reaches it ∴ all are checked on every editor run
+func _check_content_files() -> void:
+	for id: String in _get_all_item_ids():
+		var item: ItemData = ItemData.load_item_by_id(id)
+		if not item:
+			Log.error("%s%s.tres is not ItemData" % [ItemData.DIR, id])
+		elif item.use_dialogue and item.use_dialogue_cue not in item.use_dialogue.get_cues():
+			Log.error(
+				"%s: use_dialogue_cue \"%s\" not in %s"
+				% [item.resource_path, item.use_dialogue_cue, item.use_dialogue.resource_path],
+			)
+	for file: String in ResourceLoader.list_directory(QuestData.DIR):
+		if file.get_extension() != "tres":
+			continue
+		var quest: QuestData = QuestData.load_quest_by_id(file.get_basename())
+		if not quest:
+			Log.error("%s%s is not QuestData" % [QuestData.DIR, file])
+		elif quest.title == "" or quest.stages.is_empty():
+			# ∅ stages = first advance_quest finishes it
+			Log.error("%s needs title + at least 1 stage" % quest.resource_path)
 #endregion

@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Events sent to player [StateChart] by [PlatformerMovementBase].
-## ⚠ Values must match transition events in player scenes. Typo or
-## rename on either side not reported, event is just ignored.
+## ⚠ Values must match transition events in player scenes.
+## [PlatformerMovementBase] errors on load for transition event that is none of these.
 class_name StateEvents
 extends RefCounted
 

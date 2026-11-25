@@ -161,6 +161,7 @@ func _on_setup() -> void:
 		_disable_movement()
 		return
 
+	_check_state_chart_events()
 	if locks_during_interact and interaction_component:
 		interaction_component.interact_started.connect(_set_input_locked.bind(true))
 		interaction_component.interact_ended.connect(_set_input_locked.bind(false))
@@ -173,6 +174,20 @@ func _disable_movement() -> void:
 	set_physics_process(false)
 	if state_chart:
 		state_chart.process_mode = Node.PROCESS_MODE_DISABLED
+
+
+# typo/rename in scene transition only shows as move that never happens ∴ checked on load
+# empty event = automatic transition, allowed
+func _check_state_chart_events() -> void:
+	var state_events_script: Script = StateEvents
+	var known_events: Array = state_events_script.get_script_constant_map().values()
+	for node: Node in state_chart.find_children("*", "", true, false):
+		var transition: Transition = node as Transition
+		if transition and transition.event != &"" and transition.event not in known_events:
+			Log.error(
+				"%s: transition %s sends \"%s\", not in StateEvents"
+				% [name, state_chart.get_path_to(transition), transition.event],
+			)
 
 
 func _set_input_locked(value: bool) -> void:
