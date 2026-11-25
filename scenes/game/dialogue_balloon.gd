@@ -13,6 +13,8 @@ extends DialogueManagerExampleBalloon
 
 const GLITCH_TAG: String = "sanity_glitch"
 const JUMPSCARE_TAG: String = "jumpscare"
+## Every tag this balloon reacts to, other tag in .dialogue is typo, see [method DebugCommands.check_dialogue_files].
+const TAGS: Array[String] = [GLITCH_TAG, JUMPSCARE_TAG]
 
 ## Max tilt of glitching text, in degrees.
 @export var glitch_angle: float = 0.8
@@ -39,6 +41,7 @@ func _ready() -> void:
 	responses_menu.child_entered_tree.connect(_on_responses_menu_child_entered_tree)
 
 
+## Shows line like base balloon + plays its tags: [constant GLITCH_TAG] + [constant JUMPSCARE_TAG].
 func apply_dialogue_line() -> void:
 	_is_glitching = dialogue_line.has_tag(GLITCH_TAG)
 	if not _is_glitching:

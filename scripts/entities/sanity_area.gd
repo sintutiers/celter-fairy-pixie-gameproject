@@ -8,6 +8,9 @@
 class_name SanityArea
 extends Area3D
 
+## Physics layer 2 ("player"), must be in [member CollisionObject3D.collision_mask].
+const PLAYER_LAYER: int = 1 << 1
+
 ## Stops sanity drain while inside, see [method SanityComponent.pause_sanity_drain].
 @export var pauses_drain: bool = true
 ## Added to [member SanityComponent.drain_per_second] while inside. Pauses w/ normal
@@ -24,6 +27,12 @@ var _has_been_entered: bool = false
 
 
 func _ready() -> void:
+	GameState.check_persistent_id_is_unique(self, persistent_id)
+	# w/o shape/player layer player never enters + area does ∅
+	if not get_children().any(func(child: Node) -> bool: return child is CollisionShape3D or child is CollisionPolygon3D):
+		Log.error("%s: no CollisionShape3D child, player never enters" % name)
+	if collision_mask & PLAYER_LAYER == 0:
+		Log.error("%s: collision_mask misses player layer 2, player never enters" % name)
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
@@ -55,15 +64,16 @@ func _restore_sanity_on_first_entry(sanity: SanityComponent) -> void:
 	_has_been_entered = true
 	if persistent_id != "" and GameState.has_game_state():
 		var level_path: String = GameState.get_placed_level_path(self)
-		if GameState.get_level_flag(level_path, _get_entered_flag_key()):
+		if GameState.get_level_flag(level_path, get_entered_flag_key()):
 			return
-		GameState.set_level_flag(level_path, _get_entered_flag_key())
+		GameState.set_level_flag(level_path, get_entered_flag_key())
 	GameLog.write(&"sanity", "first entry of", str(name), first_entry_sanity)
 	sanity.add_sanity(first_entry_sanity)
 
 
 # old class name stays in key: changing it breaks saves
-func _get_entered_flag_key() -> String:
+## Level flag set on first entry, see [member persistent_id].
+func get_entered_flag_key() -> String:
 	return "sanctuary." + persistent_id
 
 

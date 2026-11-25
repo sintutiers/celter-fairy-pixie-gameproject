@@ -7,6 +7,7 @@
 class_name PlayerBody2D
 extends CharacterBody2D
 
+## Tuning values given to movement component, see [MovementProfile].
 @export var movement_profile: MovementProfile
 
 ## Set when body enters tree, see [PlayerApi].

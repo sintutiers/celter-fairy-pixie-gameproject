@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Debug commands for [LimboConsole]. Autoload.
 ## Player commands go through [PlayerApi] ∴ they work for 2D + 3D player.
-## Also checks every .dialogue file on startup for unknown item + quest ids +
-## for unclosed option conditions, see [method _check_dialogue_files]. Same for broken
-## item + quest .tres, see [method _check_content_files].
+## Also checks every .dialogue file on startup for unknown item + quest ids, unclosed
+## option conditions, fact keys w/o prefix + unknown tags, see [method check_dialogue_files]. Same for broken
+## item + quest .tres, see [method check_content_files]. test_content.gd runs both ∴ CI fails on them too.
 ##
 ## [LimboConsole] silently fails to register bare callable, command name
 ## must be passed as second argument even when function name matches.
@@ -43,8 +43,8 @@ func _ready() -> void:
 	DebugMenu.add_child.call_deferred(STATE_CHART_PANEL_SCENE.instantiate())
 	# exported builds hold no .dialogue source, only compiled resources
 	if OS.has_feature("editor"):
-		_check_dialogue_files()
-		_check_content_files()
+		check_dialogue_files()
+		check_content_files()
 
 
 #region Commands
@@ -183,33 +183,71 @@ func _get_all_item_ids() -> Array[String]:
 
 
 #region Dialogue check
-# typo in .dialogue id only fails once line is reached ∴ rare branches slip through testing
-# reports them all on every editor run, literal ids only (flags + facts have no list)
-func _check_dialogue_files() -> void:
+## Pushes error for every unknown item/quest id, unclosed option condition, fact key
+## that is not [code]<who>.<what>[/code] + tag not in [constant DialogueBalloon.TAGS] in .dialogue files.
+## Literal ids + keys only.
+## Returns problem count, 0 = all fine.
+func check_dialogue_files() -> int:
+	# typo in .dialogue id only fails once line is reached ∴ rare branches slip through testing
 	var id_call_pattern: RegEx = RegEx.create_from_string(
 		"\\b(give_item|remove_item|has_item|use_item|get_quest_stage|is_quest_done|advance_quest)\\(\\s*\"([^\"]*)\"",
 	)
 	# option condition must end in " /]", plain "]" compiles but shows as text + is never checked
 	var unclosed_condition_pattern: RegEx = RegEx.create_from_string("(?m)^\\s*- .*\\[if [^\\]]*[^/]\\]$")
-	for path: String in _find_dialogue_files("res://"):
+	# facts have no list ∴ only shape is checked: key starts w/ who wrote it
+	var fact_call_pattern: RegEx = RegEx.create_from_string("\\b(get_fact|set_fact)\\(\\s*\"([^\"]*)\"")
+	var fact_key_pattern: RegEx = RegEx.create_from_string("^[a-z0-9_]+\\.[a-z0-9_.]+$")
+	# unknown tag shows line w/o effect, nothing else notices
+	var tags_pattern: RegEx = RegEx.create_from_string("\\[#([^\\]]*)\\]")
+	var problem_count: int = 0
+	for path: String in find_dialogue_files("res://"):
 		var text: String = FileAccess.get_file_as_string(path)
 		for found: RegExMatch in unclosed_condition_pattern.search_all(text):
-			Log.error("%s:%d: option condition must end in \" /]\"" % [path, text.count("\n", 0, found.get_start()) + 1])
+			Log.error("%s:%d: option condition must end in \" /]\"" % [path, _get_line_number(text, found)])
+			problem_count += 1
 		for found: RegExMatch in id_call_pattern.search_all(text):
 			var id: String = found.get_string(2)
 			var directory: String = QuestData.DIR if "quest" in found.get_string(1) else ItemData.DIR
 			if ResourceLoader.exists("%s%s.tres" % [directory, id]):
 				continue
-			var line: int = text.count("\n", 0, found.get_start()) + 1
-			Log.error("%s:%d: %s(\"%s\") but %s%s.tres does not exist" % [path, line, found.get_string(1), id, directory, id])
+			Log.error(
+				"%s:%d: %s(\"%s\") but %s%s.tres does not exist"
+				% [path, _get_line_number(text, found), found.get_string(1), id, directory, id],
+			)
+			problem_count += 1
+		for found: RegExMatch in fact_call_pattern.search_all(text):
+			if fact_key_pattern.search(found.get_string(2)):
+				continue
+			Log.error(
+				"%s:%d: fact \"%s\" must be <who>.<what>, lowercase, e.g. choice.helped_teto"
+				% [path, _get_line_number(text, found), found.get_string(2)],
+			)
+			problem_count += 1
+		for found: RegExMatch in tags_pattern.search_all(text):
+			# [#a, #b=value] = tags a + b
+			for tag: String in found.get_string(1).split(","):
+				var tag_name: String = tag.strip_edges().trim_prefix("#").get_slice("=", 0)
+				if tag_name in DialogueBalloon.TAGS:
+					continue
+				Log.error(
+					"%s:%d: tag \"%s\" not in DialogueBalloon.TAGS %s"
+					% [path, _get_line_number(text, found), tag_name, DialogueBalloon.TAGS],
+				)
+				problem_count += 1
+	return problem_count
 
 
-# DirAccess skips hidden folders, addons hold only example dialogue
-func _find_dialogue_files(directory: String) -> PackedStringArray:
+func _get_line_number(text: String, found: RegExMatch) -> int:
+	return text.count("\n", 0, found.get_start()) + 1
+
+
+## Every .dialogue file below [param directory], addons skipped (only example dialogue there).
+func find_dialogue_files(directory: String) -> PackedStringArray:
+	# DirAccess skips hidden folders ∴ .godot + worktree copies are not read
 	var files: PackedStringArray = PackedStringArray()
 	for folder: String in DirAccess.get_directories_at(directory):
 		if folder != "addons":
-			files.append_array(_find_dialogue_files(directory.path_join(folder)))
+			files.append_array(find_dialogue_files(directory.path_join(folder)))
 	for file: String in DirAccess.get_files_at(directory):
 		if file.get_extension() == "dialogue":
 			files.append(directory.path_join(file))
@@ -218,24 +256,32 @@ func _find_dialogue_files(directory: String) -> PackedStringArray:
 
 
 #region Content check
-# broken .tres only fails once dialogue/pickup reaches it ∴ all are checked on every editor run
-func _check_content_files() -> void:
+## Pushes error for every item + quest .tres that is wrong type, item w/ missing
+## [member ItemData.use_dialogue_cue] + quest w/o title/stages. Returns problem count, 0 = all fine.
+func check_content_files() -> int:
+	# broken .tres only fails once dialogue/pickup reaches it ∴ all are checked
+	var problem_count: int = 0
 	for id: String in _get_all_item_ids():
 		var item: ItemData = ItemData.load_item_by_id(id)
 		if not item:
 			Log.error("%s%s.tres is not ItemData" % [ItemData.DIR, id])
+			problem_count += 1
 		elif item.use_dialogue and item.use_dialogue_cue not in item.use_dialogue.get_cues():
 			Log.error(
 				"%s: use_dialogue_cue \"%s\" not in %s"
 				% [item.resource_path, item.use_dialogue_cue, item.use_dialogue.resource_path],
 			)
+			problem_count += 1
 	for file: String in ResourceLoader.list_directory(QuestData.DIR):
 		if file.get_extension() != "tres":
 			continue
 		var quest: QuestData = QuestData.load_quest_by_id(file.get_basename())
 		if not quest:
 			Log.error("%s%s is not QuestData" % [QuestData.DIR, file])
+			problem_count += 1
 		elif quest.title == "" or quest.stages.is_empty():
 			# ∅ stages = first advance_quest finishes it
 			Log.error("%s needs title + at least 1 stage" % quest.resource_path)
+			problem_count += 1
+	return problem_count
 #endregion

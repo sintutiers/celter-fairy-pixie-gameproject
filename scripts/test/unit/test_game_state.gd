@@ -1,34 +1,13 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Save round trip + migration of old saves, see [GameState].
-## Runs on own save file ∴ real save is never touched.
 ## Old save layout gets fixture in res://scripts/test/fixtures/ when [constant GameState.SAVE_VERSION] is bumped.
-extends GutTest
+extends SaveIsolatedTest
 
-const TEST_SAVE_PATH: String = "user://test_save.json"
 const SAVE_V1_FIXTURE_PATH: String = "res://scripts/test/fixtures/save_v1.json"
+const SAVE_FIXTURE_PATH_FORMAT: String = "res://scripts/test/fixtures/save_v%d.json"
 # uid:// key is used as is ∴ needs no real level scene
 const LEVEL_PATH: String = "uid://test_level"
-
-var _original_save_path: String
-
-
-#region Setup/Teardown
-func before_all() -> void:
-	_original_save_path = GameState.save_path
-	GameState.save_path = TEST_SAVE_PATH
-
-
-func before_each() -> void:
-	_delete_test_save_files()
-	GameState.unload()
-
-
-func after_all() -> void:
-	_delete_test_save_files()
-	GameState.save_path = _original_save_path
-	GameState.unload()
-#endregion
 
 
 #region Round trip
@@ -108,6 +87,12 @@ func test_no_game_state_returns_defaults() -> void:
 
 
 #region Migration
+# bumped SAVE_VERSION w/o fixture = migration step nothing tests
+func test_every_old_save_version_has_fixture() -> void:
+	for version: int in range(1, GameState.SAVE_VERSION):
+		assert_file_exists(SAVE_FIXTURE_PATH_FORMAT % version)
+
+
 func test_v1_save_loads() -> void:
 	assert_eq(DirAccess.copy_absolute(SAVE_V1_FIXTURE_PATH, TEST_SAVE_PATH), OK)
 	assert_eq(GameState.get_or_create_state().total_games_played, 3)
@@ -154,13 +139,6 @@ func test_import_v1_save_backs_up_current_one() -> void:
 
 
 #region Helpers
-func _delete_test_save_files() -> void:
-	for suffix: String in ["", ".tmp", ".backup", ".broken"]:
-		var path: String = TEST_SAVE_PATH + suffix
-		if FileAccess.file_exists(path) and DirAccess.remove_absolute(path) != OK:
-			fail_test("could not delete %s, next test may see it" % path)
-
-
 func _write_test_save(contents: String) -> void:
 	var file: FileAccess = FileAccess.open(TEST_SAVE_PATH, FileAccess.WRITE)
 	assert_true(file.store_string(contents))

@@ -139,10 +139,28 @@ static func get_current_level_path() -> String:
 static func get_placed_level_path(node: Node) -> String:
 	if not node.owner:
 		return get_current_level_path()
+	return _get_placed_level(node).scene_file_path
+
+
+## Pushes error when other node w/ same script in same level has same [param persistent_id].
+## Same id = same saved flag ∴ taking one pickup would remove other after reload too.
+static func check_persistent_id_is_unique(node: Node, persistent_id: String) -> void:
+	# added from code ∴ no level to compare against
+	if persistent_id == "" or not node.owner:
+		return
+	for other: Node in _get_placed_level(node).find_children("*", "", true, false):
+		# only later one of pair reports ∴ each duplicate is one error
+		if other != node and other.get_script() == node.get_script() and other.get(&"persistent_id") == persistent_id and node.is_greater_than(other):
+			Log.error("%s + %s share persistent_id \"%s\", must be unique within level" % [other.name, node.name, persistent_id])
+			return
+
+
+# topmost owner, see get_placed_level_path. node must have owner
+static func _get_placed_level(node: Node) -> Node:
 	var level: Node = node.owner
 	while level.owner:
 		level = level.owner
-	return level.scene_file_path
+	return level
 
 
 ## Level that [method continue_game] goes back to, ∅ w/o game state.

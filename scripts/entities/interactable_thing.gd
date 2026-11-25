@@ -83,13 +83,14 @@ static func get_interactable_from_zone(zone: Area3D) -> InteractableThing:
 
 
 func _ready() -> void:
+	GameState.check_persistent_id_is_unique(self, persistent_id)
 	if auto and dialogue:
 		Log.error("%s: auto things must not have a dialogue" % name)
 	if persistent_id != "" and not free_after:
 		Log.warn("%s: persistent_id does nothing without free_after" % name)
 	_check_dialogue_cues()
 	# already taken in earlier visit, gone before its zone exists
-	if free_after and persistent_id != "" and GameState.get_level_flag(GameState.get_placed_level_path(self), _get_finished_flag_key()):
+	if free_after and persistent_id != "" and GameState.get_level_flag(GameState.get_placed_level_path(self), get_finished_flag_key()):
 		queue_free()
 		return
 	_setup_interaction_zone()
@@ -118,7 +119,7 @@ func execute_interaction_for_actor(actor: PlayerApi) -> void:
 	# saved now, not after dialogue: item already saved in inventory ∴ quitting
 	# mid dialogue would leave both pickup + item
 	if free_after and persistent_id != "":
-		GameState.set_level_flag(GameState.get_placed_level_path(self), _get_finished_flag_key())
+		GameState.set_level_flag(GameState.get_placed_level_path(self), get_finished_flag_key())
 	_is_running = true
 	GameLog.write(&"interact", "started", str(name))
 	started.emit(actor)
@@ -188,5 +189,6 @@ func _block_interaction_for_actor(actor: PlayerApi, reason: StringName) -> void:
 	_is_running = false
 
 
-func _get_finished_flag_key() -> String:
+## Level flag set when this [member free_after] thing is used, see [member persistent_id].
+func get_finished_flag_key() -> String:
 	return "thing." + persistent_id

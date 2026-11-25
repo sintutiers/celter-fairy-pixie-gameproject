@@ -5,31 +5,15 @@
 ## [constant MovementRecorder.REPLAY_DIRECTORY] must follow their recorded path.
 ## Record: run showcase.tscn (F6) + press R.
 ## ⚠ Intended movement change > delete failing replay + record it again.
-extends GutTest
+## Level + [SanityComponent] read + write save ∴ [SaveIsolatedTest], ∅ save also keeps tutorials closed.
+extends SaveIsolatedTest
 
 const LEVEL_SCENE: PackedScene = preload("res://scenes/game/levels/showcase.tscn")
-const TEST_SAVE_PATH: String = "user://test_save.json"
 ## Meters player may drift from recorded path before replay counts as changed.
 ## Raise if same replay fails between editor + CI Godot version.
 const POSITION_TOLERANCE: float = 0.05
 # spawned player drops onto floor + lands in these
 const SETTLE_FRAMES: int = 30
-
-var _original_save_path: String
-
-
-#region Setup/Teardown
-# SanityComponent + level read + write save ∴ own, empty one, also keeps tutorials closed
-func before_all() -> void:
-	_original_save_path = GameState.save_path
-	GameState.save_path = TEST_SAVE_PATH
-	GameState.unload()
-
-
-func after_all() -> void:
-	GameState.save_path = _original_save_path
-	GameState.unload()
-#endregion
 
 
 #region Scripted

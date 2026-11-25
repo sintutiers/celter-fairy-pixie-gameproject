@@ -28,6 +28,7 @@ func _on_setup() -> void:
 	var dependencies: Dictionary = { "sprite": sprite, "movement_component": movement_component }
 	if not _require_dependencies(dependencies):
 		return
+	_check_sprite_animations()
 	_base_scale_x = _get_sprite_scale_x()
 	sprite.connect(&"animation_finished", _on_sprite_animation_finished)
 	movement_component.ground_motion_changed.connect(_on_ground_motion_changed)
@@ -40,6 +41,18 @@ func _on_setup() -> void:
 	movement_component.started_falling.connect(_on_started_falling)
 	movement_component.flipped.connect(_on_facing_flipped)
 	_set_sprite_flip_h(not movement_component.default_facing_right)
+
+
+# missing animation only shows once that move happens (wall slide) ∴ all checked on load
+func _check_sprite_animations() -> void:
+	var sprite_frames: SpriteFrames = sprite.get(&"sprite_frames")
+	if not sprite_frames:
+		Log.error("%s: sprite has no SpriteFrames, nothing animates" % name)
+		return
+	var animations_script: Script = Animations
+	for animation: StringName in animations_script.get_script_constant_map().values():
+		if not sprite_frames.has_animation(animation):
+			Log.error("%s: sprite has no animation \"%s\" from Animations" % [name, animation])
 
 
 func _play_airborne_animation(animation: StringName, tumbling: bool = false) -> void:

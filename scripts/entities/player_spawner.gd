@@ -9,6 +9,7 @@
 class_name PlayerSpawner
 extends Marker3D
 
+## Spawned as player, root must be [Node3D].
 @export var player_scene: PackedScene = preload("res://scenes/game/player.tscn")
 ## Gets player as follow target. Leave ∅ for level w/ fixed camera.
 @export var camera: PhantomCamera3D
