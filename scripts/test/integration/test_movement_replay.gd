@@ -3,7 +3,8 @@
 ## Plays input into [MovementArena] + checks where player goes.
 ## Scripted tests check profile values hold in real physics. Recorded replays in
 ## [constant MovementArena.REPLAY_DIRECTORY] must follow their recorded path.
-## ⚠ Intended movement change > record affected replays again, see [MovementArena].
+## Record: run movement_arena.tscn (F6) + press R, see [MovementArena].
+## ⚠ Intended movement change > delete failing replay + record it again.
 extends GutTest
 
 const ARENA_SCENE: PackedScene = preload("res://scripts/test/integration/movement_arena.tscn")
@@ -84,7 +85,7 @@ func test_walking_left_flips_facing() -> void:
 func test_recorded_replays_follow_recorded_path() -> void:
 	var paths: PackedStringArray = _find_replay_paths()
 	if paths.is_empty():
-		pending("no replays in %s, record one w/ movement_arena.tscn" % MovementArena.REPLAY_DIRECTORY)
+		pending("no replays yet, run movement_arena.tscn (F6) + press R to record one")
 		return
 	for path: String in paths:
 		var replay: InputReplay = InputReplay.load_file(path)
@@ -96,6 +97,7 @@ func test_recorded_replays_follow_recorded_path() -> void:
 		var message: String = "%s: player left recorded path at frame %d" % [path.get_file(), frame_index]
 		if frame_index != -1:
 			message += ", was %s, recorded %s" % [arena.positions[frame_index], replay.positions[frame_index]]
+			message += ". Intended change? delete replay + record it again"
 		assert_eq(frame_index, -1, message)
 		# one arena at time, two players on same floor would collide
 		remove_child(arena)
