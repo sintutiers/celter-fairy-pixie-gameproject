@@ -25,6 +25,7 @@
 [ext_resource type="PackedScene" uid="uid://bpqkpemvpjrgm" path="res://scenes/game/interactable_thing_prefab.tscn" id="99_thing_prefab"]
 [ext_resource type="Texture2D" uid="uid://bp7t2exveuhmj" path="res://scripts/components/teto_kidnapp_miku.png" id="100_teto"]
 [ext_resource type="Resource" uid="uid://baupjsuxjq75l" path="res://content/dialogue/teto.dialogue" id="101_teto_dialogue"]
+[ext_resource type="Script" path="res://scripts/entities/movement_recorder.gd" id="102_recorder"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial_sc"]
 
@@ -121,6 +122,9 @@ script = ExtResource("13_l6ydm")
 tutorial_scenes = Array[PackedScene]([ExtResource("14_lv36y")])
 
 [node name="HUD" parent="." unique_id=1752342019 instance=ExtResource("11_hud")]
+
+[node name="MovementRecorder" type="Node" parent="." unique_id=1500000001]
+script = ExtResource("102_recorder")
 
 [node name="World" type="Node3D" parent="." unique_id=424648695]
 

@@ -9,7 +9,7 @@ extends Component
 
 ## Played in order, one /physics frame. After last one/when empty, input is empty.
 ## ⚠ Frame is only used up when someone calls [method get_frame] that physics frame,
-## ∴ caller must ask every frame to stay in step, see [MovementArena].
+## ∴ caller must ask every frame to stay in step, see [MovementRecorder].
 var frames: Array[InputFrame] = []
 
 var _frame: InputFrame

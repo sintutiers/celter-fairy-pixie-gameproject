@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Reads input map actions into [InputFrame].
 ## Presses + releases come from input events + are latched. Held state is polled.
+## Plays [member InputComponent.frames] instead when set, see [MovementRecorder].
 class_name PlayerInputComponent
 extends InputComponent
 
@@ -37,6 +38,8 @@ func _on_ready() -> void:
 
 
 func _build_frame() -> InputFrame:
+	if not frames.is_empty():
+		return super()
 	var frame: InputFrame = InputFrame.new()
 	# held state stays polled, tracking it from events desyncs when UI consumes release
 	frame.move = Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
