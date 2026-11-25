@@ -1,0 +1,25 @@
+{
+	"save_version": 1,
+	"current_level_path": "uid://test_level",
+	"checkpoint_level_path": "uid://test_level",
+	"total_games_played": 3,
+	"play_time": 120,
+	"total_time": 300,
+	"sanity": -1.0,
+	"inventory": {
+		"key.rusty": 2
+	},
+	"facts": {
+		"choice.helped_teto": true,
+		"quest.find_key": 1
+	},
+	"level_states": {
+		"uid://test_level": {
+			"color": "ffffffff",
+			"tutorial_read": true,
+			"flags": {
+				"thing.box_01": true
+			}
+		}
+	}
+}

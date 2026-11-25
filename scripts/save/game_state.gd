@@ -76,6 +76,12 @@ static func get_or_create_state() -> GameState:
 	return _current
 
 
+## Drops state held in memory ∴ next access reads [member save_path] again, as on game start.
+## Changes since last [method save] are lost. For tests, game never needs it.
+static func unload() -> void:
+	_current = null
+
+
 ## Writes whole state to [member save_path]. Does ∅ before [method get_or_create_state].
 static func save() -> void:
 	if not _current:
