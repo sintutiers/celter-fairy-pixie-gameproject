@@ -118,6 +118,88 @@ var _logged_input_direction: Vector2i = Vector2i.ZERO
 #endregion
 
 
+#region Pure math
+# static + only uses parameters ∴ tests can call these w/o body/scene
+
+## Horizontal velocity after accelerating toward [param world_direction] * [param target_speed]
+## for [param delta]. Turning against [param velocity] uses [member MovementProfile.turn_acceleration].
+static func get_accelerated_horizontal_velocity(
+	velocity: Vector2,
+	world_direction: Vector2,
+	target_speed: float,
+	movement_profile: MovementProfile,
+	delta: float,
+) -> Vector2:
+	var is_turning: bool = not velocity.is_zero_approx() and velocity.dot(world_direction) < 0.0
+	var acceleration: float = movement_profile.turn_acceleration if is_turning else movement_profile.move_acceleration
+	return velocity.move_toward(world_direction * target_speed, acceleration * delta)
+
+
+## Upward speed that reaches [member MovementProfile.jump_height], higher when running.
+## [param base_gravity] is rise gravity when [member MovementProfile.jump_gravity] is 0.
+static func get_jump_velocity(movement_profile: MovementProfile, is_running: bool, base_gravity: float) -> float:
+	var height: float = movement_profile.jump_height * (
+		movement_profile.running_jump_height_multiplier if is_running else 1.0
+	)
+	var rise_gravity: float = movement_profile.jump_gravity if movement_profile.jump_gravity > 0.0 else base_gravity
+	# v = sqrt(2 * g * h) reaches exactly height under rise gravity
+	return sqrt(2.0 * rise_gravity * height)
+
+
+## Horizontal velocity after ground jump: closer to [member MovementProfile.run_speed] = more
+## [member MovementProfile.momentum_jump_distance_multiplier].
+static func get_momentum_jump_velocity(velocity: Vector2, movement_profile: MovementProfile) -> Vector2:
+	var speed_ratio: float = clampf(velocity.length() / movement_profile.run_speed, 0.0, 1.0)
+	return velocity * lerpf(1.0, movement_profile.momentum_jump_distance_multiplier, speed_ratio)
+
+
+## Vertical velocity after [param delta] of air gravity, apex hang included.
+## Never below -[member MovementProfile.max_fall_speed].
+static func get_air_vertical_velocity(
+	vertical: float,
+	movement_profile: MovementProfile,
+	base_gravity: float,
+	delta: float,
+) -> float:
+	# rise gravity only while going up ∴ jump height + fall speed tune separately
+	var gravity: float = (
+		movement_profile.jump_gravity
+		if (movement_profile.jump_gravity > 0.0 and vertical > 0.0)
+		else base_gravity + movement_profile.fall_gravity_offset
+	)
+	if absf(vertical) < movement_profile.apex_hang_threshold:
+		gravity *= movement_profile.apex_hang_gravity_multiplier
+	return maxf(vertical - gravity * delta, -movement_profile.max_fall_speed)
+
+
+## Vertical velocity after [param delta] of wall slide. Never below -[member MovementProfile.wall_slide_speed].
+static func get_wall_slide_vertical_velocity(
+	vertical: float,
+	movement_profile: MovementProfile,
+	base_gravity: float,
+	delta: float,
+) -> float:
+	var gravity: float = base_gravity + movement_profile.fall_gravity_offset
+	return maxf(vertical - gravity * delta, -movement_profile.wall_slide_speed)
+
+
+## True if wall w/ [param wall_normal] can be jumped off. [param last_wall_jump_normal] is ZERO
+## when ∅ was jumped off this airtime.
+static func can_wall_jump_off(
+	movement_profile: MovementProfile,
+	last_wall_jump_normal: Vector2,
+	wall_normal: Vector2,
+) -> bool:
+	if not movement_profile.wall_jump_enabled:
+		return false
+	if movement_profile.wall_contact_refills_jumps:
+		return true
+	# w/o refill wall jumps are free ∴ same wall twice in a row is blocked
+	# to stop climbing one wall forever, walls facing same way count as same wall
+	return last_wall_jump_normal.dot(wall_normal) < 0.9
+#endregion
+
+
 #region Lifecycle
 # frame order: state chart runs active state physics (priority 0),
 # > this runs move_and_slide + post-move checks (priority 1)
@@ -251,10 +333,10 @@ func _apply_horizontal_movement(
 		return
 
 	var direction: Vector2 = _convert_input_direction_to_world(input_direction)
-	var turning: bool = not horizontal_velocity.is_zero_approx() and horizontal_velocity.dot(direction) < 0.0
-	var acceleration: float = profile.turn_acceleration if turning else profile.move_acceleration
 	var target_speed: float = (profile.run_speed if is_running else profile.move_speed) * speed_multiplier
-	_set_horizontal_velocity(horizontal_velocity.move_toward(direction * target_speed, acceleration * delta))
+	_set_horizontal_velocity(
+		get_accelerated_horizontal_velocity(horizontal_velocity, direction, target_speed, profile, delta)
+	)
 	facing_component.update_facing_from_input(input_direction)
 
 
@@ -294,23 +376,14 @@ func _try_jump(is_running: bool, is_wall_jump: bool = false) -> bool:
 	if _jump_buffer_timer <= 0.0 or not can_jump:
 		return false
 
-	var height: float = profile.jump_height * (
-		profile.running_jump_height_multiplier if is_running else 1.0
-	)
-	var rise_gravity: float = profile.jump_gravity if profile.jump_gravity > 0.0 else _get_gravity_magnitude()
-	# v = sqrt(2 * g * h) reaches exactly height under rise gravity
-	_set_vertical_velocity(sqrt(2.0 * rise_gravity * height))
+	_set_vertical_velocity(get_jump_velocity(profile, is_running, _get_gravity_magnitude()))
 
 	if is_wall_jump:
 		_last_wall_jump_normal = _get_wall_normal()
 		_set_horizontal_velocity(_last_wall_jump_normal * profile.wall_jump_push_speed)
 		_wall_jump_lock_timer = profile.wall_jump_lock_duration
 	else:
-		var horizontal_velocity: Vector2 = _get_horizontal_velocity()
-		var speed_ratio: float = clampf(horizontal_velocity.length() / profile.run_speed, 0.0, 1.0)
-		_set_horizontal_velocity(
-			horizontal_velocity * lerpf(1.0, profile.momentum_jump_distance_multiplier, speed_ratio)
-		)
+		_set_horizontal_velocity(get_momentum_jump_velocity(_get_horizontal_velocity(), profile))
 
 	_coyote_timer = 0.0
 	_jump_buffer_timer = 0.0
@@ -381,16 +454,7 @@ func _on_air_state_physics_processing(delta: float) -> void:
 		_send_state_chart_event(StateEvents.DASH)
 		return
 
-	var vertical: float = _get_vertical_velocity()
-	# rise gravity only while going up ∴ jump height + fall speed tune separately
-	var gravity: float = (
-		profile.jump_gravity
-		if (profile.jump_gravity > 0.0 and vertical > 0.0)
-		else _get_gravity_magnitude() + profile.fall_gravity_offset
-	)
-	if absf(vertical) < profile.apex_hang_threshold:
-		gravity *= profile.apex_hang_gravity_multiplier
-	vertical = maxf(vertical - gravity * delta, -profile.max_fall_speed)
+	var vertical: float = get_air_vertical_velocity(_get_vertical_velocity(), profile, _get_gravity_magnitude(), delta)
 
 	if _is_on_ceiling() and vertical > 0.0:
 		vertical = 0.0
@@ -441,27 +505,16 @@ func _on_wall_slide_state_entered() -> void:
 
 
 func _on_wall_slide_state_physics_processing(delta: float) -> void:
-	var gravity: float = _get_gravity_magnitude() + profile.fall_gravity_offset
 	_set_vertical_velocity(
-		maxf(_get_vertical_velocity() - gravity * delta, -profile.wall_slide_speed)
+		get_wall_slide_vertical_velocity(_get_vertical_velocity(), profile, _get_gravity_magnitude(), delta)
 	)
 	_update_jump_buffer(delta)
 
-	if _can_wall_jump() and _try_jump(false, true):
+	if can_wall_jump_off(profile, _last_wall_jump_normal, _get_wall_normal()) and _try_jump(false, true):
 		_send_state_chart_event(StateEvents.JUMP)
 		return
 
 	_apply_horizontal_movement(delta, _get_current_movement_input(), false)
-
-
-# w/o refill wall jumps are free ∴ same wall twice in a row is blocked
-# to stop climbing one wall forever, walls facing same way count as same wall
-func _can_wall_jump() -> bool:
-	if not profile.wall_jump_enabled:
-		return false
-	if profile.wall_contact_refills_jumps:
-		return true
-	return _last_wall_jump_normal.dot(_get_wall_normal()) < 0.9
 
 
 func _run_wall_slide_post_move_check() -> void:
