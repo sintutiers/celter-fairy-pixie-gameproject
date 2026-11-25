@@ -479,6 +479,12 @@ locale/translations_pot_files=PackedStringArray("res://content/dialogue/test1.di
 3d_physics/layer_2="player"
 3d_physics/layer_5="interaction"
 
+[log_gd]
+
+config/show_process_unique_id=true
+config/show_timestamps.release=true
+config/timestamp_type=4
+
 [maaacks_game_template]
 
 disable_install_wizard=true

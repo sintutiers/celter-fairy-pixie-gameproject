@@ -350,6 +350,11 @@ func to_dictionary() -> Dictionary:
 	return data
 
 
+## [code]Log.pr(this)[/code] prints [method to_dictionary] instead of object id.
+func to_pretty() -> Dictionary:
+	return to_dictionary()
+
+
 ## Reads what [method to_dictionary] wrote, after [method _migrate_save_to_current_version].
 ## Missing key keeps default ∴ new field needs no migration step.
 static func from_dictionary(data: Dictionary) -> GameState:

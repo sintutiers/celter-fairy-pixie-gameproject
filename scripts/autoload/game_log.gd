@@ -27,7 +27,7 @@ func _ready() -> void:
 	DialogueManager.got_dialogue.connect(_on_got_dialogue)
 
 
-## Writes [param values] as one line when [param channel] is on.
+## Writes [param values] as one line when [param channel] is on + Log.gd level ≤ INFO.
 ## Channel missing from [member channels] is error.
 ## [codeblock]
 ## GameLog.write(&"sanity", "zone", zone, "at", "%.1f" % value)
@@ -36,12 +36,26 @@ func write(channel: StringName, ...values: Array) -> void:
 	# formatted only when something listens, movement writes every few frames
 	if wrote.has_connections():
 		wrote.emit(channel, " ".join(PackedStringArray(values.map(func(value: Variant) -> String: return str(value)))))
-	if not channels[channel]:
+	# below INFO ∴ Log.gd level silences channels too, not only Log.debug/info
+	if not channels[channel] or Log.get_log_level() > Log.Levels.INFO:
 		return
 	values.push_front("[%s]" % channel)
-	var line: String = Log.to_printable(values, { stack = get_stack() })
+	var line: String = _get_caller_prefix() + Log.to_printable(values, { skip_callsite = true })
 	print_rich(line)
 	LimboConsole.print_line(line, false)
+
+
+# Log.gd >= 0.3 finds callsite itself + would name this file ∴ prefix of write() caller is built here
+# same look as Log.gd prefix, ∅ in release export where get_stack() is empty
+func _get_caller_prefix() -> String:
+	var stack: Array = get_stack()
+	# 0 = here, 1 = write, 2 = its caller
+	if stack.size() < 3:
+		return ""
+	var caller: Dictionary = stack[2]
+	var source: String = caller.get("source", "")
+	var prefix: String = "[%s:%s]: " % [source.get_file().get_basename(), caller.get("line", 0)]
+	return Log.color_wrap(prefix, { type = "SRC", disable_colors = Log.get_disable_colors() })
 
 
 ## Flips [param channel]/lists every channel when ∅.

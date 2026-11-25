@@ -50,3 +50,8 @@ func to_dictionary() -> Dictionary:
 	if interact_pressed:
 		data["interact_pressed"] = true
 	return data
+
+
+## [code]Log.pr(this)[/code] prints [method to_dictionary] instead of object id.
+func to_pretty() -> Dictionary:
+	return to_dictionary()
