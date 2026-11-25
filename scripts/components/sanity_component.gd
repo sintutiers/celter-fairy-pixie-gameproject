@@ -4,7 +4,7 @@
 ## Drain stops through [method pause_sanity_drain]: locking interactions pause it
 ## ([signal InteractionComponent.interact_started], wired by [PlayerBody]),
 ## [SanityArea] while player is inside.
-## Value is kept in [member GameState.sanity] ∴ it survives level changes + restarts.
+## Value is kept in save, see [method GameState.mirror_sanity] ∴ it survives level changes + restarts.
 ## W/o game state it starts at [member max_sanity] every time.
 class_name SanityComponent
 extends Component
@@ -62,7 +62,7 @@ func resume_sanity_drain() -> void:
 
 
 ## Sets meter to [param new_value], clamped to 0 + [member max_sanity].
-## Mirrors it into [member GameState.sanity] + emits [signal changed] +
+## Mirrors it into save + emits [signal changed] +
 ## [signal zone_changed] + [signal depleted] when they apply. Same value does ∅.
 func set_current_sanity_value(new_value: float) -> void:
 	new_value = clampf(new_value, 0.0, max_sanity)
@@ -71,8 +71,7 @@ func set_current_sanity_value(new_value: float) -> void:
 		return
 	value = new_value
 	# only mirrored: drain changes it every physics frame, file written in _exit_tree
-	if GameState.has_game_state():
-		GameState.get_or_create_state().sanity = value
+	GameState.mirror_sanity(value)
 	changed.emit(value, get_current_sanity_ratio())
 
 	var new_zone: int = _get_sanity_zone_for_ratio(get_current_sanity_ratio())
@@ -91,12 +90,11 @@ func _on_ready() -> void:
 	if max_sanity <= 0.0:
 		Log.error("%s: max_sanity must be above 0, is %s" % [name, max_sanity])
 	value = max_sanity
-	if GameState.has_game_state():
-		var saved: float = GameState.get_or_create_state().sanity
-		# placeholder until FDD decides what sanity 0 does: level lost, restart refills
-		# loading 0 would restart into meter that can never deplete again
-		if saved > 0.0:
-			value = minf(saved, max_sanity)
+	var saved: float = GameState.get_saved_sanity(max_sanity)
+	# placeholder until FDD decides what sanity 0 does: level lost, restart refills
+	# loading 0 would restart into meter that can never deplete again
+	if saved > 0.0:
+		value = minf(saved, max_sanity)
 	zone = _get_sanity_zone_for_ratio(get_current_sanity_ratio())
 	changed.emit(value, get_current_sanity_ratio())
 

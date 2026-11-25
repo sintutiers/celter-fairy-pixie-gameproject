@@ -31,11 +31,11 @@ func _process(_delta: float) -> void:
 	if not GameState.has_game_state():
 		lines.append("No save data: flags, facts and pickups reset. Start from the main menu to keep them.")
 	else:
-		var facts: Dictionary[String, Variant] = GameState.get_or_create_state().facts
+		var facts: Dictionary[String, Variant] = GameState.get_all_facts()
 		for key: String in facts:
 			lines.append("  %s = %s" % [key, facts[key]])
-			if key.begins_with("quest."):
-				lines.append("    " + _format_quest_stage_line(key.trim_prefix("quest."), facts[key]))
+			if key.begins_with(PlayerApi.QUEST_FACT_PREFIX):
+				lines.append("    " + _format_quest_stage_line(key.trim_prefix(PlayerApi.QUEST_FACT_PREFIX), facts[key]))
 	text = "\n".join(lines)
 
 

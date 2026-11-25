@@ -18,6 +18,14 @@ extends RefCounted
 
 ## Group player body joins, see [method find_local_player_api].
 const GROUP: StringName = &"player"
+## Fact key = prefix + quest id, see [method get_quest_stage]. ⚠ Changing prefix breaks saves.
+const QUEST_FACT_PREFIX: String = "quest."
+## Fact key = prefix + npc, see [method get_opinion]. ⚠ Changing prefix breaks saves.
+const OPINION_FACT_PREFIX: String = "opinion."
+## Fact key = prefix + npc, see [method get_favor]. ⚠ Changing prefix breaks saves.
+const FAVOR_FACT_PREFIX: String = "favor."
+## Fact key = prefix + npc, see [method get_debt]. ⚠ Changing prefix breaks saves.
+const DEBT_FACT_PREFIX: String = "debt."
 
 ## Null when player has ∅. Item methods > push error.
 var inventory: InventoryComponent
@@ -104,35 +112,35 @@ func set_fact(key: String, value: Variant = true) -> void:
 
 ## How much [param npc] likes player, 0 when they never met. Hidden from player.
 func get_opinion(npc: String) -> int:
-	return get_fact("opinion." + npc, 0)
+	return get_fact(OPINION_FACT_PREFIX + npc, 0)
 
 
 ## Adds [param amount] to [method get_opinion], negative lowers.
 func add_opinion(npc: String, amount: int) -> void:
-	set_fact("opinion." + npc, get_opinion(npc) + amount)
+	set_fact(OPINION_FACT_PREFIX + npc, get_opinion(npc) + amount)
 
 
 ## Size of what [param npc] owes player, 0 when ∅. Other direction is [method get_debt],
 ## both can be open w/ same npc at once.
 func get_favor(npc: String) -> int:
-	return get_fact("favor." + npc, 0)
+	return get_fact(FAVOR_FACT_PREFIX + npc, 0)
 
 
 ## Adds [param amount] to [method get_favor], negative spends.
 ## Returns false + spends ∅ when less is owed.
 func add_favor(npc: String, amount: int) -> bool:
-	return _add_to_ledger_fact("favor." + npc, amount)
+	return _add_to_ledger_fact(FAVOR_FACT_PREFIX + npc, amount)
 
 
 ## Size of what player owes [param npc], 0 when ∅. Other direction is [method get_favor].
 func get_debt(npc: String) -> int:
-	return get_fact("debt." + npc, 0)
+	return get_fact(DEBT_FACT_PREFIX + npc, 0)
 
 
 ## Adds [param amount] to [method get_debt], negative pays off.
 ## Returns false + pays ∅ when less is owed.
 func add_debt(npc: String, amount: int) -> bool:
-	return _add_to_ledger_fact("debt." + npc, amount)
+	return _add_to_ledger_fact(DEBT_FACT_PREFIX + npc, amount)
 
 
 ## Stage of quest w/ [param id]: -1 = not started, see [member QuestData.stages].
@@ -140,13 +148,13 @@ func get_quest_stage(id: String) -> int:
 	# loaded only to fail loudly on typo, bare fact lookup would return -1 forever
 	if not QuestData.load_quest_by_id(id):
 		return -1
-	return get_fact("quest." + id, -1)
+	return get_fact(QUEST_FACT_PREFIX + id, -1)
 
 
 ## True once quest moved past its last stage.
 func is_quest_done(id: String) -> bool:
 	var quest: QuestData = QuestData.load_quest_by_id(id)
-	return quest != null and get_fact("quest." + id, -1) >= quest.stages.size()
+	return quest != null and get_fact(QUEST_FACT_PREFIX + id, -1) >= quest.stages.size()
 
 
 ## Starts quest/moves it to its next stage. Pushes error when already done.
@@ -158,7 +166,7 @@ func advance_quest(id: String) -> void:
 	if stage > quest.stages.size():
 		Log.error("quest '%s' is already done, advance_quest ignored" % id)
 		return
-	set_fact("quest." + id, stage)
+	set_fact(QUEST_FACT_PREFIX + id, stage)
 
 
 # favors + debts never go below 0: owing other way is its own fact

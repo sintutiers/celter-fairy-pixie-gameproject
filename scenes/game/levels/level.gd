@@ -26,7 +26,7 @@ func open_tutorials() -> void:
 
 func _ready() -> void:
 	# Null without a game state, e.g. when the level is run straight from the editor.
-	level_state = GameState.get_level_state(scene_file_path)
+	level_state = GameState.get_or_create_level_state(scene_file_path)
 	if level_state and not level_state.tutorial_read:
 		open_tutorials()
 	# Placeholder rule until the FDD decides what sanity 0 does: the level is lost.

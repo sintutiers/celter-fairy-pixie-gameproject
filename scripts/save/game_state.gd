@@ -9,7 +9,7 @@ class_name GameState
 extends RefCounted
 
 ## Version this game writes. Older saves are migrated on load.
-const SAVE_VERSION: int = 1
+const SAVE_VERSION: int = 2
 
 ## Extra instance for multiplayer testing passes [code]--save=<name>[/code] after
 ## [code]--[/code] + gets its own file ∵ all editor instances share user://.
@@ -21,8 +21,9 @@ static var _current: GameState
 var level_states: Dictionary[String, LevelState] = { }
 ## Carried items, item id to count. Written by [InventoryComponent].
 var inventory: Dictionary[String, int] = { }
-## Negative = never saved. Written by [SanityComponent].
-var sanity: float = -1.0
+## False until [SanityComponent] first mirrored [member sanity], see [method get_saved_sanity].
+var has_sanity: bool = false
+var sanity: float = 0.0
 ## Story state that outlives level, see [method get_fact].
 var facts: Dictionary[String, Variant] = { }
 var current_level_path: String
@@ -32,15 +33,23 @@ var play_time: int
 var total_time: int
 
 
-## Returns saved [LevelState] for level scene path/uid, null w/o game state.
-## Level seen for first time gets state created + saved ∴ read can write.
+## Returns saved [LevelState] for level scene path/uid, null for level never reached/w/o game state.
+## Only reads, see [method get_or_create_level_state].
 static func get_level_state(level_path: String) -> LevelState:
-	var level_state_key: String = _get_level_state_key(level_path)
 	if not has_game_state():
 		return null
-	var game_state: GameState = get_or_create_state()
-	if level_state_key.is_empty():
+	var level_states: Dictionary[String, LevelState] = get_or_create_state().level_states
+	return level_states.get(_get_level_state_key(level_path), null)
+
+
+## Like [method get_level_state], but level seen for first time gets state created + saved.
+## That is what counts it in [method get_levels_reached]. Null w/o game state.
+## Returned state is live: field changed on it is written by next [method save].
+static func get_or_create_level_state(level_path: String) -> LevelState:
+	var level_state_key: String = _get_level_state_key(level_path)
+	if not has_game_state() or level_state_key.is_empty():
 		return null
+	var game_state: GameState = get_or_create_state()
 	if level_state_key in game_state.level_states:
 		return game_state.level_states[level_state_key]
 	var new_level_state: LevelState = LevelState.new()
@@ -154,7 +163,7 @@ static func get_levels_reached() -> int:
 static func set_checkpoint_level_path(level_path: String) -> void:
 	var game_state: GameState = get_or_create_state()
 	game_state.checkpoint_level_path = level_path
-	get_level_state(level_path)
+	get_or_create_level_state(level_path)
 	save()
 
 
@@ -179,6 +188,24 @@ static func continue_game() -> void:
 	save()
 
 
+## Saved sanity, [param default] when never saved/w/o game state.
+static func get_saved_sanity(default: float) -> float:
+	if not has_game_state():
+		return default
+	var game_state: GameState = get_or_create_state()
+	return game_state.sanity if game_state.has_sanity else default
+
+
+## Copies [param value] into save w/o writing file, ∅ w/o game state.
+## Sanity changes every physics frame ∴ file gets it on next [method save].
+static func mirror_sanity(value: float) -> void:
+	if not has_game_state():
+		return
+	var game_state: GameState = get_or_create_state()
+	game_state.sanity = value
+	game_state.has_sanity = true
+
+
 ## Wipes level progress, facts, inventory, sanity + play time.
 ## [member total_games_played] is kept.
 static func reset() -> void:
@@ -186,7 +213,8 @@ static func reset() -> void:
 	game_state.level_states.clear()
 	game_state.facts.clear()
 	game_state.inventory.clear()
-	game_state.sanity = -1.0
+	game_state.has_sanity = false
+	game_state.sanity = 0.0
 	game_state.current_level_path = ""
 	game_state.checkpoint_level_path = ""
 	game_state.play_time = 0
@@ -203,7 +231,7 @@ static func get_level_flag(level_path: String, flag: String) -> bool:
 
 ## Saves immediately. Warns + saves ∅ if level has no state.
 static func set_level_flag(level_path: String, flag: String, value: bool = true) -> void:
-	var level_state: LevelState = get_level_state(level_path)
+	var level_state: LevelState = get_or_create_level_state(level_path)
 	if not level_state:
 		Log.warn("no level state for '%s', flag '%s' not saved" % [level_path, flag])
 		return
@@ -221,9 +249,21 @@ static func get_fact(key: String, default: Variant = false) -> Variant:
 	return get_or_create_state().facts.get(key, default)
 
 
+## Copy of every fact, empty w/o game state. Changing it changes ∅, see [method set_fact].
+static func get_all_facts() -> Dictionary[String, Variant]:
+	if not has_game_state():
+		return { }
+	return get_or_create_state().facts.duplicate()
+
+
 ## Saves immediately. Warns + saves ∅ w/o game state.
+## [param value] must be bool, int, float/String: Array/Dictionary from [method get_fact]
+## would be live + could change w/o save.
 ## ⚠ Renaming key breaks saves that already hold it.
 static func set_fact(key: String, value: Variant = true) -> void:
+	if typeof(value) not in [TYPE_BOOL, TYPE_INT, TYPE_FLOAT, TYPE_STRING]:
+		Log.error("fact '%s' must be bool, int, float or String, got %s" % [key, type_string(typeof(value))])
+		return
 	if not has_game_state():
 		Log.warn("no game state, fact '%s' not saved" % key)
 		return
@@ -270,7 +310,11 @@ static func _migrate_save_to_current_version(data: Dictionary) -> void:
 			"save is version %d, this game only knows %d. Loaded as is, expect missing progress."
 			% [version, SAVE_VERSION],
 		)
-	# no steps yet, first one starts w/ "if version < 2:" + renames/rebuilds keys in data
+	if version < 2:
+		# v1 wrote -1.0 for never saved sanity, v2 leaves key out
+		var saved_sanity: float = data.get("sanity", 0.0)
+		if saved_sanity < 0.0:
+			data.erase("sanity")
 
 
 # JSON has one number type ∴ 3 reads back as 3.0, counts + quest stages must stay int
@@ -286,18 +330,20 @@ func _to_dictionary() -> Dictionary:
 	var saved_levels: Dictionary[String, Dictionary] = { }
 	for key: String in level_states:
 		saved_levels[key] = level_states[key].to_dictionary()
-	return {
+	var data: Dictionary = {
 		"save_version": SAVE_VERSION,
 		"current_level_path": current_level_path,
 		"checkpoint_level_path": checkpoint_level_path,
 		"total_games_played": total_games_played,
 		"play_time": play_time,
 		"total_time": total_time,
-		"sanity": sanity,
 		"inventory": inventory,
 		"facts": facts,
 		"level_states": saved_levels,
 	}
+	if has_sanity:
+		data["sanity"] = sanity
+	return data
 
 
 # missing key keeps default ∴ new field needs no migration step
@@ -307,7 +353,8 @@ func _apply_dictionary(data: Dictionary) -> void:
 	total_games_played = data.get("total_games_played", 0)
 	play_time = data.get("play_time", 0)
 	total_time = data.get("total_time", 0)
-	sanity = data.get("sanity", -1.0)
+	has_sanity = data.has("sanity")
+	sanity = data.get("sanity", 0.0)
 	var saved_inventory: Dictionary = data.get("inventory", { })
 	for id: String in saved_inventory:
 		var count: int = saved_inventory[id]

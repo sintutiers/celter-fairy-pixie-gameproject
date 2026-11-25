@@ -109,7 +109,7 @@ func set_fact(key: String = "", value: String = "true") -> void:
 		LimboConsole.error("no save data, start from the main menu once")
 		return
 	if key == "":
-		var facts: Dictionary[String, Variant] = GameState.get_or_create_state().facts
+		var facts: Dictionary[String, Variant] = GameState.get_all_facts()
 		for listed: String in facts:
 			LimboConsole.info("%s = %s" % [listed, facts[listed]])
 		return
