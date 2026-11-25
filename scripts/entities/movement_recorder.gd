@@ -7,7 +7,8 @@
 ## test_movement_replay.gd plays every replay there on each test run.
 ## Leaving level/closing window while recording saves too. R is off in export + tests.
 ## ⚠ Moving player spawner/geometry player touches in level breaks replays that pass there.
-## ⚠ Replay only holds [InputFrame] ∴ dialogue/UI input is not replayed, record movement only.
+## ⚠ Replay only holds [InputFrame] ∴ dialogue/UI input is not replayed. Interaction is off
+## while recording + replaying ∴ both stay movement only, see [member InteractionComponent.is_enabled].
 class_name MovementRecorder
 extends Node
 
@@ -50,6 +51,8 @@ func _ready() -> void:
 		return
 	_is_recording = _should_record_on_ready
 	_should_record_on_ready = false
+	if _is_recording:
+		_disable_interaction()
 	_add_status_label()
 	_update_status_label()
 
@@ -88,6 +91,14 @@ func _exit_tree() -> void:
 func use_replay_input(frames: Array[InputFrame]) -> void:
 	_is_replaying = true
 	_input.frames = frames
+	_disable_interaction()
+
+
+# same in recording + replay ∴ interact press in take does ∅ in both
+func _disable_interaction() -> void:
+	var interaction: InteractionComponent = Component.find_descendant_of_type(player, InteractionComponent)
+	if interaction:
+		interaction.is_enabled = false
 
 
 # fresh level ∴ every take + its replay start from same spot
@@ -133,7 +144,7 @@ func _add_status_label() -> void:
 
 func _update_status_label() -> void:
 	if _is_recording:
-		_status_label.text = "● REC  %d frames\nR: stop + save" % _recorded_frames.size()
+		_status_label.text = "● REC  %d frames, interaction off\nR: stop + save" % _recorded_frames.size()
 		_status_label.modulate = Color.RED
 		return
 	_status_label.modulate = Color.WHITE

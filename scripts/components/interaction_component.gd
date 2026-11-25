@@ -28,6 +28,9 @@ var api: PlayerApi
 
 ## True during locking interaction.
 var is_locked: bool = false
+## False = interact presses + auto things do ∅. [MovementRecorder] turns it off
+## ∵ dialogue input is not in [InputFrame] ∴ replay would stand in open dialogue.
+var is_enabled: bool = true
 
 var _is_busy: bool = false
 var _sensor: Area3D
@@ -35,7 +38,7 @@ var _sensor: Area3D
 
 func _physics_process(_delta: float) -> void:
 	# no sensor until _on_setup, which is deferred
-	if is_locked or _is_busy or not _sensor:
+	if not is_enabled or is_locked or _is_busy or not _sensor:
 		return
 	if input_component.get_frame().interact_pressed:
 		await _interact_with_nearest_interactable()
@@ -99,7 +102,7 @@ func _find_nearest_interactable() -> InteractableThing:
 
 
 func _on_interaction_zone_entered(zone: Area3D) -> void:
-	if is_locked:
+	if not is_enabled or is_locked:
 		return
 	var thing: InteractableThing = InteractableThing.get_interactable_from_zone(zone)
 	if thing and thing.enabled and thing.auto:
