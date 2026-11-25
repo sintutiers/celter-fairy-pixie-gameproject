@@ -5,7 +5,9 @@
 ## events back through [method _send_state_chart_event]. Values come from [MovementProfile].
 ## Extend it + implement abstract functions for 2D/3D.
 ##
-## Dependencies (profile, input, facing, state chart, optional interaction) are injected
+## Also tracks which way character faces, see [member facing].
+##
+## Dependencies (profile, input, state chart, optional interaction) are injected
 ## by body in [method Node._enter_tree] ∴ they are set in [method Component._on_ready]
 ## + [method Component._on_setup].
 @abstract
@@ -28,15 +30,20 @@ signal wall_slid
 signal fell_from_wall
 ## Emitted once when dash starts.
 signal dashed
+## Emitted when [member facing] changes.
+signal flipped(new_facing_x: float)
 
 ## Ignore input during interactions (see [InteractionComponent]).
 @export var locks_during_interact: bool = true
+## Initial horizontal facing.
+@export var default_facing_right: bool = true
 
 var profile: MovementProfile
 var input_component: InputComponent
-var facing_component: FacingComponent
 var interaction_component: InteractionComponent
 var state_chart: StateChart
+## Last non-zero horizontal input direction: -1 left, 1 right.
+var facing: float
 
 var _empty_frame: InputFrame = InputFrame.new()
 # transition sent this frame ∴ post-move check is stale + skipped
@@ -217,6 +224,7 @@ func _physics_process(delta: float) -> void:
 
 func _on_ready() -> void:
 	process_physics_priority = 1
+	facing = 1.0 if default_facing_right else -1.0
 	# _on_setup reports missing state chart
 	if not state_chart:
 		return
@@ -236,7 +244,6 @@ func _on_setup() -> void:
 	var dependencies: Dictionary = {
 		"profile": profile,
 		"input_component": input_component,
-		"facing_component": facing_component,
 		"state_chart": state_chart,
 	}
 	if not _require_dependencies(dependencies):
@@ -337,7 +344,17 @@ func _apply_horizontal_movement(
 	_set_horizontal_velocity(
 		get_accelerated_horizontal_velocity(horizontal_velocity, direction, target_speed, profile, delta)
 	)
-	facing_component.update_facing_from_input(input_direction)
+	_update_facing(input_direction)
+
+
+# zero x keeps old facing
+func _update_facing(input_direction: Vector2) -> void:
+	if is_zero_approx(input_direction.x):
+		return
+	var new_facing_x: float = signf(input_direction.x)
+	if new_facing_x != facing:
+		facing = new_facing_x
+		flipped.emit(new_facing_x)
 
 
 func _update_current_motion(on_ground: bool, input_direction: Vector2, is_running: bool) -> void:

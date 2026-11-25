@@ -5,7 +5,6 @@
 [ext_resource type="Texture2D" uid="uid://muax2a0rttlp" path="res://The Amazing Art and Sound Folder/player air spin 48x48.png" id="2_ff7hd"]
 [ext_resource type="Texture2D" uid="uid://bl8f7ut08lwp6" path="res://The Amazing Art and Sound Folder/Player Crouch-Idle 48x48.png" id="3_0lqjd"]
 [ext_resource type="Texture2D" uid="uid://ccab0frfokb7q" path="res://The Amazing Art and Sound Folder/player crouch-walk 48x48.png" id="4_7hl3x"]
-[ext_resource type="Script" uid="uid://clhg7apuc3ldq" path="res://scripts/components/facing_component.gd" id="4_kwnx6"]
 [ext_resource type="Script" uid="uid://couw105c3bde4" path="res://addons/godot_state_charts/state_chart.gd" id="5_2dwxl"]
 [ext_resource type="Texture2D" uid="uid://p2qssyna7xuc" path="res://The Amazing Art and Sound Folder/dash.png" id="5_ejpuu"]
 [ext_resource type="Script" uid="uid://c0q0rfmy8x2gh" path="res://scripts/components/player_input_component.gd" id="5_pqy0k"]
@@ -942,10 +941,6 @@ autoplay = "idle"
 shape = SubResource("CapsuleShape2D_ul4y5")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=991944638]
-
-[node name="FacingComponent" type="Node" parent="." unique_id=284559144]
-script = ExtResource("4_kwnx6")
-metadata/_custom_type_script = "uid://clhg7apuc3ldq"
 
 [node name="PlayerInputComponent" type="Node" parent="." unique_id=2018521297]
 script = ExtResource("5_pqy0k")

@@ -18,7 +18,6 @@ func _enter_tree() -> void:
 	if api:
 		return
 	var input: InputComponent = _find_descendant_of_type(InputComponent)
-	var facing: FacingComponent = _find_descendant_of_type(FacingComponent)
 	var movement: Movement2DComponent = _find_descendant_of_type(Movement2DComponent)
 	var animation: AnimationComponent = _find_descendant_of_type(AnimationComponent)
 	var sanity: SanityComponent = _find_descendant_of_type(SanityComponent)
@@ -38,13 +37,11 @@ func _enter_tree() -> void:
 		movement.body = self
 		movement.profile = movement_profile
 		movement.input_component = input
-		movement.facing_component = facing
 		movement.collision_shape = _find_descendant_of_type(CollisionShape2D)
 		movement.state_chart = _find_descendant_of_type(StateChart)
 	if animation:
 		animation.sprite = sprite
 		animation.movement_component = movement
-		animation.facing_component = facing
 	if net_sync:
 		net_sync.body = self
 		net_sync.sprite = sprite

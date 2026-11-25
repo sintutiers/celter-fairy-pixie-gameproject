@@ -63,6 +63,20 @@ func test_run_reaches_run_speed() -> void:
 	run.run = true
 	var arena: MovementArena = await _play_in_arena(_make_frames(SETTLE_FRAMES + 60, run))
 	assert_almost_eq(_get_last_horizontal_speed(arena), arena.player.movement_profile.run_speed, 0.1)
+
+
+func test_walking_left_flips_facing() -> void:
+	var walk_left: InputFrame = InputFrame.new()
+	walk_left.move = Vector2.LEFT
+	var frames: Array[InputFrame] = _make_frames(20, walk_left)
+	var arena: MovementArena = _start_arena(frames)
+	var movement: Movement3DComponent = Component.find_descendant_of_type(arena.player, Movement3DComponent)
+	assert_eq(movement.facing, 1.0, "starts at default_facing_right")
+	watch_signals(movement)
+	await _wait_for_positions(arena, frames.size())
+	assert_eq(movement.facing, -1.0)
+	assert_signal_emitted_with_parameters(movement, "flipped", [-1.0])
+	assert_signal_emit_count(movement, "flipped", 1, "held direction flips once")
 #endregion
 
 
@@ -98,17 +112,24 @@ func _make_frames(count: int, frame: InputFrame) -> Array[InputFrame]:
 
 
 # returns arena once [param position_count] positions (default: one /frame) were sampled
-# freed after test, freeing it sooner is fine
 func _play_in_arena(frames: Array[InputFrame], position_count: int = -1) -> MovementArena:
-	if position_count < 0:
-		position_count = frames.size()
+	var arena: MovementArena = _start_arena(frames)
+	await _wait_for_positions(arena, frames.size() if position_count < 0 else position_count)
+	return arena
+
+
+# arena is in tree + ready, ∅ physics frame ran yet. Freed after test, freeing it sooner is fine
+func _start_arena(frames: Array[InputFrame]) -> MovementArena:
 	var arena: MovementArena = ARENA_SCENE.instantiate()
 	arena.use_replay_input(frames)
 	add_child_autofree(arena)
+	return arena
+
+
+func _wait_for_positions(arena: MovementArena, position_count: int) -> void:
 	var timeout: float = float(position_count) / Engine.physics_ticks_per_second + 5.0
 	var has_finished: bool = await wait_until(func() -> bool: return arena.positions.size() >= position_count, timeout)
 	assert_true(has_finished, "arena sampled %d of %d positions" % [arena.positions.size(), position_count])
-	return arena
 
 
 func _get_last_horizontal_speed(arena: MovementArena) -> float:

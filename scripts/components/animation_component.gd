@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## Picks sprite animation from [PlatformerMovementBase] + [FacingComponent] signals.
-## Dependencies (sprite, movement_component, facing_component) are injected by body, all required.
+## Picks sprite animation from [PlatformerMovementBase] signals.
+## Dependencies (sprite, movement_component) are injected by body, all required.
 ## Sprite can be [AnimatedSprite3D]/[AnimatedSprite2D].
 class_name AnimationComponent
 extends Component
@@ -13,7 +13,6 @@ extends Component
 ## [AnimatedSprite3D]/[AnimatedSprite2D]. Typed [Node] ∵ they share no base class.
 var sprite: Node
 var movement_component: PlatformerMovementBase
-var facing_component: FacingComponent
 
 var _is_airborne: bool = false
 # landing animation playing, ground motion changes held back until it ends
@@ -26,7 +25,7 @@ var _base_scale_x: float = 1.0
 
 
 func _on_setup() -> void:
-	var dependencies: Dictionary = { "sprite": sprite, "movement_component": movement_component, "facing_component": facing_component }
+	var dependencies: Dictionary = { "sprite": sprite, "movement_component": movement_component }
 	if not _require_dependencies(dependencies):
 		return
 	_base_scale_x = _get_sprite_scale_x()
@@ -39,8 +38,8 @@ func _on_setup() -> void:
 	movement_component.fell_from_wall.connect(_on_fell_from_wall)
 	movement_component.dashed.connect(_on_dashed)
 	movement_component.started_falling.connect(_on_started_falling)
-	facing_component.flipped.connect(_on_facing_flipped)
-	_set_sprite_flip_h(not facing_component.default_facing_right)
+	movement_component.flipped.connect(_on_facing_flipped)
+	_set_sprite_flip_h(not movement_component.default_facing_right)
 
 
 func _play_airborne_animation(animation: StringName, tumbling: bool = false) -> void:

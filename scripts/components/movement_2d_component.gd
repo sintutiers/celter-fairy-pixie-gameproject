@@ -55,7 +55,7 @@ func _convert_input_direction_to_world(direction: Vector2) -> Vector2:
 
 
 func _get_default_dash_direction() -> Vector2:
-	return Vector2(facing_component.facing, 0.0)
+	return Vector2(facing, 0.0)
 
 
 func _get_horizontal_velocity() -> Vector2:
