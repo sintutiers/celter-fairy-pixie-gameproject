@@ -111,12 +111,12 @@ func _on_sprite_animation_finished() -> void:
 
 
 func _on_facing_flipped(new_facing_x: float) -> void:
-	var flip: bool = new_facing_x < 0.0
+	var is_facing_left: bool = new_facing_x < 0.0
 	if _flip_tween:
 		_flip_tween.kill()
 	_flip_tween = create_tween()
 	_flip_tween.tween_property(sprite, "scale:x", 0.0, flip_duration * 0.5)
-	_flip_tween.tween_callback(_set_sprite_flip_h.bind(flip))
+	_flip_tween.tween_callback(_set_sprite_flip_h.bind(is_facing_left))
 	_flip_tween.tween_property(sprite, "scale:x", _base_scale_x, flip_duration * 0.5)
 
 

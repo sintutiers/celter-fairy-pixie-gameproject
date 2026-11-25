@@ -56,7 +56,7 @@ func _on_responses_menu_response_selected(response: DialogueResponse) -> void:
 
 # menu sets text, disabled + "response" meta before add_child ∴ all are there now
 func _on_responses_menu_child_entered_tree(node: Node) -> void:
-	if DebugCommands.explain and node is Button:
+	if DebugCommands.is_explaining and node is Button:
 		ExplainFeed.annotate_response_button(node as Button, dialogue_resource)
 
 

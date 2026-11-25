@@ -12,7 +12,7 @@ extends Node
 
 ## On = [ExplainFeed] shows what dialogue + pickups did, design notes + why
 ## options are locked. Not saved, off on every start.
-var explain: bool = false
+var is_explaining: bool = false
 
 # component toggle_sanity_drain paused ∴ same one gets resumed
 var _drain_paused_sanity: SanityComponent
@@ -77,10 +77,10 @@ func set_sanity(value: float) -> void:
 	LimboConsole.info("sanity %.0f/%.0f" % [api.sanity.value, api.sanity.max_sanity])
 
 
-## Flips [member explain].
+## Flips [member is_explaining].
 func toggle_explain() -> void:
-	explain = not explain
-	LimboConsole.info("explain %s" % ("on" if explain else "off"))
+	is_explaining = not is_explaining
+	LimboConsole.info("explain %s" % ("on" if is_explaining else "off"))
 
 
 ## Pauses sanity drain of current player/resumes it when paused by this.

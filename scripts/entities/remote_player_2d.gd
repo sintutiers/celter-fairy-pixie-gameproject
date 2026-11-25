@@ -12,7 +12,7 @@ extends Node2D
 
 var _sprite: AnimatedSprite2D
 var _target: Vector2
-var _placed: bool = false
+var _is_placed: bool = false
 # last animation reported missing, row repeats every update ∴ its logged once
 var _missing_animation: String = ""
 
@@ -30,9 +30,9 @@ func _process(delta: float) -> void:
 ## Applies latest row. First call snaps to position, not easing from origin.
 func apply_net_player_row(row: FaerieNetPlayer) -> void:
 	_target = Vector2(row.x, row.y)
-	if not _placed:
+	if not _is_placed:
 		global_position = _target
-		_placed = true
+		_is_placed = true
 	# already reported in _ready
 	if not _sprite:
 		return

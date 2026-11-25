@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
-## While console [code]explain[/code] is on ([member DebugCommands.explain]) shows what just happened:
+## While console [code]explain[/code] is on ([member DebugCommands.is_explaining]) shows what just happened:
 ## every sanity, inventory + ledger change ([signal GameLog.wrote]), design notes written as
 ## [code]##[/code] doc comments above dialogue lines + options, + condition of every locked option.
 ## ∴ .dialogue files hold only dialogue, logic + notes.
@@ -33,7 +33,7 @@ func _ready() -> void:
 
 
 func _on_game_log_wrote(channel: StringName, written: String) -> void:
-	if DebugCommands.explain and channel in CHANNELS:
+	if DebugCommands.is_explaining and channel in CHANNELS:
 		_add_feed_line("%s: %s" % [channel, written])
 
 
@@ -43,7 +43,7 @@ func _on_dialogue_started(resource: DialogueResource) -> void:
 
 func _on_got_dialogue(line: DialogueLine) -> void:
 	var notes: String = get_dialogue_notes(_resource, line.id)
-	if DebugCommands.explain and notes != "":
+	if DebugCommands.is_explaining and notes != "":
 		_add_feed_line("note: " + notes)
 
 

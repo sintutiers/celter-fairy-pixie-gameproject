@@ -40,8 +40,8 @@ var state_chart: StateChart
 
 var _empty_frame: InputFrame = InputFrame.new()
 # transition sent this frame ∴ post-move check is stale + skipped
-var _transition_sent: bool = false
-var _grounded_before_move: bool = false
+var _has_sent_transition: bool = false
+var _was_grounded_before_move: bool = false
 var _is_input_locked: bool = false
 var _coyote_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
@@ -208,11 +208,11 @@ func _physics_process(delta: float) -> void:
 		_dash_cooldown_timer -= delta
 	if _wall_jump_lock_timer > 0.0:
 		_wall_jump_lock_timer -= delta
-	_grounded_before_move = _is_on_floor()
+	_was_grounded_before_move = _is_on_floor()
 	_move_and_slide()
-	if not _transition_sent:
+	if not _has_sent_transition:
 		_run_active_state_post_move_check()
-	_transition_sent = false
+	_has_sent_transition = false
 
 
 func _on_ready() -> void:
@@ -301,7 +301,7 @@ func _get_current_movement_input() -> Vector2:
 
 
 func _send_state_chart_event(event: StringName) -> void:
-	_transition_sent = true
+	_has_sent_transition = true
 	state_chart.send_event(event)
 
 
@@ -484,7 +484,7 @@ func _run_air_post_move_check() -> void:
 	var input_direction: Vector2 = _get_current_movement_input()
 	_update_current_motion(false, input_direction, false)
 
-	if not _grounded_before_move and _is_on_floor():
+	if not _was_grounded_before_move and _is_on_floor():
 		_handle_landing()
 		return
 
@@ -518,7 +518,7 @@ func _on_wall_slide_state_physics_processing(delta: float) -> void:
 
 
 func _run_wall_slide_post_move_check() -> void:
-	if not _grounded_before_move and _is_on_floor():
+	if not _was_grounded_before_move and _is_on_floor():
 		_handle_landing()
 		return
 
@@ -572,8 +572,8 @@ func _on_crouch_state_physics_processing(delta: float) -> void:
 
 
 func _run_crouch_post_move_check() -> void:
-	var moving: bool = not _get_current_movement_input().is_zero_approx()
-	_set_current_motion(Animations.CROUCH_WALK if moving else Animations.CROUCH_IDLE, true)
+	var is_moving: bool = not _get_current_movement_input().is_zero_approx()
+	_set_current_motion(Animations.CROUCH_WALK if is_moving else Animations.CROUCH_IDLE, true)
 
 	if not _is_on_floor():
 		_send_state_chart_event(StateEvents.FALL)
