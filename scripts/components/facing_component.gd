@@ -19,10 +19,10 @@ var facing: float
 func update_facing_from_input(direction: Vector2) -> void:
 	if is_zero_approx(direction.x):
 		return
-	var x: float = signf(direction.x)
-	if x != facing:
-		flipped.emit(x)
-	facing = x
+	var new_facing_x: float = signf(direction.x)
+	if new_facing_x != facing:
+		flipped.emit(new_facing_x)
+	facing = new_facing_x
 
 
 func _on_setup() -> void:

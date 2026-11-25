@@ -10,8 +10,8 @@ extends Node3D
 @export var smoothing: float = 0.15
 
 var _sprite: AnimatedSprite3D
-var _target: Vector3
-var _placed: bool = false
+var _target_position: Vector3
+var _is_placed: bool = false
 # last animation reported missing, row repeats every update ∴ its logged once
 var _missing_animation: String = ""
 
@@ -23,15 +23,15 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	global_position = global_position.lerp(_target, 1.0 - exp(-delta / smoothing))
+	global_position = global_position.lerp(_target_position, 1.0 - exp(-delta / smoothing))
 
 
 ## Applies latest row. First call snaps to position, not easing from origin.
 func apply_net_player_row(row: FaerieNetPlayer) -> void:
-	_target = Vector3(row.x, row.y, row.z)
-	if not _placed:
-		global_position = _target
-		_placed = true
+	_target_position = Vector3(row.x, row.y, row.z)
+	if not _is_placed:
+		global_position = _target_position
+		_is_placed = true
 	# already reported in _ready
 	if not _sprite:
 		return

@@ -20,7 +20,7 @@ extends Area3D
 @export var persistent_id: String = ""
 
 # also covers play w/o game state, where ∅ is saved
-var _entered: bool = false
+var _has_been_entered: bool = false
 
 
 func _ready() -> void:
@@ -50,9 +50,9 @@ func _on_body_exited(body: Node3D) -> void:
 
 
 func _restore_sanity_on_first_entry(sanity: SanityComponent) -> void:
-	if _entered or first_entry_sanity == 0.0:
+	if _has_been_entered or first_entry_sanity == 0.0:
 		return
-	_entered = true
+	_has_been_entered = true
 	if persistent_id != "" and GameState.has_game_state():
 		var level_path: String = GameState.get_placed_level_path(self)
 		if GameState.get_level_flag(level_path, _get_entered_flag_key()):

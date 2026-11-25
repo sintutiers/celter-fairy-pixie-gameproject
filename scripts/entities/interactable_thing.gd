@@ -14,12 +14,12 @@ extends Node3D
 
 ## Emitted when blocked. [param reason] is [constant REQUIRES_ITEM], [constant REQUIRES_FLAG]
 ## / [constant FULL].
-signal blocked(by: PlayerApi, reason: StringName)
+signal blocked(actor: PlayerApi, reason: StringName)
 ## Emitted when interaction passed every gate + begins. Not emitted when blocked.
 ## Lets siblings react (NPC stops walking, turns to player) w/o this knowing them.
-signal started(by: PlayerApi)
+signal started(actor: PlayerApi)
 ## Emitted when that interaction ended, before [member free_after] frees node.
-signal finished(by: PlayerApi)
+signal finished(actor: PlayerApi)
 
 ## Physics layer 5 ("interaction"). Only zones are on it + only player sensor scans it.
 const ZONE_LAYER: int = 1 << 4
@@ -74,7 +74,7 @@ const FULL: StringName = &"full"
 ## Cue shown when blocked. Needs [member dialogue], ignored for [member auto]. ∅ = silent.
 @export var blocked_cue: String = ""
 
-var _running: bool = false
+var _is_running: bool = false
 
 
 ## Thing that owns [param zone]/null for any other area.
@@ -104,7 +104,7 @@ func _ready() -> void:
 ## Runs interaction for [param actor] + returns when it ends.
 ## [param actor] is also dialogue extra game state.
 func execute_interaction_for_actor(actor: PlayerApi) -> void:
-	if not enabled or _running:
+	if not enabled or _is_running:
 		return
 	if requires_flag != "" and not actor.get_level_flag(requires_flag):
 		await _block_interaction_for_actor(actor, REQUIRES_FLAG)
@@ -119,7 +119,7 @@ func execute_interaction_for_actor(actor: PlayerApi) -> void:
 	# mid dialogue would leave both pickup + item
 	if free_after and persistent_id != "":
 		GameState.set_level_flag(GameState.get_placed_level_path(self), _get_finished_flag_key())
-	_running = true
+	_is_running = true
 	GameLog.write(&"interact", "started", str(name))
 	started.emit(actor)
 	if animate_on_interact and sprite:
@@ -127,7 +127,7 @@ func execute_interaction_for_actor(actor: PlayerApi) -> void:
 	if dialogue:
 		DialogueManager.show_dialogue_balloon(dialogue, dialogue_cue, [actor])
 		await DialogueManager.dialogue_ended
-	_running = false
+	_is_running = false
 	GameLog.write(&"interact", "finished", str(name))
 	finished.emit(actor)
 	if free_after:
@@ -148,9 +148,9 @@ func _check_dialogue_cues() -> void:
 # player sensor monitors, not zone
 func _setup_interaction_zone() -> void:
 	if not interaction_zone:
-		interaction_zone = _find_child_zone()
+		interaction_zone = _find_child_interaction_zone()
 	if not interaction_zone:
-		interaction_zone = _build_default_zone()
+		interaction_zone = _build_default_interaction_zone()
 	interaction_zone.collision_layer = ZONE_LAYER
 	interaction_zone.collision_mask = 0
 	interaction_zone.monitoring = false
@@ -158,14 +158,14 @@ func _setup_interaction_zone() -> void:
 	interaction_zone.set_meta(_ZONE_OWNER_META, self)
 
 
-func _find_child_zone() -> Area3D:
+func _find_child_interaction_zone() -> Area3D:
 	for child: Node in get_children():
 		if child is Area3D:
 			return child
 	return null
 
 
-func _build_default_zone() -> Area3D:
+func _build_default_interaction_zone() -> Area3D:
 	var shape: SphereShape3D = SphereShape3D.new()
 	shape.radius = auto_radius if auto else interact_radius
 	var collision: CollisionShape3D = CollisionShape3D.new()
@@ -182,10 +182,10 @@ func _block_interaction_for_actor(actor: PlayerApi, reason: StringName) -> void:
 	blocked.emit(actor, reason)
 	if auto or not dialogue or blocked_cue == "":
 		return
-	_running = true
+	_is_running = true
 	DialogueManager.show_dialogue_balloon(dialogue, blocked_cue, [actor])
 	await DialogueManager.dialogue_ended
-	_running = false
+	_is_running = false
 
 
 func _get_finished_flag_key() -> String:

@@ -177,16 +177,16 @@ func _get_all_item_ids() -> Array[String]:
 # typo in .dialogue id only fails once line is reached ∴ rare branches slip through testing
 # reports them all on every editor run, literal ids only (flags + facts have no list)
 func _check_dialogue_files() -> void:
-	var calls: RegEx = RegEx.create_from_string(
+	var id_call_pattern: RegEx = RegEx.create_from_string(
 		"\\b(give_item|remove_item|has_item|use_item|get_quest_stage|is_quest_done|advance_quest)\\(\\s*\"([^\"]*)\"",
 	)
 	# option condition must end in " /]", plain "]" compiles but shows as text + is never checked
-	var unclosed_conditions: RegEx = RegEx.create_from_string("(?m)^\\s*- .*\\[if [^\\]]*[^/]\\]$")
+	var unclosed_condition_pattern: RegEx = RegEx.create_from_string("(?m)^\\s*- .*\\[if [^\\]]*[^/]\\]$")
 	for path: String in _find_dialogue_files("res://"):
 		var text: String = FileAccess.get_file_as_string(path)
-		for found: RegExMatch in unclosed_conditions.search_all(text):
+		for found: RegExMatch in unclosed_condition_pattern.search_all(text):
 			Log.error("%s:%d: option condition must end in \" /]\"" % [path, text.count("\n", 0, found.get_start()) + 1])
-		for found: RegExMatch in calls.search_all(text):
+		for found: RegExMatch in id_call_pattern.search_all(text):
 			var id: String = found.get_string(2)
 			var directory: String = QuestData.DIR if "quest" in found.get_string(1) else ItemData.DIR
 			if ResourceLoader.exists("%s%s.tres" % [directory, id]):

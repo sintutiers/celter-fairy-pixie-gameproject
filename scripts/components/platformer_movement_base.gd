@@ -14,7 +14,7 @@ extends Component
 
 ## Emitted when idle, walk, run, push/crouch motion changes on ground.
 signal ground_motion_changed(motion: StringName)
-## [param jump_count] is jump number in this airtime, 1 for first.
+## [param jump_count] is jumps used this airtime, 1 for first.
 signal jumped(jump_count: int)
 ## Emitted, not [signal jumped] when jump pushes off wall.
 signal wall_jumped
@@ -42,7 +42,7 @@ var _empty_frame: InputFrame = InputFrame.new()
 # transition sent this frame ∴ post-move check is stale + skipped
 var _transition_sent: bool = false
 var _grounded_before_move: bool = false
-var _locked: bool = false
+var _is_input_locked: bool = false
 var _coyote_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
 var _jumps_used: int = 0
@@ -176,12 +176,12 @@ func _disable_movement() -> void:
 
 
 func _set_input_locked(value: bool) -> void:
-	_locked = value
+	_is_input_locked = value
 
 
 # ∅ while locked ∴ states see no input w/o their own check
 func _get_input_frame() -> InputFrame:
-	if _locked:
+	if _is_input_locked:
 		return _empty_frame
 	return input_component.get_frame()
 
@@ -208,19 +208,19 @@ func _send_state_chart_event(event: StringName) -> void:
 	state_chart.send_event(event)
 
 
-func _is_pushing_into_wall(input_dir: Vector2) -> bool:
-	if input_dir.is_zero_approx():
+func _is_pushing_into_wall(input_direction: Vector2) -> bool:
+	if input_direction.is_zero_approx():
 		return false
-	return _convert_input_direction_to_world(input_dir).dot(-_get_wall_normal()) > 0.0
+	return _convert_input_direction_to_world(input_direction).dot(-_get_wall_normal()) > 0.0
 
 
 func _apply_horizontal_movement(
 	delta: float,
-	input_dir: Vector2,
+	input_direction: Vector2,
 	is_running: bool,
 	speed_multiplier: float = 1.0,
 ) -> void:
-	var input_sign: Vector2i = Vector2i(input_dir.sign())
+	var input_sign: Vector2i = Vector2i(input_direction.sign())
 	if input_sign != _logged_input_direction:
 		_logged_input_direction = input_sign
 		GameLog.write(&"movement", "input", input_sign)
@@ -229,27 +229,27 @@ func _apply_horizontal_movement(
 		return
 	var horizontal_velocity: Vector2 = _get_horizontal_velocity()
 
-	if input_dir.is_zero_approx():
+	if input_direction.is_zero_approx():
 		_set_horizontal_velocity(
 			horizontal_velocity.move_toward(Vector2.ZERO, profile.move_friction * delta)
 		)
 		return
 
-	var direction: Vector2 = _convert_input_direction_to_world(input_dir)
+	var direction: Vector2 = _convert_input_direction_to_world(input_direction)
 	var turning: bool = not horizontal_velocity.is_zero_approx() and horizontal_velocity.dot(direction) < 0.0
-	var accel_rate: float = profile.turn_acceleration if turning else profile.move_acceleration
+	var acceleration: float = profile.turn_acceleration if turning else profile.move_acceleration
 	var target_speed: float = (profile.run_speed if is_running else profile.move_speed) * speed_multiplier
-	_set_horizontal_velocity(horizontal_velocity.move_toward(direction * target_speed, accel_rate * delta))
-	facing_component.update_facing_from_input(input_dir)
+	_set_horizontal_velocity(horizontal_velocity.move_toward(direction * target_speed, acceleration * delta))
+	facing_component.update_facing_from_input(input_direction)
 
 
-func _update_current_motion(on_ground: bool, input_dir: Vector2, is_running: bool) -> void:
+func _update_current_motion(on_ground: bool, input_direction: Vector2, is_running: bool) -> void:
 	var motion: StringName
-	if not input_dir.is_zero_approx() and _is_on_wall():
+	if not input_direction.is_zero_approx() and _is_on_wall():
 		motion = Animations.PUSH
-	elif is_running and not input_dir.is_zero_approx():
+	elif is_running and not input_direction.is_zero_approx():
 		motion = Animations.RUN
-	elif not input_dir.is_zero_approx():
+	elif not input_direction.is_zero_approx():
 		motion = Animations.WALK
 	else:
 		motion = Animations.IDLE
@@ -399,14 +399,14 @@ func _on_air_state_physics_processing(delta: float) -> void:
 
 
 func _run_air_post_move_check() -> void:
-	var input_dir: Vector2 = _get_current_movement_input()
-	_update_current_motion(false, input_dir, false)
+	var input_direction: Vector2 = _get_current_movement_input()
+	_update_current_motion(false, input_direction, false)
 
 	if not _grounded_before_move and _is_on_floor():
 		_handle_landing()
 		return
 
-	if _is_on_wall_only() and _is_pushing_into_wall(input_dir):
+	if _is_on_wall_only() and _is_pushing_into_wall(input_direction):
 		_send_state_chart_event(StateEvents.WALL_SLIDE)
 #endregion
 
@@ -501,8 +501,8 @@ func _on_crouch_state_physics_processing(delta: float) -> void:
 
 
 func _run_crouch_post_move_check() -> void:
-	var input_dir: Vector2 = _get_current_movement_input()
-	var motion: StringName = Animations.CROUCH_WALK if not input_dir.is_zero_approx() else Animations.CROUCH_IDLE
+	var input_direction: Vector2 = _get_current_movement_input()
+	var motion: StringName = Animations.CROUCH_WALK if not input_direction.is_zero_approx() else Animations.CROUCH_IDLE
 	if motion != _current_motion:
 		_current_motion = motion
 		GameLog.write(&"movement", str(motion))

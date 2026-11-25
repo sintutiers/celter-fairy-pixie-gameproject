@@ -30,13 +30,13 @@ const JUMPSCARE_TAG: String = "jumpscare"
 ## Max shake in pixels, fades out over [member jumpscare_duration].
 @export var jumpscare_shake: float = 40.0
 
-var _glitching: bool = false
+var _is_glitching: bool = false
 var _glitch_timer: float = 0.0
 
 
 func apply_dialogue_line() -> void:
-	_glitching = dialogue_line.has_tag(GLITCH_TAG)
-	if not _glitching:
+	_is_glitching = dialogue_line.has_tag(GLITCH_TAG)
+	if not _is_glitching:
 		dialogue_label.rotation = 0.0
 		dialogue_label.modulate.a = 1.0
 	if dialogue_line.has_tag(JUMPSCARE_TAG):
@@ -46,7 +46,7 @@ func apply_dialogue_line() -> void:
 
 func _process(delta: float) -> void:
 	super(delta)
-	if not _glitching:
+	if not _is_glitching:
 		return
 	_glitch_timer -= delta
 	if _glitch_timer > 0.0:

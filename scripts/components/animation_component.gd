@@ -63,8 +63,8 @@ func _on_ground_motion_changed(motion: StringName) -> void:
 	_play_sprite_animation(motion)
 
 
-func _on_jumped(jump_number: int) -> void:
-	_play_airborne_animation(Animations.JUMP if jump_number == 1 else Animations.AIRSPIN, jump_number != 1)
+func _on_jumped(jump_count: int) -> void:
+	_play_airborne_animation(Animations.JUMP if jump_count == 1 else Animations.AIRSPIN, jump_count != 1)
 
 
 func _on_wall_jumped() -> void:

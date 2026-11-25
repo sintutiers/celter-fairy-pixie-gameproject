@@ -34,8 +34,8 @@ var total_time: int
 
 ## Returns saved [LevelState] for level scene path/uid, null w/o game state.
 ## Level seen for first time gets state created + saved ∴ read can write.
-static func get_level_state(level_state_key: String) -> LevelState:
-	level_state_key = _get_level_state_key(level_state_key)
+static func get_level_state(level_path: String) -> LevelState:
+	var level_state_key: String = _get_level_state_key(level_path)
 	if not has_game_state():
 		return
 	var game_state: GameState = get_or_create_state()

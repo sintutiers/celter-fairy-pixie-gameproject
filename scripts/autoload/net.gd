@@ -18,7 +18,7 @@ const REMOTE_SCENE_2D: PackedScene = preload("res://scenes/game/remote_player_2d
 # generated module client, untyped ∴ _ready is only place naming generated class
 var _module
 # true once local player published from 2D body
-var _local_2d: bool = false
+var _is_local_player_2d: bool = false
 # keyed by hex identity, PackedByteArray is poor dictionary key
 # RemotePlayer/RemotePlayer2D: share apply_net_player_row() but no base class
 var _remotes: Dictionary[String, Node] = { }
@@ -44,11 +44,11 @@ func _notification(what: int) -> void:
 ## Publishes local player state. Does ∅ while disconnected,
 ## connection error was already reported. [param is_2d] picks remote scene
 ## other players are shown w/, 2D player passes its position w/ z = 0.
-func send_local_player_state(position: Vector3, flip: bool, animation: StringName, is_2d: bool = false) -> void:
-	_local_2d = is_2d
+func send_local_player_state(position: Vector3, flip_h: bool, animation: StringName, is_2d: bool = false) -> void:
+	_is_local_player_2d = is_2d
 	if not _module.is_connected_db():
 		return
-	var reducer_call: SpacetimeDBReducerCall = _module.reducers.update_net_player(position.x, position.y, position.z, flip, String(animation), GameState.get_current_level_path())
+	var reducer_call: SpacetimeDBReducerCall = _module.reducers.update_net_player(position.x, position.y, position.z, flip_h, String(animation), GameState.get_current_level_path())
 	if reducer_call.error != OK:
 		Log.error("net: update_net_player was not sent (%s)" % error_string(reducer_call.error))
 		return
@@ -103,7 +103,7 @@ func _apply_net_player_row(row: FaerieNetPlayer) -> void:
 	if row.identity == _module.get_local_identity():
 		return
 	var id: String = row.identity.hex_encode()
-	var scene: PackedScene = REMOTE_SCENE_2D if _local_2d else REMOTE_SCENE
+	var scene: PackedScene = REMOTE_SCENE_2D if _is_local_player_2d else REMOTE_SCENE
 	var remote: Node = _remotes.get(id)
 	# local player changed dimension since this remote was made
 	if remote and remote.scene_file_path != scene.resource_path:

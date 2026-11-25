@@ -27,7 +27,7 @@ var api: PlayerApi
 var items: Dictionary[ItemData, int] = { }
 
 # item use dialogues are skipped while another dialogue is open
-var _in_dialogue: bool = false
+var _is_in_dialogue: bool = false
 
 
 ## True if >= [param count] of [param item] are carried.
@@ -100,19 +100,19 @@ func use_inventory_item(item: ItemData) -> bool:
 	if item.consumed_on_use:
 		remove_inventory_item(item)
 	item_used.emit(item, item.consumed_on_use)
-	if item.use_dialogue and not _in_dialogue:
+	if item.use_dialogue and not _is_in_dialogue:
 		DialogueManager.show_dialogue_balloon(item.use_dialogue, item.use_dialogue_cue, [api])
 	return true
 
 
 func _on_ready() -> void:
 	DialogueManager.dialogue_started.connect(
-		func(_r: DialogueResource) -> void:
-			_in_dialogue = true,
+		func(_resource: DialogueResource) -> void:
+			_is_in_dialogue = true,
 	)
 	DialogueManager.dialogue_ended.connect(
-		func(_r: DialogueResource) -> void:
-			_in_dialogue = false,
+		func(_resource: DialogueResource) -> void:
+			_is_in_dialogue = false,
 	)
 	_load_saved_inventory()
 

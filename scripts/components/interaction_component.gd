@@ -29,13 +29,13 @@ var api: PlayerApi
 ## True during locking interaction.
 var is_locked: bool = false
 
-var _busy: bool = false
+var _is_busy: bool = false
 var _sensor: Area3D
 
 
 func _physics_process(_delta: float) -> void:
 	# no sensor until _on_setup, which is deferred
-	if is_locked or _busy or not _sensor:
+	if is_locked or _is_busy or not _sensor:
 		return
 	if input_component.get_frame().interact_pressed:
 		await _interact_with_nearest_interactable()
@@ -70,7 +70,7 @@ func _interact_with_nearest_interactable() -> void:
 	if not target:
 		return
 	var locks: bool = target.locks_player
-	_busy = true
+	_is_busy = true
 	if locks:
 		_set_interaction_locked(true)
 	await target.execute_interaction_for_actor(api)
@@ -79,21 +79,21 @@ func _interact_with_nearest_interactable() -> void:
 	await get_tree().physics_frame
 	if locks:
 		_set_interaction_locked(false)
-	_busy = false
+	_is_busy = false
 
 
 # closest press-to-interact thing whose zone sensor is in
 func _find_nearest_interactable() -> InteractableThing:
 	var closest: InteractableThing = null
-	var closest_dist_sq: float = INF
+	var closest_distance_squared: float = INF
 	var origin: Vector3 = body.global_position
 	for zone: Area3D in _sensor.get_overlapping_areas():
 		var thing: InteractableThing = InteractableThing.get_interactable_from_zone(zone)
 		if not thing or not thing.enabled or thing.auto:
 			continue
-		var dist_sq: float = origin.distance_squared_to(thing.global_position)
-		if dist_sq < closest_dist_sq:
-			closest_dist_sq = dist_sq
+		var distance_squared: float = origin.distance_squared_to(thing.global_position)
+		if distance_squared < closest_distance_squared:
+			closest_distance_squared = distance_squared
 			closest = thing
 	return closest
 
