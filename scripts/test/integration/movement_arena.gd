@@ -83,7 +83,6 @@ func use_replay_input(frames: Array[InputFrame]) -> void:
 	var player_body: PlayerBody = get_node("Player")
 	for child: Node in player_body.get_children():
 		if child is PlayerInputComponent or child is NetSyncComponent:
-			player_body.remove_child(child)
 			child.free()
 	var replay_input: InputComponent = InputComponent.new()
 	replay_input.name = "ReplayInputComponent"

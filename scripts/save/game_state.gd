@@ -38,8 +38,7 @@ var total_time: int
 static func get_level_state(level_path: String) -> LevelState:
 	if not has_game_state():
 		return null
-	var level_states: Dictionary[String, LevelState] = get_or_create_state().level_states
-	return level_states.get(_get_level_state_key(level_path), null)
+	return get_or_create_state().level_states.get(_get_level_state_key(level_path), null)
 
 
 ## Like [method get_level_state], but level seen for first time gets state created + saved.

@@ -6,19 +6,6 @@
 [ext_resource type="PackedScene" uid="uid://cwt4p3bufkke5" path="res://addons/maaacks_game_template/base/nodes/windows/confirmation_popup_window_panel.tscn" id="7_im16j"]
 [ext_resource type="Script" uid="uid://bkwlopi4qn32o" path="res://addons/maaacks_game_template/base/nodes/labels/config_name_label.gd" id="7_j7612"]
 
-[sub_resource type="PackedScene" id="PackedScene_q85qn"]
-[node name="PopupParent" type="CanvasLayer" unique_id=2008552931]
-
-[node name="ColorRect" type="ColorRect" parent="." unique_id=968532893]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.7529412)
-
-[resource]
-
 [node name="MainMenu" type="Control" unique_id=781937481]
 layout_mode = 3
 anchors_preset = 15
@@ -67,7 +54,7 @@ anchor_right = 1.0
 offset_bottom = 67.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 48
-text = "fairy pixie horror psychological game"
+text = "Title"
 horizontal_alignment = 1
 vertical_alignment = 1
 script = ExtResource("7_j7612")
@@ -169,7 +156,7 @@ offset_left = -88.0
 offset_top = -26.0
 grow_horizontal = 0
 grow_vertical = 0
-text = "v1.0.0"
+text = "v0.0.0"
 horizontal_alignment = 2
 script = ExtResource("6_pdiij")
 
@@ -182,7 +169,6 @@ offset_left = -150.0
 offset_top = -80.0
 offset_right = 150.0
 offset_bottom = 80.0
-parent_scene = SubResource("PackedScene_q85qn")
 ui_cancel_closes = false
 title = "Exit Game?"
 text = "Really exit the game?"

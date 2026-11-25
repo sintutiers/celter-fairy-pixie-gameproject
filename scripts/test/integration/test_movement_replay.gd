@@ -76,8 +76,8 @@ func test_walking_left_flips_facing() -> void:
 	watch_signals(movement)
 	await _wait_for_positions(arena, frames.size())
 	assert_eq(movement.facing, -1.0)
-	assert_signal_emitted_with_parameters(movement, "flipped", [-1.0])
-	assert_signal_emit_count(movement, "flipped", 1, "held direction flips once")
+	assert_signal_emitted_with_parameters(movement.flipped, [-1.0])
+	assert_signal_emit_count(movement.flipped, 1, "held direction flips once")
 #endregion
 
 
@@ -92,7 +92,7 @@ func test_recorded_replays_follow_recorded_path() -> void:
 		if not replay:
 			fail_test("%s could not be loaded" % path)
 			continue
-		var arena: MovementArena = await _play_in_arena(replay.frames, replay.positions.size())
+		var arena: MovementArena = await _play_in_arena(replay.frames)
 		var frame_index: int = _find_first_diverging_frame(arena.positions, replay.positions)
 		var message: String = "%s: player left recorded path at frame %d" % [path.get_file(), frame_index]
 		if frame_index != -1:
@@ -100,7 +100,6 @@ func test_recorded_replays_follow_recorded_path() -> void:
 			message += ". Intended change? delete replay + record it again"
 		assert_eq(frame_index, -1, message)
 		# one arena at time, two players on same floor would collide
-		remove_child(arena)
 		arena.free()
 #endregion
 
@@ -108,15 +107,15 @@ func test_recorded_replays_follow_recorded_path() -> void:
 #region Helpers
 func _make_frames(count: int, frame: InputFrame) -> Array[InputFrame]:
 	var frames: Array[InputFrame] = []
-	for index: int in count:
-		frames.append(frame)
+	frames.resize(count)
+	frames.fill(frame)
 	return frames
 
 
-# returns arena once [param position_count] positions (default: one /frame) were sampled
-func _play_in_arena(frames: Array[InputFrame], position_count: int = -1) -> MovementArena:
+# returns arena once one position /frame was sampled, recording samples both in same step
+func _play_in_arena(frames: Array[InputFrame]) -> MovementArena:
 	var arena: MovementArena = _start_arena(frames)
-	await _wait_for_positions(arena, frames.size() if position_count < 0 else position_count)
+	await _wait_for_positions(arena, frames.size())
 	return arena
 
 

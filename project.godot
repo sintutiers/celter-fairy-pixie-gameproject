@@ -48,7 +48,9 @@ copy_path="res://"
 
 gdscript/warnings/directory_rules={
 "res://addons": 0,
-"res://scripts/ARCHIVE SCRIPTS": 0
+"res://godot_state_charts_examples": 0,
+"res://scripts/ARCHIVE SCRIPTS": 0,
+"res://spacetime_bindings": 0
 }
 gdscript/warnings/untyped_declaration=1
 gdscript/warnings/inferred_declaration=1
@@ -468,7 +470,7 @@ limbo_console_search_history={
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://addons/maaacks_game_template/base/translations/menus_translations.en.translation", "res://addons/maaacks_game_template/base/translations/menus_translations.fr.translation")
+locale/translations=PackedStringArray("res://addons/maaacks_game_template/base/translations/menus_translations.en.translation", "res://addons/maaacks_game_template/base/translations/menus_translations.fr.translation", "res://addons/maaacks_game_template/base/translations/menus_translations.zh_CN.translation", "res://addons/maaacks_game_template/base/translations/menus_translations.zh_TW.translation")
 locale/translations_pot_files=PackedStringArray("res://content/dialogue/test1.dialogue", "res://content/dialogue/cassie.dialogue", "res://content/dialogue/fairy.dialogue", "res://content/dialogue/tree.dialogue", "res://content/dialogue/world.dialogue", "res://content/dialogue/teto.dialogue")
 
 [layer_names]

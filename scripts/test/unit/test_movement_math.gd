@@ -83,35 +83,17 @@ func test_wall_slide_speed_is_capped() -> void:
 
 #region Horizontal
 func test_turning_uses_turn_acceleration() -> void:
-	var velocity: Vector2 = PlatformerMovementBase.get_accelerated_horizontal_velocity(
-		Vector2(_profile.move_speed, 0.0),
-		Vector2.LEFT,
-		_profile.move_speed,
-		_profile,
-		DELTA,
-	)
+	var velocity: Vector2 = _accelerate_to_move_speed(_profile.move_speed, Vector2.LEFT)
 	assert_almost_eq(velocity.x, _profile.move_speed - _profile.turn_acceleration * DELTA, 0.001)
 
 
 func test_speeding_up_uses_move_acceleration() -> void:
-	var velocity: Vector2 = PlatformerMovementBase.get_accelerated_horizontal_velocity(
-		Vector2.ZERO,
-		Vector2.RIGHT,
-		_profile.move_speed,
-		_profile,
-		DELTA,
-	)
+	var velocity: Vector2 = _accelerate_to_move_speed(0.0, Vector2.RIGHT)
 	assert_almost_eq(velocity.x, minf(_profile.move_acceleration * DELTA, _profile.move_speed), 0.001)
 
 
 func test_acceleration_stops_at_target_speed() -> void:
-	var velocity: Vector2 = PlatformerMovementBase.get_accelerated_horizontal_velocity(
-		Vector2(_profile.move_speed, 0.0),
-		Vector2.RIGHT,
-		_profile.move_speed,
-		_profile,
-		DELTA,
-	)
+	var velocity: Vector2 = _accelerate_to_move_speed(_profile.move_speed, Vector2.RIGHT)
 	assert_eq(velocity, Vector2(_profile.move_speed, 0.0))
 #endregion
 
@@ -141,6 +123,12 @@ func test_disabled_wall_jump_is_never_allowed() -> void:
 
 
 #region Helpers
+# one frame from horizontal speed [param from_x] toward move_speed in [param direction]
+func _accelerate_to_move_speed(from_x: float, direction: Vector2) -> Vector2:
+	var velocity: Vector2 = Vector2(from_x, 0.0)
+	return PlatformerMovementBase.get_accelerated_horizontal_velocity(velocity, direction, _profile.move_speed, _profile, DELTA)
+
+
 # height gained until vertical velocity turns downward
 func _simulate_jump_peak() -> float:
 	var vertical: float = PlatformerMovementBase.get_jump_velocity(_profile, false, GRAVITY)

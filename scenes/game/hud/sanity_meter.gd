@@ -28,8 +28,8 @@ func _ready() -> void:
 	_on_sanity_zone_changed(api.sanity.zone)
 
 
-func _on_sanity_changed(_value: float, ratio: float) -> void:
-	value = ratio
+func _on_sanity_changed(_value: float, sanity_ratio: float) -> void:
+	value = sanity_ratio
 
 
 func _on_sanity_zone_changed(zone: int) -> void:

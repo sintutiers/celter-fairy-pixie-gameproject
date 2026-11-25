@@ -35,7 +35,7 @@ func _process(_delta: float) -> void:
 		for key: String in facts:
 			lines.append("  %s = %s" % [key, facts[key]])
 			if key.begins_with(PlayerApi.QUEST_FACT_PREFIX):
-				lines.append("    " + _format_quest_stage_line(key.trim_prefix(PlayerApi.QUEST_FACT_PREFIX), facts[key]))
+				lines.append("    " + _format_quest_stage_line(key.trim_prefix(PlayerApi.QUEST_FACT_PREFIX), facts[key] as int))
 	text = "\n".join(lines)
 
 

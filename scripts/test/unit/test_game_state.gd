@@ -24,12 +24,8 @@ func before_each() -> void:
 	GameState.unload()
 
 
-func after_each() -> void:
-	_delete_test_save_files()
-	GameState.unload()
-
-
 func after_all() -> void:
+	_delete_test_save_files()
 	GameState.save_path = _original_save_path
 	GameState.unload()
 #endregion
@@ -57,18 +53,12 @@ func test_saved_state_reads_back_after_restart() -> void:
 	assert_eq(GameState.get_levels_reached(), 1)
 	assert_true(GameState.get_level_flag(LEVEL_PATH, "thing.box_01"))
 	assert_eq(GameState.get_fact("choice.helped_teto"), true)
+	# JSON has one number type, quest stage 2 must not come back as 2.0
+	assert_typeof(GameState.get_fact("quest.find_key"), TYPE_INT)
 	assert_eq(GameState.get_fact("opinion.teto"), 0.5)
 	assert_eq(GameState.get_fact("name.pixie"), "Pip")
 	assert_eq(GameState.get_or_create_state().inventory.get("key.rusty"), 3)
 	assert_eq(GameState.get_saved_sanity(100.0), 42.5)
-
-
-# JSON has one number type, quest stage 2 must not come back as 2.0
-func test_int_fact_stays_int() -> void:
-	GameState.start_game()
-	GameState.set_fact("quest.find_key", 2)
-	GameState.unload()
-	assert_typeof(GameState.get_fact("quest.find_key"), TYPE_INT)
 
 
 # ⚠ known side effect of _convert_whole_number_to_int, float fact w/o fraction comes back as int
@@ -83,7 +73,7 @@ func test_never_mirrored_sanity_is_left_out() -> void:
 	GameState.start_game()
 	GameState.unload()
 	assert_eq(GameState.get_saved_sanity(100.0), 100.0)
-	assert_false(_read_test_save().has("sanity"))
+	assert_does_not_have(_read_test_save(), "sanity")
 #endregion
 
 
@@ -106,7 +96,7 @@ func test_set_fact_refuses_array() -> void:
 	GameState.start_game()
 	GameState.set_fact("choice.list", [1, 2])
 	assert_push_error("must be bool, int, float or String")
-	assert_false(GameState.get_all_facts().has("choice.list"))
+	assert_does_not_have(GameState.get_all_facts(), "choice.list")
 
 
 func test_no_game_state_returns_defaults() -> void:
@@ -131,25 +121,23 @@ func test_v1_never_saved_sanity_is_dropped() -> void:
 	assert_eq(DirAccess.copy_absolute(SAVE_V1_FIXTURE_PATH, TEST_SAVE_PATH), OK)
 	assert_eq(GameState.get_saved_sanity(100.0), 100.0, "v1 wrote -1 for never saved sanity")
 	var written: Dictionary = _read_test_save()
-	assert_false(written.has("sanity"), "migrated save is written back w/o it")
+	assert_does_not_have(written, "sanity", "migrated save is written back w/o it")
 	assert_eq(int(written.get("save_version", 0)), GameState.SAVE_VERSION)
 
 
 func test_v1_saved_sanity_is_kept() -> void:
-	_write_test_save({ "save_version": 1, "sanity": 30.0 })
+	_write_test_save(JSON.stringify({ "save_version": 1, "sanity": 30.0 }))
 	assert_eq(GameState.get_saved_sanity(100.0), 30.0)
 
 
 func test_newer_save_version_errors() -> void:
-	_write_test_save({ "save_version": GameState.SAVE_VERSION + 1, "total_games_played": 5 })
+	_write_test_save(JSON.stringify({ "save_version": GameState.SAVE_VERSION + 1, "total_games_played": 5 }))
 	assert_eq(GameState.get_or_create_state().total_games_played, 5, "loaded as is")
 	assert_push_error("this game only knows")
 
 
 func test_broken_save_is_kept_aside() -> void:
-	var file: FileAccess = FileAccess.open(TEST_SAVE_PATH, FileAccess.WRITE)
-	assert_true(file.store_string("{ not json"))
-	file.close()
+	_write_test_save("{ not json")
 	assert_eq(GameState.get_levels_reached(), 0, "starts fresh")
 	assert_engine_error("Parse JSON failed")
 	assert_push_error("is not valid save")
@@ -173,17 +161,13 @@ func _delete_test_save_files() -> void:
 			fail_test("could not delete %s, next test may see it" % path)
 
 
-func _write_test_save(data: Dictionary) -> void:
+func _write_test_save(contents: String) -> void:
 	var file: FileAccess = FileAccess.open(TEST_SAVE_PATH, FileAccess.WRITE)
-	assert_true(file.store_string(JSON.stringify(data)))
+	assert_true(file.store_string(contents))
 	file.close()
 
 
+# not JSON object > runtime error fails test
 func _read_test_save() -> Dictionary:
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(TEST_SAVE_PATH))
-	if parsed is not Dictionary:
-		fail_test("%s is not JSON object" % TEST_SAVE_PATH)
-		return { }
-	var data: Dictionary = parsed
-	return data
+	return JSON.parse_string(FileAccess.get_file_as_string(TEST_SAVE_PATH))
 #endregion

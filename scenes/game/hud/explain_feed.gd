@@ -63,7 +63,7 @@ static func annotate_response_button(button: Button, resource: DialogueResource)
 static func get_dialogue_notes(resource: DialogueResource, id: String) -> String:
 	if not resource or not resource.lines.has(id):
 		return ""
-	return resource.lines[id].get(&"notes", "")
+	return (resource.lines[id] as Dictionary).get(&"notes", "")
 
 
 func _add_feed_line(feed_line: String) -> void:

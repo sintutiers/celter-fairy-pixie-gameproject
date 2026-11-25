@@ -16,8 +16,8 @@ const MODULE_NAME: String = "faerie"
 const REMOTE_SCENE: PackedScene = preload("res://scenes/game/remote_player.tscn")
 const REMOTE_SCENE_2D: PackedScene = preload("res://scenes/game/remote_player_2d.tscn")
 
-# generated module client, untyped ∴ _ready is only place naming generated class
-var _module
+# generated module client
+var _module: FaerieModuleClient
 # true once local player published from 2D body
 var _is_local_player_2d: bool = false
 # keyed by hex identity, PackedByteArray is poor dictionary key

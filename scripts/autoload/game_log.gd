@@ -15,6 +15,8 @@ var channels: Dictionary[StringName, bool] = { &"movement": false, &"sanity": tr
 
 
 func _ready() -> void:
+	# LimboConsole has own log (tail of godot.log), channels need name more
+	LimboConsole.unregister_command("log")
 	LimboConsole.register_command(toggle_channel, "log", "Toggles a log channel, lists all without one. Usage: log <channel>")
 	# not channels.keys: on Dictionary that reads key "keys", not method
 	LimboConsole.add_argument_autocomplete_source(
