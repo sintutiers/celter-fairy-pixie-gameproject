@@ -8,7 +8,12 @@
 ##
 ## [LimboConsole] silently fails to register bare callable, command name
 ## must be passed as second argument even when function name matches.
+##
+## Adds [StateChartPanel] to [code]DebugMenu[/code] ∴ F3 shows player state chart too.
 extends Node
+
+## Added to [code]DebugMenu[/code] on start, see [StateChartPanel].
+const STATE_CHART_PANEL_SCENE: PackedScene = preload("res://scenes/game/hud/state_chart_panel.tscn")
 
 ## On = [ExplainFeed] shows what dialogue + pickups did, design notes + why
 ## options are locked. Not saved, off on every start.
@@ -34,6 +39,8 @@ func _ready() -> void:
 	LimboConsole.register_command(show_save_file, "savefile", "Shows the save file in the file manager.")
 	LimboConsole.add_argument_autocomplete_source("give", 0, _get_all_item_ids)
 	LimboConsole.add_argument_autocomplete_source("use", 0, _get_all_item_ids)
+	# DebugMenu is addon scene ∴ panel is added from here, not saved in it
+	DebugMenu.add_child.call_deferred(STATE_CHART_PANEL_SCENE.instantiate())
 	# exported builds hold no .dialogue source, only compiled resources
 	if OS.has_feature("editor"):
 		_check_dialogue_files()

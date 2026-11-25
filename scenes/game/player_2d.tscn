@@ -967,133 +967,150 @@ metadata/_custom_type_script = "uid://c76xrhf8h0lp4"
 
 [node name="StateChart" type="Node" parent="." unique_id=490846823]
 unique_name_in_owner = true
+editor_description = "movement states of PlatformerMovementBase. code sends every event (StateEvents) + runs physics of active state ∴ chart only picks state. no delays/guards: delays tick in _process, not physics ∴ replays would drift"
 script = ExtResource("5_2dwxl")
+track_in_editor = true
 metadata/_custom_type_script = "uid://couw105c3bde4"
 
-[node name="CompoundState" type="Node" parent="StateChart" unique_id=918232155]
+[node name="Movement" type="Node" parent="StateChart" unique_id=1313801363]
+script = ExtResource("6_lcmaj")
+initial_state = NodePath("Grounded")
+metadata/_custom_type_script = "uid://jk2jm1g6q853"
+
+[node name="Grounded" type="Node" parent="StateChart/Movement" unique_id=1085790759]
+editor_description = "on floor. landing refills jumps + dashes (_handle_landing)"
 script = ExtResource("6_lcmaj")
 initial_state = NodePath("Ground")
 metadata/_custom_type_script = "uid://jk2jm1g6q853"
 
-[node name="Ground" type="Node" parent="StateChart/CompoundState" unique_id=13403706]
-unique_name_in_owner = true
-script = ExtResource("7_uyr7x")
-metadata/_custom_type_script = "uid://cytafq8i1y8qm"
-
-[node name="Transition" type="Node" parent="StateChart/CompoundState/Ground" unique_id=162784383]
+[node name="On Fall" type="Node" parent="StateChart/Movement/Grounded" unique_id=1272674967]
+editor_description = "post-move check: floor lost, from ground/crouch"
 script = ExtResource("8_upqmt")
-to = NodePath("../../Air")
-event = &"jump"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="Transition2" type="Node" parent="StateChart/CompoundState/Ground" unique_id=218862396]
-script = ExtResource("8_upqmt")
-to = NodePath("../../Air")
+to = NodePath("../../Airborne")
 event = &"fall"
 delay_in_seconds = "0.0"
 metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
 
-[node name="Transition3" type="Node" parent="StateChart/CompoundState/Ground" unique_id=1943091436]
+[node name="Ground" type="Node" parent="StateChart/Movement/Grounded" unique_id=213890423]
+editor_description = "idle/walk/run. checks dash > crouch > jump in that order"
+unique_name_in_owner = true
+script = ExtResource("7_uyr7x")
+metadata/_custom_type_script = "uid://cytafq8i1y8qm"
+
+[node name="On Jump" type="Node" parent="StateChart/Movement/Grounded/Ground" unique_id=471893267]
+editor_description = "_try_jump succeeded"
+script = ExtResource("8_upqmt")
+to = NodePath("../../../Airborne")
+event = &"jump"
+delay_in_seconds = "0.0"
+metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
+
+[node name="On Crouch" type="Node" parent="StateChart/Movement/Grounded/Ground" unique_id=1333830603]
+editor_description = "crouch held"
 script = ExtResource("8_upqmt")
 to = NodePath("../../Crouch")
 event = &"crouch"
 delay_in_seconds = "0.0"
 metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
 
-[node name="Transition4" type="Node" parent="StateChart/CompoundState/Ground" unique_id=1900000002]
+[node name="On Dash" type="Node" parent="StateChart/Movement/Grounded/Ground" unique_id=2101669061]
+editor_description = "dash pressed + can_dash_on_ground + dash left + no cooldown"
 script = ExtResource("8_upqmt")
-to = NodePath("../../Dash")
+to = NodePath("../../../Dash")
 event = &"dash"
 delay_in_seconds = "0.0"
 metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
 
-[node name="Air" type="Node" parent="StateChart/CompoundState" unique_id=1910707672]
+[node name="Crouch" type="Node" parent="StateChart/Movement/Grounded" unique_id=1664720778]
+editor_description = "crouched collision shape. no jump/dash from here"
 unique_name_in_owner = true
 script = ExtResource("7_uyr7x")
 metadata/_custom_type_script = "uid://cytafq8i1y8qm"
 
-[node name="Transition" type="Node" parent="StateChart/CompoundState/Air" unique_id=1225491943]
-script = ExtResource("8_upqmt")
-to = NodePath("../../Ground")
-event = &"land"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="Transition2" type="Node" parent="StateChart/CompoundState/Air" unique_id=1290211515]
-script = ExtResource("8_upqmt")
-to = NodePath("../../WallSlide")
-event = &"wall_slide"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="Transition3" type="Node" parent="StateChart/CompoundState/Air" unique_id=1793133262]
-script = ExtResource("8_upqmt")
-to = NodePath("../../Dash")
-event = &"dash"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="WallSlide" type="Node" parent="StateChart/CompoundState" unique_id=1604605700]
-unique_name_in_owner = true
-script = ExtResource("7_uyr7x")
-metadata/_custom_type_script = "uid://cytafq8i1y8qm"
-
-[node name="Transition" type="Node" parent="StateChart/CompoundState/WallSlide" unique_id=125387770]
-script = ExtResource("8_upqmt")
-to = NodePath("../../Air")
-event = &"jump"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="Transition2" type="Node" parent="StateChart/CompoundState/WallSlide" unique_id=1265673435]
-script = ExtResource("8_upqmt")
-to = NodePath("../../Air")
-event = &"fall"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="Transition3" type="Node" parent="StateChart/CompoundState/WallSlide" unique_id=997584101]
-script = ExtResource("8_upqmt")
-to = NodePath("../../Ground")
-event = &"land"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="Dash" type="Node" parent="StateChart/CompoundState" unique_id=1117490262]
-unique_name_in_owner = true
-script = ExtResource("7_uyr7x")
-metadata/_custom_type_script = "uid://cytafq8i1y8qm"
-
-[node name="Transition" type="Node" parent="StateChart/CompoundState/Dash" unique_id=996376121]
-script = ExtResource("8_upqmt")
-to = NodePath("../../Ground")
-event = &"land"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="Transition2" type="Node" parent="StateChart/CompoundState/Dash" unique_id=1505799722]
-script = ExtResource("8_upqmt")
-to = NodePath("../../Air")
-event = &"fall"
-delay_in_seconds = "0.0"
-metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
-
-[node name="Crouch" type="Node" parent="StateChart/CompoundState" unique_id=580033263]
-unique_name_in_owner = true
-script = ExtResource("7_uyr7x")
-metadata/_custom_type_script = "uid://cytafq8i1y8qm"
-
-[node name="Transition" type="Node" parent="StateChart/CompoundState/Crouch" unique_id=1538753047]
+[node name="On Crouch End" type="Node" parent="StateChart/Movement/Grounded/Crouch" unique_id=622662339]
+editor_description = "crouch released + room to stand (crouch_until_room_to_stand)"
 script = ExtResource("8_upqmt")
 to = NodePath("../../Ground")
 event = &"crouch_end"
 delay_in_seconds = "0.0"
 metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
 
-[node name="Transition2" type="Node" parent="StateChart/CompoundState/Crouch" unique_id=423582602]
+[node name="Airborne" type="Node" parent="StateChart/Movement" unique_id=764673898]
+editor_description = "not on floor"
+script = ExtResource("6_lcmaj")
+initial_state = NodePath("Air")
+metadata/_custom_type_script = "uid://jk2jm1g6q853"
+
+[node name="On Land" type="Node" parent="StateChart/Movement/Airborne" unique_id=267137943]
+editor_description = "post-move check: floor hit, from air/wall slide"
+script = ExtResource("8_upqmt")
+to = NodePath("../../Grounded")
+event = &"land"
+delay_in_seconds = "0.0"
+metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
+
+[node name="Air" type="Node" parent="StateChart/Movement/Airborne" unique_id=935994396]
+editor_description = "jump/fall. coyote time + jump buffer are timers in code, not delays ∵ replays"
+unique_name_in_owner = true
+script = ExtResource("7_uyr7x")
+metadata/_custom_type_script = "uid://cytafq8i1y8qm"
+
+[node name="On Wall Slide" type="Node" parent="StateChart/Movement/Airborne/Air" unique_id=1613520509]
+editor_description = "on wall only + pushing into it"
+script = ExtResource("8_upqmt")
+to = NodePath("../../WallSlide")
+event = &"wall_slide"
+delay_in_seconds = "0.0"
+metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
+
+[node name="On Dash" type="Node" parent="StateChart/Movement/Airborne/Air" unique_id=1544244512]
+editor_description = "dash pressed + dash left + no cooldown"
+script = ExtResource("8_upqmt")
+to = NodePath("../../../Dash")
+event = &"dash"
+delay_in_seconds = "0.0"
+metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
+
+[node name="WallSlide" type="Node" parent="StateChart/Movement/Airborne" unique_id=1932638822]
+editor_description = "capped fall speed. no dash from here"
+unique_name_in_owner = true
+script = ExtResource("7_uyr7x")
+metadata/_custom_type_script = "uid://cytafq8i1y8qm"
+
+[node name="On Jump" type="Node" parent="StateChart/Movement/Airborne/WallSlide" unique_id=1487453886]
+editor_description = "wall jump, pushes off wall"
 script = ExtResource("8_upqmt")
 to = NodePath("../../Air")
+event = &"jump"
+delay_in_seconds = "0.0"
+metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
+
+[node name="On Fall" type="Node" parent="StateChart/Movement/Airborne/WallSlide" unique_id=1761589200]
+editor_description = "wall lost"
+script = ExtResource("8_upqmt")
+to = NodePath("../../Air")
+event = &"fall"
+delay_in_seconds = "0.0"
+metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
+
+[node name="Dash" type="Node" parent="StateChart/Movement" unique_id=283119652]
+editor_description = "fixed speed, no gravity. ends in post-move check after dash_duration, not delay ∵ replays"
+unique_name_in_owner = true
+script = ExtResource("7_uyr7x")
+metadata/_custom_type_script = "uid://cytafq8i1y8qm"
+
+[node name="On Land" type="Node" parent="StateChart/Movement/Dash" unique_id=924955359]
+editor_description = "dash over on floor"
+script = ExtResource("8_upqmt")
+to = NodePath("../../Grounded")
+event = &"land"
+delay_in_seconds = "0.0"
+metadata/_custom_type_script = "uid://cf1nsco3w0mf6"
+
+[node name="On Fall" type="Node" parent="StateChart/Movement/Dash" unique_id=1811942168]
+editor_description = "dash over in air"
+script = ExtResource("8_upqmt")
+to = NodePath("../../Airborne")
 event = &"fall"
 delay_in_seconds = "0.0"
 metadata/_custom_type_script = "uid://cf1nsco3w0mf6"

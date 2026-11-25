@@ -1,10 +1,11 @@
 # SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
 # SPDX-License-Identifier: EUPL-1.2
 ## Records + replays player movement in level it is placed in, see [InputReplay].
-## Record: run level as own scene (F6), press R ([constant RECORD_KEY]) > level restarts + records, play, press R again > saved.
+## Record: run level from editor (F6/through game scene), press R ([constant RECORD_KEY]) > level restarts + records,
+## play, press R again > saved.
 ## Replay lands in [constant REPLAY_DIRECTORY] as replay_<date>.json, rename it to what it tests.
 ## test_movement_replay.gd plays every replay there on each test run.
-## Closing window while recording saves too. R is off in export + when level runs inside game scene.
+## Leaving level/closing window while recording saves too. R is off in export + tests.
 ## ⚠ Moving player spawner/geometry player touches in level breaks replays that pass there.
 ## ⚠ Replay only holds [InputFrame] ∴ dialogue/UI input is not replayed, record movement only.
 class_name MovementRecorder
@@ -14,7 +15,7 @@ const REPLAY_DIRECTORY: String = "res://scripts/test/replays/"
 ## Not in input map ∴ never moves player.
 const RECORD_KEY: Key = KEY_R
 
-# survive reload_current_scene ∴ recording starts on fresh level + saved message stays visible
+# survive level restart ∴ recording starts on fresh level + saved message stays visible
 static var _should_record_on_ready: bool = false
 static var _last_saved_message: String = ""
 
@@ -27,6 +28,8 @@ var _is_replaying: bool = false
 var _recorded_frames: Array[InputFrame] = []
 var _input: InputComponent
 var _status_label: Label
+# set when game scene loaded this level, null when level runs on its own (F6)
+var _level_manager: LevelManager
 
 
 func _ready() -> void:
@@ -38,8 +41,11 @@ func _ready() -> void:
 		Log.error("%s: no PlayerBody in level, nothing to record" % name)
 		return
 	_input = Component.find_descendant_of_type(player, InputComponent, true)
-	# R reloads current scene + writes res:// ∴ only when level itself runs from editor
-	if not OS.has_feature("editor") or get_tree().current_scene != owner:
+	# R writes res:// ∴ editor only. tests load level w/o LevelManager + not as current scene ∴ off there
+	var scene: Node = get_tree().current_scene
+	if scene and scene != owner:
+		_level_manager = Component.find_descendant_of_type(scene, LevelManager) as LevelManager
+	if not OS.has_feature("editor") or not (scene == owner or _level_manager != null):
 		set_process_unhandled_input(false)
 		return
 	_is_recording = _should_record_on_ready
@@ -70,9 +76,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_save_replay()
 	else:
 		_should_record_on_ready = true
-	# fresh level ∴ every take + its replay start from same spot
-	if get_tree().reload_current_scene() != OK:
-		Log.error("could not restart level, run it as own scene (F6)")
+	_restart_level()
 
 
 func _exit_tree() -> void:
@@ -84,6 +88,16 @@ func _exit_tree() -> void:
 func use_replay_input(frames: Array[InputFrame]) -> void:
 	_is_replaying = true
 	_input.frames = frames
+
+
+# fresh level ∴ every take + its replay start from same spot
+# reload_current_scene in game scene would restart whole game ∴ LevelManager loads level again
+func _restart_level() -> void:
+	if _level_manager:
+		_level_manager.load_level(_level_manager.current_level_path)
+		return
+	if get_tree().reload_current_scene() != OK:
+		Log.error("could not restart level")
 
 
 func _save_replay() -> void:

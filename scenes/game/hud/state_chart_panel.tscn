@@ -1,0 +1,12 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" uid="uid://bcwkugn6v3oy7" path="res://addons/godot_state_charts/utilities/state_chart_debugger.tscn" id="1_debugger"]
+[ext_resource type="Script" path="res://scenes/game/hud/state_chart_panel.gd" id="2_panel"]
+
+[node name="StateChartPanel" instance=ExtResource("1_debugger")]
+editor_description = "right side below DebugMenu panel (ends at y 408)"
+anchor_left = 0.65
+offset_top = 424.0
+offset_right = -16.0
+offset_bottom = -16.0
+script = ExtResource("2_panel")
