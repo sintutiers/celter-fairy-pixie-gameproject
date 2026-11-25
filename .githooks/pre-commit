@@ -1,0 +1,41 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 Dean Henny Anton Lemans <deanlemans@mailbox.org>
+# SPDX-License-Identifier: EUPL-1.2
+# lints every project .gd w/ gdscript-formatter, same rules as editor plugin, CI runs it too
+# enable once /clone: git config core.hooksPath .githooks
+# skip once: git commit --no-verify
+set -eu
+
+formatter="${GDSCRIPT_FORMATTER:-}"
+if [ -z "$formatter" ]; then
+	# editor plugin downloads its own copy here ∴ hook + editor use same version
+	if [ -x "$HOME/.cache/godot/gdquest/gdscript-formatter" ]; then
+		formatter="$HOME/.cache/godot/gdquest/gdscript-formatter"
+	elif command -v gdscript-formatter > /dev/null 2>&1; then
+		formatter="gdscript-formatter"
+	elif [ -n "${CI:-}" ]; then
+		echo "gdscript-formatter not found" >&2
+		exit 1
+	else
+		echo "gdscript-formatter not found, lint skipped" >&2
+		exit 0
+	fi
+fi
+
+cd "$(git rev-parse --show-toplevel)"
+# 500 = editor max_line_length, long lines are allowed on purpose
+# excluded: addons, generated bindings, archive, script templates (_BASE_ ≠ valid GDScript),
+# 3 Maaack template files that break rules, editor + Delta worktree copies
+# keep in sync w/ format on save skips in .editorconfig
+exec "$formatter" lint --max-line-length 500 \
+	-x addons \
+	-x spacetime_bindings \
+	-x godot_state_charts_examples \
+	-x "scripts/ARCHIVE SCRIPTS" \
+	-x scripts/templates \
+	-x scenes/loading_screens/loading_screen_with_shader_caching.gd \
+	-x scenes/menus/options_menu/audio/audio_input_option_control.gd \
+	-x scenes/menus/options_menu/game/game_options_menu.gd \
+	-x .godot \
+	-x .delta \
+	.

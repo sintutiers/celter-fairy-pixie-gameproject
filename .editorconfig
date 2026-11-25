@@ -2,3 +2,31 @@ root = true
 
 [*]
 charset = utf-8
+
+# GDQuest formatter plugin: ∅ format on save here, same list as .githooks/pre-commit lint skips
+# addons + generated bindings get overwritten on update/regen, rest is example/archive/template code
+[addons/*]
+gdscript_formatter_format_on_save = false
+
+[spacetime_bindings/*]
+gdscript_formatter_format_on_save = false
+
+[godot_state_charts_examples/*]
+gdscript_formatter_format_on_save = false
+
+[scripts/ARCHIVE SCRIPTS/*]
+gdscript_formatter_format_on_save = false
+
+# _BASE_ ≠ valid GDScript
+[scripts/templates/*]
+gdscript_formatter_format_on_save = false
+
+# Maaack template files that break lint rules
+[scenes/loading_screens/loading_screen_with_shader_caching.gd]
+gdscript_formatter_format_on_save = false
+
+[scenes/menus/options_menu/audio/audio_input_option_control.gd]
+gdscript_formatter_format_on_save = false
+
+[scenes/menus/options_menu/game/game_options_menu.gd]
+gdscript_formatter_format_on_save = false

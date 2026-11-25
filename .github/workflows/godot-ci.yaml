@@ -10,14 +10,60 @@ permissions:
 concurrency:
   group: godot-ci-export-${{ github.ref }}
   cancel-in-progress: true
+# plain POSIX sh, no bash/dash extras/non POSIX flags, same as .githooks/pre-commit
+defaults:
+  run:
+    shell: sh
 env:
   GODOT_VERSION: 4.7.2
   EXPORT_NAME: metroidvania jam cool dean version
   PROJECT_PATH: .
 
 jobs:
+  # every export needs this ∴ failed test stops broken build + web deploy
+  test:
+    name: GUT Tests
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.7.2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          lfs: true
+      - name: Import
+        # fresh checkout has no class_name cache, GutTest + tests need it
+        run: |
+          cd "$PROJECT_PATH"
+          godot --headless --import
+      - name: Run Tests
+        # exits 1 on failed test, dirs + settings come from .gutconfig.json
+        run: |
+          cd "$PROJECT_PATH"
+          godot --headless -s addons/gut/gut_cmdln.gd -gexit -- --offline
+
+  # not needed by exports, style issue shouldnt block build
+  lint:
+    name: GDScript Lint
+    runs-on: ubuntu-latest
+    env:
+      # same as editor plugin ∴ CI + editor agree on rules
+      FORMATTER_VERSION: 0.28.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install gdscript-formatter
+        run: |
+          curl -sSL -o "$RUNNER_TEMP/formatter.zip" "https://github.com/GDQuest/GDScript-formatter/releases/download/${FORMATTER_VERSION}/gdscript-formatter-${FORMATTER_VERSION}-linux-x86_64.zip"
+          unzip -q -d "$RUNNER_TEMP" "$RUNNER_TEMP/formatter.zip"
+          chmod +x "$RUNNER_TEMP/gdscript-formatter-${FORMATTER_VERSION}-linux-x86_64"
+      - name: Lint
+        # same script as pre-commit hook ∴ one list of rules + excludes
+        run: GDSCRIPT_FORMATTER="$RUNNER_TEMP/gdscript-formatter-${FORMATTER_VERSION}-linux-x86_64" .githooks/pre-commit
+
   export-windows:
     name: Windows Export
+    needs: test
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:4.7.2
@@ -28,15 +74,15 @@ jobs:
           lfs: true
       - name: Setup
         run: |
-          mkdir -v -p ~/.local/share/godot/export_templates/
-          mkdir -v -p ~/.config/
+          mkdir -p ~/.local/share/godot/export_templates/
+          mkdir -p ~/.config/
           mv /root/.config/godot ~/.config/godot
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
       - name: Windows Build
         run: |
-          mkdir -v -p build/windows
-          EXPORT_DIR="$(readlink -f build)"
-          cd $PROJECT_PATH
+          mkdir -p build/windows
+          EXPORT_DIR="$(cd build && pwd -P)"
+          cd "$PROJECT_PATH"
           godot --headless --verbose --export-release "Windows Desktop" "$EXPORT_DIR/windows/$EXPORT_NAME.exe"
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
@@ -46,6 +92,7 @@ jobs:
 
   export-linux:
     name: Linux Export
+    needs: test
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:4.7.2
@@ -56,13 +103,13 @@ jobs:
           lfs: true
       - name: Setup
         run: |
-          mkdir -v -p ~/.local/share/godot/export_templates/
+          mkdir -p ~/.local/share/godot/export_templates/
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
       - name: Linux Build
         run: |
-          mkdir -v -p build/linux
-          EXPORT_DIR="$(readlink -f build)"
-          cd $PROJECT_PATH
+          mkdir -p build/linux
+          EXPORT_DIR="$(cd build && pwd -P)"
+          cd "$PROJECT_PATH"
           godot --headless --verbose --export-release "Linux/X11" "$EXPORT_DIR/linux/$EXPORT_NAME.x86_64"
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
@@ -72,6 +119,7 @@ jobs:
 
   export-web:
     name: Web Export
+    needs: test
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:4.7.2
@@ -85,13 +133,13 @@ jobs:
           lfs: true
       - name: Setup
         run: |
-          mkdir -v -p ~/.local/share/godot/export_templates/
+          mkdir -p ~/.local/share/godot/export_templates/
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
       - name: Web Build
         run: |
-          mkdir -v -p build/web
-          EXPORT_DIR="$(readlink -f build)"
-          cd $PROJECT_PATH
+          mkdir -p build/web
+          EXPORT_DIR="$(cd build && pwd -P)"
+          cd "$PROJECT_PATH"
           godot --headless --verbose --export-release "Web" "$EXPORT_DIR/web/index.html"
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v5
@@ -102,6 +150,7 @@ jobs:
 
   export-mac:
     name: Mac Export
+    needs: test
     runs-on: ubuntu-latest
     container:
       image: barichello/godot-ci:4.7.2
@@ -112,13 +161,13 @@ jobs:
           lfs: true
       - name: Setup
         run: |
-          mkdir -v -p ~/.local/share/godot/export_templates/
+          mkdir -p ~/.local/share/godot/export_templates/
           mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
       - name: Mac Build
         run: |
-          mkdir -v -p build/mac
-          EXPORT_DIR="$(readlink -f build)"
-          cd $PROJECT_PATH
+          mkdir -p build/mac
+          EXPORT_DIR="$(cd build && pwd -P)"
+          cd "$PROJECT_PATH"
           godot --headless --verbose --export-release "macOS" "$EXPORT_DIR/mac/$EXPORT_NAME.zip"
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
@@ -146,15 +195,15 @@ jobs:
 
   #     - name: Setup export templates & config
   #       run: |
-  #         mkdir -v -p ~/.local/share/godot/export_templates/
-  #         mkdir -v -p ~/.config/
+  #         mkdir -p ~/.local/share/godot/export_templates/
+  #         mkdir -p ~/.config/
   #         # Move the pre-installed templates and Godot config (if any)
   #         mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
   #         [ -d /root/.config/godot ] && mv /root/.config/godot ~/.config/godot || true
 
   #     - name: Import project
   #       run: |
-  #         cd $PROJECT_PATH
+  #         cd "$PROJECT_PATH"
   #         godot --headless --import
 
   #     - name: Install Android SDK, Java, and debug keystore
@@ -166,7 +215,7 @@ jobs:
   #         mkdir -p /opt/android-sdk/cmdline-tools
   #         mv cmdline-tools /opt/android-sdk/cmdline-tools/latest
   #         rm commandlinetools-linux-11076708_latest.zip
-  #         echo "ANDROID_SDK_ROOT=/opt/android-sdk" >> $GITHUB_ENV
+  #         printf '%s\n' "ANDROID_SDK_ROOT=/opt/android-sdk" >> "$GITHUB_ENV"
   #         export ANDROID_SDK_ROOT=/opt/android-sdk
   #         yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
   #         /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
@@ -187,12 +236,12 @@ jobs:
 
   #     - name: Install Android build template
   #       run: |
-  #         cd $PROJECT_PATH
+  #         cd "$PROJECT_PATH"
   #         godot --headless --install-android-build-template
 
   #     - name: Inject keystore into export_presets.cfg
   #       run: |
-  #         cd $PROJECT_PATH
+  #         cd "$PROJECT_PATH"
   #         # Ensure the preset exists; if not, the workflow will fail early
   #         if ! grep -q 'name="Android"' export_presets.cfg; then
   #           echo "ERROR: No export preset named 'Android' found in export_presets.cfg"
@@ -208,9 +257,9 @@ jobs:
   #     - name: Android Build
   #       run: |
   #         export ANDROID_SDK_ROOT=/opt/android-sdk
-  #         mkdir -v -p build/android
-  #         EXPORT_DIR="$(readlink -f build)"
-  #         cd $PROJECT_PATH
+  #         mkdir -p build/android
+  #         EXPORT_DIR="$(cd build && pwd -P)"
+  #         cd "$PROJECT_PATH"
   #         godot --headless --verbose --export-release "Android" "$EXPORT_DIR/android/$EXPORT_NAME.apk"
 
   #     - name: Upload Artifact

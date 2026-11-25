@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Saved game data, accessed through static helpers.
 ## One save, held in memory + written as JSON to [member save_path] by [method save].
-## New field needs default here + line in [method _to_dictionary] + [method _apply_dictionary].
+## New field needs default here + line in [method to_dictionary] + [method from_dictionary].
 ## Changing what saved data means (renamed fact key, reordered quest stages, new key format)
 ## needs bump of [constant SAVE_VERSION] + step in [method _migrate_save_to_current_version], else old saves break.
 class_name GameState
@@ -68,9 +68,7 @@ static func has_game_state() -> bool:
 static func get_or_create_state() -> GameState:
 	if _current:
 		return _current
-	_current = GameState.new()
-	if FileAccess.file_exists(save_path):
-		_current._apply_dictionary(_read_save_file())
+	_current = from_dictionary(_read_save_file() if FileAccess.file_exists(save_path) else { })
 	# also writes back migrated save
 	save()
 	return _current
@@ -92,7 +90,7 @@ static func save() -> void:
 	if not file:
 		Log.error("cannot open %s: %s" % [temporary_path, error_string(FileAccess.get_open_error())])
 		return
-	if not file.store_string(JSON.stringify(_current._to_dictionary(), "\t")):
+	if not file.store_string(JSON.stringify(_current.to_dictionary(), "\t")):
 		Log.error("cannot write %s: %s" % [temporary_path, error_string(file.get_error())])
 		return
 	file.close()
@@ -123,8 +121,7 @@ static func import_save(path: String) -> bool:
 		Log.error("could not back up %s, import stopped" % save_path)
 		return false
 	_migrate_save_to_current_version(data)
-	_current = GameState.new()
-	_current._apply_dictionary(data)
+	_current = from_dictionary(data)
 	save()
 	return true
 
@@ -332,7 +329,8 @@ static func _convert_whole_number_to_int(value: Variant) -> Variant:
 	return value
 
 
-func _to_dictionary() -> Dictionary:
+## Plain data for save file, read back by [method from_dictionary].
+func to_dictionary() -> Dictionary:
 	var saved_levels: Dictionary[String, Dictionary] = { }
 	for key: String in level_states:
 		saved_levels[key] = level_states[key].to_dictionary()
@@ -352,23 +350,26 @@ func _to_dictionary() -> Dictionary:
 	return data
 
 
-# missing key keeps default ∴ new field needs no migration step
-func _apply_dictionary(data: Dictionary) -> void:
-	current_level_path = data.get("current_level_path", "")
-	checkpoint_level_path = data.get("checkpoint_level_path", "")
-	total_games_played = data.get("total_games_played", 0)
-	play_time = data.get("play_time", 0)
-	total_time = data.get("total_time", 0)
-	has_sanity = data.has("sanity")
-	sanity = data.get("sanity", 0.0)
+## Reads what [method to_dictionary] wrote, after [method _migrate_save_to_current_version].
+## Missing key keeps default ∴ new field needs no migration step.
+static func from_dictionary(data: Dictionary) -> GameState:
+	var game_state: GameState = GameState.new()
+	game_state.current_level_path = data.get("current_level_path", "")
+	game_state.checkpoint_level_path = data.get("checkpoint_level_path", "")
+	game_state.total_games_played = data.get("total_games_played", 0)
+	game_state.play_time = data.get("play_time", 0)
+	game_state.total_time = data.get("total_time", 0)
+	game_state.has_sanity = data.has("sanity")
+	game_state.sanity = data.get("sanity", 0.0)
 	var saved_inventory: Dictionary = data.get("inventory", { })
 	for id: String in saved_inventory:
 		var count: int = saved_inventory[id]
-		inventory[id] = count
+		game_state.inventory[id] = count
 	var saved_facts: Dictionary = data.get("facts", { })
 	for key: String in saved_facts:
-		facts[key] = _convert_whole_number_to_int(saved_facts[key])
+		game_state.facts[key] = _convert_whole_number_to_int(saved_facts[key])
 	var saved_levels: Dictionary = data.get("level_states", { })
 	for key: String in saved_levels:
 		var saved_level: Dictionary = saved_levels[key]
-		level_states[key] = LevelState.from_dictionary(saved_level)
+		game_state.level_states[key] = LevelState.from_dictionary(saved_level)
+	return game_state
