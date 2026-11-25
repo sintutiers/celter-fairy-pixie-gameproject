@@ -7,7 +7,7 @@
 class_name MovementArena
 extends Node3D
 
-const REPLAY_DIRECTORY: String = "res://test/replays/"
+const REPLAY_DIRECTORY: String = "res://scripts/test/replays/"
 
 ## Writes replay when scene closes. Off ∴ running scene to try movement overwrites ∅.
 @export var is_recording: bool = false

@@ -6,7 +6,7 @@
 ## ⚠ Intended movement change > record affected replays again, see [MovementArena].
 extends GutTest
 
-const ARENA_SCENE: PackedScene = preload("res://test/integration/movement_arena.tscn")
+const ARENA_SCENE: PackedScene = preload("res://scripts/test/integration/movement_arena.tscn")
 const TEST_SAVE_PATH: String = "user://test_save.json"
 ## Meters player may drift from recorded path before replay counts as changed.
 ## Raise if same replay fails between editor + CI Godot version.

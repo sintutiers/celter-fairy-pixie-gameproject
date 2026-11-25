@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: EUPL-1.2
 ## Save round trip + migration of old saves, see [GameState].
 ## Runs on own save file ∴ real save is never touched.
-## Old save layout gets fixture in res://test/fixtures/ when [constant GameState.SAVE_VERSION] is bumped.
+## Old save layout gets fixture in res://scripts/test/fixtures/ when [constant GameState.SAVE_VERSION] is bumped.
 extends GutTest
 
 const TEST_SAVE_PATH: String = "user://test_save.json"
-const SAVE_V1_FIXTURE_PATH: String = "res://test/fixtures/save_v1.json"
+const SAVE_V1_FIXTURE_PATH: String = "res://scripts/test/fixtures/save_v1.json"
 # uid:// key is used as is ∴ needs no real level scene
 const LEVEL_PATH: String = "uid://test_level"
 
