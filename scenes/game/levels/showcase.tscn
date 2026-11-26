@@ -25,7 +25,7 @@
 [ext_resource type="PackedScene" uid="uid://bpqkpemvpjrgm" path="res://scenes/game/interactable_thing_prefab.tscn" id="99_thing_prefab"]
 [ext_resource type="Texture2D" uid="uid://bp7t2exveuhmj" path="res://scripts/components/teto_kidnapp_miku.png" id="100_teto"]
 [ext_resource type="Resource" uid="uid://baupjsuxjq75l" path="res://content/dialogue/teto.dialogue" id="101_teto_dialogue"]
-[ext_resource type="Script" path="res://scripts/entities/movement_recorder.gd" id="102_recorder"]
+[ext_resource type="Script" uid="uid://irpmn3d063r2" path="res://scripts/entities/movement_recorder.gd" id="102_recorder"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial_sc"]
 
@@ -137,39 +137,39 @@ light_color = Color(0.54127663, 0, 0.14730987, 1)
 shadow_enabled = true
 
 [node name="Floor" type="CSGBox3D" parent="World" unique_id=404120504]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -82)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -82)
 use_collision = true
-size = Vector3(40, 1, 180)
+size = Vector3(35, 1, 180)
 material = SubResource("Mat_floor")
 
 [node name="Ceiling" type="CSGBox3D" parent="World" unique_id=2118501173]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20.324995, -82)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 14.98, -81.5575)
 use_collision = true
-size = Vector3(40, 1, 180)
+size = Vector3(35, 1, 180)
 material = SubResource("StandardMaterial3D_vbbwd")
 
 [node name="WallLeft" type="CSGBox3D" parent="World" unique_id=844781439]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.5, 10, -82)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 7.203, -82)
 use_collision = true
-size = Vector3(1, 25, 180)
+size = Vector3(1, 20, 180)
 material = SubResource("Mat_floor")
 
 [node name="WallRight" type="CSGBox3D" parent="World" unique_id=1715325833]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.5, 10, -82)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 8, -82)
 use_collision = true
-size = Vector3(1, 25, 180)
+size = Vector3(1, 19, 180)
 material = SubResource("Mat_floor")
 
 [node name="WallBack" type="CSGBox3D" parent="World" unique_id=1365635571]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 8.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.9460506, 8.5)
 use_collision = true
-size = Vector3(42, 25, 1)
+size = Vector3(35, 18.734, 1)
 material = SubResource("Mat_floor")
 
 [node name="WallEnd" type="CSGBox3D" parent="World" unique_id=2084533474]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -172.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.539236, -172.5)
 use_collision = true
-size = Vector3(42, 25, 1)
+size = Vector3(35, 20, 1)
 material = SubResource("Mat_floor")
 
 [node name="PlayerSpawner" type="Marker3D" parent="World" unique_id=725638130 node_paths=PackedStringArray("camera")]
@@ -192,7 +192,8 @@ texture = ExtResource("100_teto")
 [node name="Sign" type="Label3D" parent="World/0_Start" unique_id=1610197027]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -5)
 pixel_size = 0.01
-text = "shitty turorial level made by the deanste dean that ever deant"
+text = "shitty turorial level 
+made by the deanste dean that ever deant"
 font_size = 48
 outline_size = 16
 
@@ -200,7 +201,8 @@ outline_size = 16
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 2.5, -5)
 pixel_size = 0.01
 text = "ONLINE
-if any other player is in the same scene they show up, thats a security nightmare but idc at this point"
+if other player is in same scene they show up.
+(a security nightmare but idc at this point)"
 font_size = 40
 outline_size = 16
 
@@ -209,9 +211,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 2.5, -5)
 pixel_size = 0.01
 text = "CONSOLE: 
 press `
-give <item> <count>, use <item>, sanity <value>
-explain: shows what things did, notes and locked options
-log <channel>: mutes or unmutes a log channel
+	type <help>
 F3: debug menu"
 font_size = 40
 outline_size = 16
@@ -238,15 +238,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14)
 [node name="Block" type="CSGBox3D" parent="World/1_Jump" unique_id=1908975211]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0684204, -0.7402992)
 use_collision = true
-size = Vector3(40, 2.1368408, 4)
+size = Vector3(30, 2.137, 4)
 material = SubResource("Mat_block")
 
 [node name="Sign" type="Label3D" parent="World/1_Jump" unique_id=2113186962]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 2.5)
 pixel_size = 0.01
-text = "Space
-Tap for a small hop, hold for a full jump.
-Run + jump goes higher and further."
+text = "Tab Space for small hop, hold for full jump.
+Run + jump goes further."
 font_size = 48
 outline_size = 16
 
@@ -256,30 +255,31 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -26)
 [node name="Block" type="CSGBox3D" parent="World/2_DoubleJump" unique_id=1639891153]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.054534912, 2.5472908, 4.5526447)
 use_collision = true
-size = Vector3(40, 5.0945816, 4)
+size = Vector3(30, 5.095, 4)
 material = SubResource("Mat_block")
 
 [node name="3_WallJump" type="Node3D" parent="World" unique_id=684686386]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -40)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -42.57184)
 
 [node name="WallA" type="CSGBox3D" parent="World/3_WallJump" unique_id=455105863]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 12.026611, 2.1367493)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 5.5, 2.137)
 use_collision = true
-size = Vector3(1, 24.053223, 6)
+size = Vector3(1, 11, 6)
 material = SubResource("Mat_block")
 
 [node name="WallB" type="CSGBox3D" parent="World/3_WallJump" unique_id=1116907444]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 12.241272, 2.1367493)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 5.5, 2.137)
 use_collision = true
-size = Vector3(1, 24.482544, 6)
+size = Vector3(1, 11, 6)
 material = SubResource("Mat_block")
 
 [node name="Sign" type="Label3D" parent="World/3_WallJump" unique_id=1491290814]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 6.7037735)
 pixel_size = 0.01
 text = "WALL JUMP:
-Jump between walls + hold A or D into one to slide.
-Space to jump off. Touching wall gives jumps back. (SHOULD MAKE THAT CONFIGURABLE)"
+Jump between walls.
+Space to jump off. Touching wall gives jumps back. 
+(BROKEN, SHOULD FIX)"
 font_size = 40
 outline_size = 16
 
@@ -293,6 +293,7 @@ auto = true
 auto_radius = 1.5
 
 [node name="Orb" type="CSGSphere3D" parent="World/3_WallJump/Prize" unique_id=2123382755]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5.307521, 0)
 radius = 0.4
 material = SubResource("Mat_prize")
 
@@ -329,12 +330,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.485175, 3.5, 5.404297)
 pixel_size = 0.01
 text = "FAIRY
 Trades favors. Answers depend on sanity.
-Wants a nail from a stump far ahead."
+Wants nail from stump far ahead."
 font_size = 40
 outline_size = 16
 
 [node name="Pile" parent="World/4_Dash" unique_id=1388052147 instance=ExtResource("99_thing_prefab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, -1.9798126)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1.137996, -1.9798126)
 free_after = true
 persistent_id = "showcase_dash_pile"
 item = ExtResource("6_hate")
@@ -365,16 +366,16 @@ material = SubResource("Mat_hate")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -82)
 
 [node name="Ceiling" type="CSGBox3D" parent="World/5_Crouch" unique_id=1394656077]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.015304565, 10.345509, 16.162392)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.015304565, 8.700138, 16.162392)
 use_collision = true
-size = Vector3(40, 19, 8)
+size = Vector3(33, 12.974416, 8)
 material = SubResource("Mat_block")
 
 [node name="Sign" type="Label3D" parent="World/5_Crouch" unique_id=1924072384]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.015304565, 3.514454, 23.461788)
 pixel_size = 0.01
-text = "CROUCH: hold Ctrl
-Crouch through the tunnel to grab the prize."
+text = "CROUCH: 
+hold Ctrl"
 font_size = 40
 outline_size = 16
 
@@ -388,6 +389,7 @@ auto = true
 auto_radius = 1.2
 
 [node name="Orb" type="CSGSphere3D" parent="World/5_Crouch/Prize" unique_id=236603689]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.82353973, 0)
 radius = 0.3
 material = SubResource("Mat_prize")
 
@@ -397,14 +399,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -88.08082)
 [node name="Sign" type="Label3D" parent="World/6_Interact" unique_id=259325922]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 3)
 pixel_size = 0.01
-text = "INTERACT: E or left click
-Talk to ENTITY, read sign, open the door.
-Open it: she owes you 1. Bread: 1 more each."
+text = "INTERACT: 
+E or left click
+Talk to ENTITY, read sign, open gate."
 font_size = 48
 outline_size = 16
 
 [node name="Cassie" parent="World/6_Interact" unique_id=584531233 node_paths=PackedStringArray("sprite") instance=ExtResource("99_thing_prefab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.6, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 2.2788177, 0)
 sprite = NodePath("Sprite")
 dialogue = ExtResource("8_cassie")
 dialogue_cue = "cassie"
@@ -443,9 +445,9 @@ font_size = 48
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -96.66503)
 
 [node name="Roof" type="CSGBox3D" parent="World/7_Room" unique_id=2006793822]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.861877, -0.25)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9.70047, -0.25)
 use_collision = true
-size = Vector3(40, 15.723755, 9)
+size = Vector3(33, 11.401, 9)
 material = SubResource("Mat_block")
 
 [node name="Door" parent="World/7_Room" unique_id=1715134074 instance=ExtResource("99_thing_prefab")]
@@ -462,14 +464,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0.5)
 shape = SubResource("BoxShape3D_d7as6")
 
 [node name="Label" type="Label3D" parent="World/7_Room/Door" unique_id=572916327]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 0.26000214)
-pixel_size = 0.01
-text = "LOCKED THINGs"
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.9355738, 0.45380402)
+pixel_size = 0.03
+text = "A GATE"
 font_size = 48
 
 [node name="Leaf" type="CSGBox3D" parent="World/7_Room/Door" unique_id=572916400]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0.26)
-size = Vector3(35, 3.6, 0.06)
+size = Vector3(31, 3.6, 0.06)
 material = SubResource("Mat_block")
 
 [node name="Knob" type="CSGSphere3D" parent="World/7_Room/Door" unique_id=572916401]
@@ -480,13 +482,13 @@ material = SubResource("Mat_prize")
 [node name="PanelBack" type="CSGBox3D" parent="World/7_Room/Door" unique_id=1340707187]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -7.540474)
 use_collision = true
-size = Vector3(40, 4, 0.5)
+size = Vector3(35, 4, 0.5)
 material = SubResource("Mat_door")
 
 [node name="Panel" type="CSGBox3D" parent="World/7_Room/Door" unique_id=237298963]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 use_collision = true
-size = Vector3(40, 4, 0.5)
+size = Vector3(33, 4, 0.5)
 material = SubResource("Mat_door")
 
 [node name="Chest" parent="World/7_Room" unique_id=139055638 instance=ExtResource("99_thing_prefab")]
@@ -529,8 +531,8 @@ first_entry_sanity = 0.0
 shape = SubResource("Shape_safe_start")
 
 [node name="DrainLine" type="CSGBox3D" parent="World/8_Sanctuary" unique_id=1242312387]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 8)
-size = Vector3(40, 0.02, 0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.57469726, 8)
+size = Vector3(35, 0.05, 0.5)
 material = SubResource("Mat_hate")
 
 [node name="SignDrain" type="Label3D" parent="World/8_Sanctuary" unique_id=1656711825]
@@ -553,7 +555,7 @@ font_size = 48
 outline_size = 16
 
 [node name="Disc" type="CSGCylinder3D" parent="World/8_Sanctuary" unique_id=1096189508]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.537, 0)
 radius = 3.0
 height = 0.02
 sides = 32
@@ -570,7 +572,7 @@ persistent_id = "showcase_sanctuary"
 shape = SubResource("Shape_sanctuary")
 
 [node name="Spring" parent="World/8_Sanctuary" unique_id=1348821907 instance=ExtResource("99_thing_prefab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0.4, -1)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0.9598633, -1)
 free_after = true
 persistent_id = "showcase_spring"
 dialogue = ExtResource("8_dialogue")
@@ -619,7 +621,7 @@ size = Vector3(0.6, 0.3, 0.3)
 material = SubResource("Mat_prize")
 
 [node name="Pile" parent="World/9_Items" unique_id=1810041142 instance=ExtResource("99_thing_prefab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.295258, 0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.295258, 0.7949877, 0)
 item = ExtResource("6_hate")
 item_count = 3
 dialogue = ExtResource("8_dialogue")
@@ -651,7 +653,7 @@ radius = 0.3
 material = SubResource("Mat_hate")
 
 [node name="10_Tree" type="Node3D" parent="World" unique_id=61631951]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -148)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.44848657, -148)
 
 [node name="Sign" type="Label3D" parent="World/10_Tree" unique_id=733681622]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, -2)
@@ -682,7 +684,7 @@ smooth_faces = false
 material = SubResource("Mat_safe")
 
 [node name="11_Gate" type="Node3D" parent="World" unique_id=481410533]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -162)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5015812, -162)
 
 [node name="WallA" type="CSGBox3D" parent="World/11_Gate" unique_id=1833705456]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 2, 0)
@@ -765,19 +767,21 @@ size = Vector3(0.15, 0.2, 0.05)
 material = SubResource("Mat_iron")
 
 [node name="12_Favor" type="Node3D" parent="World" unique_id=857876999]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -148)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.431839, -148)
 
 [node name="Sign" type="Label3D" parent="World/12_Favor" unique_id=1407871144]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, -2)
 pixel_size = 0.01
-text = "FAVOR
-Fairy in dash hall wants this nail.
+text = "FAVOR:
+Fairy in hall BACK wants this nail.
 Stuck until she asks and you carry hate.
-Pulling it uses up 1 hate.
-Give it: she owes you 2. Spend it at her or at the shape.
-Keep it: she still takes it later, for 1.
+Pulling uses up 1 hate.
+Give it: 
+she owes you 2. Spend at her or at SHAPE.
+Keep it: 
+she still takes later, for 1.
 She eats hate: 1 favor each, or 1 debt gone.
-Credit: up to 3 debts. She collects at the gate."
+Credit: up to 3 debts. She collects at gate."
 font_size = 40
 outline_size = 16
 
@@ -814,14 +818,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -121)
 [node name="Sign" type="Label3D" parent="World/13_Encounter" unique_id=212142728]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, -2)
 pixel_size = 0.01
-text = "ENCOUNTER
-Past red line. No combat. Run, touch it or get rid of it.
-Options depend on items and favors. Touching depends on sanity."
+text = "ENCOUNTER:
+Past red line.
+Options depend on items and favors. 
+Touching depends on sanity."
 font_size = 40
 outline_size = 16
 
 [node name="Shape" parent="World/13_Encounter" unique_id=795310972 instance=ExtResource("99_thing_prefab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7654276, 0)
 free_after = true
 persistent_id = "showcase_shape"
 dialogue = ExtResource("8_dialogue")
@@ -838,7 +843,7 @@ radius = 0.35
 material = SubResource("Mat_shape")
 
 [node name="14_Proximity" type="Node3D" parent="World" unique_id=1903317764]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -162)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.7180095, -162)
 
 [node name="Sign" type="Label3D" parent="World/14_Proximity" unique_id=1476093358]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -2)
